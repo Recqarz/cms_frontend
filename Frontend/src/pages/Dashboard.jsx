@@ -10,7 +10,7 @@ const Dashboard = () => {
   const [modalCaseData, setModalCaseData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ccFields, setCcFields] = useState([]); 
-  const [file, setFile] = useState(null);
+  // const [file, setFile] = useState(null);
 
 
 
@@ -47,51 +47,51 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    const savedFile = sessionStorage.getItem('uploadedFile');
-    if (savedFile) {
-        setFile(JSON.parse(savedFile));
-    }
-}, []);
+//   useEffect(() => {
+//     const savedFile = sessionStorage.getItem('uploadedFile');
+//     if (savedFile) {
+//         setFile(JSON.parse(savedFile));
+//     }
+// }, []);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    sessionStorage.setItem('uploadedFile', JSON.stringify(selectedFile));
-};
+//   const handleFileChange = (e) => {
+//     const selectedFile = e.target.files[0];
+//     setFile(selectedFile);
+//     sessionStorage.setItem('uploadedFile', JSON.stringify(selectedFile));
+// };
 
 
 
-  const handleBulkUpload = async () => {
-    if (!file) {
-      toast.error("Please select a file.");
-      return;
-    }
+  // const handleBulkUpload = async () => {
+  //   if (!file) {
+  //     toast.error("Please select a file.");
+  //     return;
+  //   }
 
-    setIsLoading(true);
+  //   setIsLoading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+  //   const formData = new FormData();
+  //   formData.append("file", file);
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/up/upload-bulk`, {
-        method: "POST",
-        body: formData,
-      });
+  //   try {
+  //     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/up/upload-bulk`, {
+  //       method: "POST",
+  //       body: formData,
+  //     });
 
-      const data = await response.json();
-      if (response.ok && data.success) {
-        toast.success(data.message || "Bulk upload successful!");
-      } else {
-        toast.error(data.message || "Error during upload.");
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      toast.error("An error occurred while uploading the file.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     const data = await response.json();
+  //     if (response.ok && data.success) {
+  //       toast.success(data.message || "Bulk upload successful!");
+  //     } else {
+  //       toast.error(data.message || "Error during upload.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error uploading file:", error);
+  //     toast.error("An error occurred while uploading the file.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   // Fetch case details based on CNR number
  
@@ -224,8 +224,20 @@ const Dashboard = () => {
       caseStatus: caseDetails.caseStatus || "N/A",
       caseHistory: caseDetails.caseHistory || "N/A",
       firDetails: caseDetails.firDetails || {},
-      petitionerAndAdvocate: extractAdvocateNames(caseDetails.petitionerAndAdvocate),
-      respondentAndAdvocate: extractAdvocateNames(caseDetails.respondentAndAdvocate),
+      petitionerAndAdvocate: (Array.isArray(data["Petitioner and Advocate"]) &&
+      data["Petitioner and Advocate"].length > 0
+        ? data["Petitioner and Advocate"].map((item) =>
+            item.replace(/\n/g, " ")
+          )
+        : ["N/A"]
+      ).join(", "),
+      respondentAndAdvocate: (Array.isArray(data["Respondent and Advocate"]) &&
+      data["Respondent and Advocate"].length > 0
+        ? data["Respondent and Advocate"].map((item) =>
+            item.replace(/\n/g, " ")
+          )
+        : ["N/A"]
+      ).join(", "),
     };
   };
   
@@ -298,7 +310,7 @@ const Dashboard = () => {
         {/* <div><GrUpload /></div> */}
       </div>
 
-      <div className="mb-6">
+      {/* <div className="mb-6">
       <input
         type="file"
         accept=".xlsx"
@@ -312,7 +324,7 @@ const Dashboard = () => {
       >
         {isLoading ? "Uploading..." : "Upload Bulk CNR"}
       </button>
-    </div>
+    </div> */}
 
       {/* Loading and Case Table */}
       {isLoading ? (
