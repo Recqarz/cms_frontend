@@ -177,18 +177,7 @@ const Modal = ({ caseData = {}, closeModal, saveCase, setCcFields }) => {
           )}
         </Section>
 
-        <Section
-          title="Case History"
-          isOpen={openSections.caseHistory}
-          toggle={() => toggleSection("caseHistory")}
-        >
-          {renderTable(
-            ["Field", "Details"],
-            Array.isArray(caseData.caseHistory)
-              ? caseData.caseHistory.map((history) => [history[0], history[2]])
-              : [] // Default to an empty array if caseHistory isn't an array
-          )}
-        </Section>
+
 
         <Section
           title="FIR Details"
