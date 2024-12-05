@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import Modal from "./Modal";
-// import * as XLSX from "xlsx";
+import CnrDetailsTable from "../components/CnrDetailsTable";
+import UploadCnrExcel from "../components/UploadCnrExcel";
+import * as XLSX from "xlsx";
 
 const Dashboard = () => {
   const [cnrNumber, setCnrNumber] = useState("");
@@ -9,16 +11,19 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [modalCaseData, setModalCaseData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ccFields, setCcFields] = useState([]); 
+  const [ccFields, setCcFields] = useState([]);
+  const [originalCnrDetails, setOriginalCnrDetails] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // State for the search term
+  const [filteredData, setFilteredData] = useState([]);
+
   // const [file, setFile] = useState(null);
-
-
 
   const closeModal = () => setIsModalOpen(false);
 
   // Fetch saved case details when component mounts
   useEffect(() => {
-    fetchSavedCaseDetails();
+    // fetchSavedCaseDetails();
+    getCnrDetails();
   }, []);
 
   // Fetch saved case details from the backend
@@ -47,20 +52,47 @@ const Dashboard = () => {
     }
   };
 
-//   useEffect(() => {
-//     const savedFile = sessionStorage.getItem('uploadedFile');
-//     if (savedFile) {
-//         setFile(JSON.parse(savedFile));
-//     }
-// }, []);
+  const getCnrDetails = async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      toast.error("User not logged in.");
+      return;
+    }
+    // VITE_API_URL_CRAWLER
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL_CRAWLER}/getCnrDetails/${userId}`
+      );
+      const data = await response.json();
 
-//   const handleFileChange = (e) => {
-//     const selectedFile = e.target.files[0];
-//     setFile(selectedFile);
-//     sessionStorage.setItem('uploadedFile', JSON.stringify(selectedFile));
-// };
+      console.log("yoooo", data);
 
+      if (data.status == true) {
+        setOriginalCnrDetails(data.cnrDetails);
+        setFilteredData(data.cnrDetails);
 
+        toast.success("Case details fetched successfully!");
+      } else {
+        toast.error(data.message || "Error fetching case details.");
+      }
+    } catch (error) {
+      console.error("Error fetching saved case details:", error);
+      toast.error("An error occurred while fetching the case details.");
+    }
+  };
+
+  //   useEffect(() => {
+  //     const savedFile = sessionStorage.getItem('uploadedFile');
+  //     if (savedFile) {
+  //         setFile(JSON.parse(savedFile));
+  //     }
+  // }, []);
+
+  //   const handleFileChange = (e) => {
+  //     const selectedFile = e.target.files[0];
+  //     setFile(selectedFile);
+  //     sessionStorage.setItem('uploadedFile', JSON.stringify(selectedFile));
+  // };
 
   // const handleBulkUpload = async () => {
   //   if (!file) {
@@ -94,8 +126,7 @@ const Dashboard = () => {
   // };
 
   // Fetch case details based on CNR number
- 
- 
+
   const fetchCaseDetails = async () => {
     if (!cnrNumber) {
       toast.error("Please enter a CNR number.");
@@ -140,7 +171,7 @@ const Dashboard = () => {
 
       // Save the case details to the local database
       const saveResponse = await fetch(
-       `${import.meta.env.VITE_API_URL}/api/search/save-to-database-a`,
+        `${import.meta.env.VITE_API_URL}/api/search/save-to-database-a`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -200,15 +231,17 @@ const Dashboard = () => {
   // Transform case data from the local database response
   const transformCaseData = (data) => {
     const caseDetails = data.caseDetails || {};
-    
+
     // Helper function to handle array of objects and extract required fields
     const extractAdvocateNames = (advocateArray) => {
       if (Array.isArray(advocateArray)) {
-        return advocateArray.map(item => item.name || "Unknown Advocate").join(", ");
+        return advocateArray
+          .map((item) => item.name || "Unknown Advocate")
+          .join(", ");
       }
       return "No advocates listed.";
     };
-  
+
     return {
       cnrNumber: caseDetails.cnrNumber || "N/A",
       caseType: caseDetails.caseType || "N/A",
@@ -240,7 +273,6 @@ const Dashboard = () => {
       ).join(", "),
     };
   };
-  
 
   // Save the CNR number for the user
   const handleSaveCnr = async () => {
@@ -287,25 +319,43 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
+  const handleSearch = (event) => {
+    const value = event.target.value.toLowerCase();
+    setSearchTerm(value);
+
+    const filtered = originalCnrDetails.filter((item) =>
+      item.cnrNumber.toLowerCase().includes(value)
+    );
+
+    setFilteredData(filtered);
+  };
+
   
+
+  console.log("filteredData:", filteredData);
 
   return (
     <div className="p-6">
       {/* Search and Add CNR */}
+      <UploadCnrExcel />
       <div className="flex items-center border border-gray-300 p-3 rounded-md mb-6">
         <input
           type="text"
-          value={cnrNumber}
-          onChange={(e) => setCnrNumber(e.target.value.toUpperCase())}
+          // value={cnrNumber}
+          // onChange={(e) => setCnrNumber(e.target.value.toUpperCase())}
+
+          value={searchTerm}
+          onChange={handleSearch}
           className="flex-grow p-2 rounded-md focus:outline-none"
           placeholder="Enter CNR Number..."
         />
-        <button
+        {/* <button
           onClick={fetchCaseDetails}
           className="ml-2 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md"
         >
           Search CNR
-        </button>
+        </button> */}
 
         {/* <div><GrUpload /></div> */}
       </div>
@@ -330,92 +380,99 @@ const Dashboard = () => {
       {isLoading ? (
         <div className="mt-6 text-center text-lg font-semibold">Loading...</div>
       ) : (
-        <div className="overflow-x-auto shadow-md rounded-lg">
-          <table className="min-w-full table-auto">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CNR Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  First Hearing Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Next Hearing Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Case Stage
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {caseData.map((caseItem) => {
-                const caseDetails = caseItem.caseDetails?.caseDetails || {};
-                const caseStatus = caseDetails.caseStatus || [];
+        // <div className="overflow-x-auto shadow-md rounded-lg">
+        //   <table className="min-w-full table-auto">
+        //     <thead>
+        //       <tr className="bg-gray-100">
+        //         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        //           CNR Number
+        //         </th>
+        //         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        //           First Hearing Date
+        //         </th>
+        //         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        //           Next Hearing Date
+        //         </th>
+        //         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        //           Case Stage
+        //         </th>
+        //       </tr>
+        //     </thead>
+        //     <tbody className="bg-white divide-y divide-gray-200">
+        //       {caseData.map((caseItem) => {
+        //         const caseDetails = caseItem.caseDetails?.caseDetails || {};
+        //         const caseStatus = caseDetails.caseStatus || [];
 
-                // Function to extract status value by label
-                const extractStatusValue = (label) => {
-                  const status = caseStatus.find(
-                    (status) => status[0] === label
-                  );
-                  return status ? status[1] : "N/A";
-                };
+        //         // Function to extract status value by label
+        //         const extractStatusValue = (label) => {
+        //           const status = caseStatus.find(
+        //             (status) => status[0] === label
+        //           );
+        //           return status ? status[1] : "N/A";
+        //         };
 
-                // Extract required values
-                const firstHearingDate =
-                  extractStatusValue("First Hearing Date");
-                const nextHearingDate = extractStatusValue("Next Hearing Date");
-                const decisionDate = extractStatusValue("Decision Date");
-                const caseStage = extractStatusValue("Case Stage");
+        //         // Extract required values
+        //         const firstHearingDate =
+        //           extractStatusValue("First Hearing Date");
+        //         const nextHearingDate = extractStatusValue("Next Hearing Date");
+        //         const decisionDate = extractStatusValue("Decision Date");
+        //         const caseStage = extractStatusValue("Case Stage");
 
-                // Determine the priority date to display
-                const displayDate =
-                  nextHearingDate !== "N/A" ? nextHearingDate : decisionDate;
+        //         // Determine the priority date to display
+        //         const displayDate =
+        //           nextHearingDate !== "N/A" ? nextHearingDate : decisionDate;
 
-                return (
-                  <tr key={caseItem.case._id}>
-                    {/* CNR Number */}
-                    <td
-                      className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 cursor-pointer"
-                      onClick={() => {
-                        // Pass the caseItem to the modal
-                        setModalCaseData(caseItem.caseDetails.caseDetails); // Assuming caseDetails contains the full case data
-                        setIsModalOpen(true); // Open the modal
-                      }}
-                    >
-                      {caseItem.case.cnrNumber?.split(" ")[0] || "N/A"}
-                    </td>
+        //         return (
+        //           <tr key={caseItem.case._id}>
+        //             {/* CNR Number */}
+        //             <td
+        //               className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 cursor-pointer"
+        //               onClick={() => {
+        //                 // Pass the caseItem to the modal
+        //                 setModalCaseData(caseItem.caseDetails.caseDetails); // Assuming caseDetails contains the full case data
+        //                 setIsModalOpen(true); // Open the modal
+        //               }}
+        //             >
+        //               {caseItem.case.cnrNumber?.split(" ")[0] || "N/A"}
+        //             </td>
 
-                    {/* First Hearing Date */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {firstHearingDate}
-                    </td>
+        //             {/* First Hearing Date */}
+        //             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+        //               {firstHearingDate}
+        //             </td>
 
-                    {/* Next Hearing Date or Decision Date */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {displayDate}
-                    </td>
+        //             {/* Next Hearing Date or Decision Date */}
+        //             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+        //               {displayDate}
+        //             </td>
 
-                    {/* Case Stage */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {caseStage}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        //             {/* Case Stage */}
+        //             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+        //               {caseStage}
+        //             </td>
+        //           </tr>
+        //         );
+        //       })}
+        //     </tbody>
+        //   </table>
+        // </div>
+        <div>
+          
+          <CnrDetailsTable
+            // originalCnrDetails={originalCnrDetails}
+            originalCnrDetails={searchTerm ? filteredData : originalCnrDetails}
+          />
         </div>
       )}
 
       {/* Modal for Case Details */}
       {isModalOpen && modalCaseData && (
         <Modal
-        caseData={modalCaseData}
-        closeModal={closeModal}
-        saveCase={handleSaveCnr} // Pass the save case function here
-        setCcFields={setCcFields} // Pass the setter function here
-      />
+          caseData={modalCaseData}
+          closeModal={closeModal}
+          saveCase={handleSaveCnr} // Pass the save case function here
+          setCcFields={setCcFields} // Pass the setter function here
+        />
       )}
     </div>
   );
