@@ -11,7 +11,7 @@ import FilingNumber from '../CaseStatus/FilingNumber';
 
 const Home = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex">
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Navbar />

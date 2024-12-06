@@ -125,7 +125,7 @@ const UploadCnrExcel = () => {
               console.log("caseDetailsList updated ?:", caseDetailsList)
 
             // setCaseDetailsList(results)
-            handleDownload();
+            // handleDownload();
           } catch (err) {
             console.error(`Error processing CNR: ${cnr}`, err);
           }
@@ -168,7 +168,7 @@ const UploadCnrExcel = () => {
             />
           </div>
 
-          <button style={{marginBottom:"30px"}} className="ml-2 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md"
+          <button disabled={loading} style={{marginBottom:"30px"}} className="ml-2 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md"
       onClick={downloadSampleExcel}
     >
     Sample Excel
