@@ -348,7 +348,7 @@ const Dashboard = () => {
           value={searchTerm}
           onChange={handleSearch}
           className="flex-grow p-2 rounded-md focus:outline-none"
-          placeholder="Enter CNR Number..."
+          placeholder="Search CNR Number..."
         />
         {/* <button
           onClick={fetchCaseDetails}

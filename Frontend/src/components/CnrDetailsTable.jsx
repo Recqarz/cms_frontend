@@ -55,6 +55,35 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
     console.log("caseDetailsList:::", originalCnrDetails);
     if (!originalCnrDetails.length) return;
 
+    let sample = [
+      {
+        "status": true,
+        "Acts": [
+            [
+                "---",
+                "25"
+            ]
+        ],
+        "Case Details": {
+            "Case Code": "207702434642024",
+            "Filing Number": "CC NI ACT/243464/2024",
+            "Filing Date": "25-10-2024",
+            "CNR Number": "DLSW022434892024"
+        },
+        "Case History": {},
+        "Case Status": {},
+        "FIR Details": [],
+        "Petitioner and Advocate": [
+            "TVS CREDIT SERVICES LTD"
+        ],
+        "Respondent and Advocate": [
+            "AKASH SHARMA"
+        ],
+        "Links": [],
+        "cnr_number": "DLSW022434892024"
+    }
+    ]
+
     const wb = XLSX.utils.book_new();
     const sheetData = [
       [
@@ -71,7 +100,7 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
       ],
     ];
 
-    originalCnrDetails.forEach((caseDetails) => {
+    sample.forEach((caseDetails) => {
       const {
         cnr_number: cnrNumber, // Use actual key from the object
         "Case Details": caseDetailsObj, // Extract nested object
@@ -79,7 +108,7 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
         "Petitioner and Advocate": petitionerAndAdvocate,
         "Respondent and Advocate": respondentAndAdvocate,
         Links,
-      } = caseDetails.cnrDetails;
+      } = caseDetails;
 
       // Extract details from `caseDetailsObj`
       const {
