@@ -65,8 +65,6 @@ const Dashboard = () => {
       );
       const data = await response.json();
 
-      console.log("yoooo", data);
-
       if (data.status == true) {
         setOriginalCnrDetails(data.cnrDetails);
         setFilteredData(data.cnrDetails);

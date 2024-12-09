@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import DataTable from "react-data-table-component";
+import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
 
 const CnrDetailsTable = ({ originalCnrDetails }) => {
@@ -54,7 +55,10 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
   const handleDownload = () => {
     let filterCaseData = originalCnrDetails.filter(item => selectedRows.includes(item.cnrNumber));
     console.log("caseDetailsList filtered :::", filterCaseData);
-    if (!filterCaseData.length) return;
+    if(!filterCaseData.length ){
+      return toast.error("Please select CNR Number !");
+    }
+    // if (!filterCaseData.length) return;
 
     const wb = XLSX.utils.book_new();
     const sheetData = [
