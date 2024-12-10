@@ -24,13 +24,13 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
   const data = originalCnrDetails.map((detail) => {
     const caseStatus = detail.cnrDetails["Case Status"];
     const caseDetails = detail.cnrDetails["Case Details"]
-    const firstHearingDate = caseStatus.find(
+    const firstHearingDate = caseStatus?.find(
       (status) => status[0] === "First Hearing Date"
     )?.[1];
-    const nextHearingDate = caseStatus.find(
+    const nextHearingDate = caseStatus?.find(
       (status) => status[0] === "Next Hearing Date"
     )?.[1];
-    const caseStage = caseStatus.find(
+    const caseStage = caseStatus?.find(
       (status) => status[0] === "Case Stage"
     )?.[1];
     const links = detail.cnrDetails["Links"];
