@@ -72,6 +72,9 @@ const UploadCnrExcel = () => {
         { cnrNumbers: cnrNumbers, userID: userId }
       );
 
+      if(storedCnrNumberApi.status === 200){
+        toast.success(`The CNR Number is currently being processed and will be available shortly.`)
+      }
       console.log("storedCnrNumberApi----", storedCnrNumberApi)
 
     }catch(err){

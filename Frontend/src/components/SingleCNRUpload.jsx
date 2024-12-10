@@ -19,10 +19,15 @@ const SingleCNRUpload = () => {
   const handleSingleCnrUpload = async (cnrNumber) => {
     setIsLoading(true);
     try {
+        let cnrNumbers = [cnrNumber]
       const singleCnrUpload = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/crawler/caseDetails`,
-        { cnr_number: cnrNumber, userID: userId }
+        `${import.meta.env.VITE_API_URL}/api/upload-cnr-numbers`,
+        { cnrNumbers: cnrNumbers, userID: userId }
       );
+
+      if(singleCnrUpload.status === 200){
+          toast.success(`The CNR Number is currently being processed and will be available shortly.`)
+      }
 
       console.log("singleCnrUpload:", singleCnrUpload);
     } catch (err) {
