@@ -56,11 +56,30 @@ const UploadCnrExcel = () => {
       // Proceed with valid CNR numbers
       console.log("Valid CNR Numbers:", cnrNumbers);
       setPendingCount(cnrNumbers.length)
-      fetchCaseDetails(cnrNumbers); // Replace this with your actual API call
+      handleUploadCnrNumbers(cnrNumbers)
+      // fetchCaseDetails(cnrNumbers); // crawller
     };
 
     reader.readAsArrayBuffer(file);
   };
+
+  // uploadCnrRoute
+  const handleUploadCnrNumbers = async(cnrNumbers) => {
+    try{
+      setLoading(true)
+      const storedCnrNumberApi = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/upload-cnr-numbers`,
+        { cnrNumbers: cnrNumbers, userID: userId }
+      );
+
+      console.log("storedCnrNumberApi----", storedCnrNumberApi)
+
+    }catch(err){
+      console.log("err:", err)
+    }finally{
+      setLoading(false)
+    }
+  }
 
   const fetchCaseDetails = async (cnrs) => {
     setLoading(true);
@@ -130,7 +149,7 @@ const UploadCnrExcel = () => {
   return (
     <div className="flex flex-col items-start justify-between mb-3">
       <div className="flex items-center justify-center gap-4 mb-2">
-        <span className="block text-[12px]">Upload Excel</span>
+        <span className="block text-[12px]">Upload bulk CNR Excel</span>
         <span
           disabled={loading}
           className="text-[12px] cursor-pointer underline"

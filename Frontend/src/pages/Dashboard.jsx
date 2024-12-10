@@ -4,6 +4,7 @@ import Modal from "./Modal";
 import CnrDetailsTable from "../components/CnrDetailsTable";
 import UploadCnrExcel from "../components/UploadCnrExcel";
 import * as XLSX from "xlsx";
+import SingleCNRUpload from "../components/SingleCNRUpload";
 
 const Dashboard = () => {
   const [cnrNumber, setCnrNumber] = useState("");
@@ -61,7 +62,7 @@ const Dashboard = () => {
     // VITE_API_URL_CRAWLER
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL_CRAWLER}/getCnrDetails/${userId}`
+        `${import.meta.env.VITE_API_URL}/api/getCnrDetails/${userId}`
       );
       const data = await response.json();
 
@@ -336,7 +337,10 @@ const Dashboard = () => {
   return (
     <div className="p-6">
       {/* Search and Add CNR */}
+      <div className="flex items-center gap-10">
       <UploadCnrExcel />
+      <SingleCNRUpload/>
+      </div>
       <div className="flex items-center border border-gray-300 p-3 rounded-md mb-6">
         <input
           type="text"

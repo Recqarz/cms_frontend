@@ -23,6 +23,7 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
   // Prepare data for the DataTable
   const data = originalCnrDetails.map((detail) => {
     const caseStatus = detail.cnrDetails["Case Status"];
+    const caseDetails = detail.cnrDetails["Case Details"]
     const firstHearingDate = caseStatus.find(
       (status) => status[0] === "First Hearing Date"
     )?.[1];
@@ -33,15 +34,26 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
       (status) => status[0] === "Case Stage"
     )?.[1];
     const links = detail.cnrDetails["Links"];
+    const filingDate = caseDetails?.["Filing Date"]
+    const filingNumber = caseDetails?.['Filing Number']
+    const registrationDate = caseDetails?.["Registration Date:"]
+    const registrationNumber = caseDetails?.['Registration Number']
 
+    console.log("registrationDate----", registrationDate)
     return {
       cnrNumber: detail.cnrNumber,
       firstHearingDate,
       nextHearingDate,
+      registrationDate,
+      registrationNumber,
+      filingDate,
+      filingNumber,
       caseStage,
       links,
     };
   });
+
+  console.log("table data:", data)
 
    // Toggle select/unselect for all rows
    const toggleSelectAll = () => {
@@ -210,12 +222,33 @@ const columns = [
       sortable: true,
     },
     {
+      name: "Filing Date",
+      selector: (row) => row.filingDate,
+      sortable: true,
+    },
+    {
+      name:"Filing Number",
+      selector: (row) => row.filingNumber,
+      sortable: true,
+    },
+    {
+      name: "Registration Date",
+      selector: (row) => row.registrationDate,
+      sortable: true,
+    },
+    {
+      name:"Registration Number",
+      selector: (row) => row.registrationNumber,
+      sortable: true,
+      width:"208px"
+    },
+    {
       name: "Case Stage",
       selector: (row) => row.caseStage,
       sortable: true,
     },
     {
-      name: "OrderSheet",
+      name: "Order Sheet",
       cell: (row) => (
         <div>
           {row.links.map((link, index) => (
@@ -226,7 +259,7 @@ const columns = [
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:underline"
               >
-                Order {index + 1}
+                Order Sheet {index + 1}
               </a>
               <br />
             </React.Fragment>
