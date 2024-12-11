@@ -20,8 +20,8 @@ const SingleCNRUpload = () => {
     setIsLoading(true);
     try {
       const singleCnrUpload = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/crawler/caseDetails`,
-        { cnr_number: cnrNumber, userID: userId }
+        `${import.meta.env.VITE_API_URL}/api/upload-cnr-numbers`,
+        { cnrNumbers: [cnrNumber], userID: userId }
       );
 
       console.log("singleCnrUpload:", singleCnrUpload);

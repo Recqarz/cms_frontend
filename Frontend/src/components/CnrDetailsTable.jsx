@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
+import { LiaFileExportSolid } from "react-icons/lia";
+import { useSelector } from "react-redux";
 
 const CnrDetailsTable = ({ originalCnrDetails }) => {
-    const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState([]);
+  let searchData = useSelector((state) => state.searchData);
+  const [data, setData] = useState([]);
 
-      // Handle selection/deselection of a row
+  // Handle selection/deselection of a row
   const handleSelectRow = (cnrNumber) => {
     setSelectedRows((prev) => {
       if (prev.includes(cnrNumber)) {
@@ -17,46 +21,85 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
     });
   };
 
- 
-
-  
   // Prepare data for the DataTable
-  const data = originalCnrDetails.map((detail) => {
-    const caseStatus = detail.cnrDetails["Case Status"];
-    const caseDetails = detail.cnrDetails["Case Details"]
-    const firstHearingDate = caseStatus?.find(
-      (status) => status[0] === "First Hearing Date"
-    )?.[1];
-    const nextHearingDate = caseStatus?.find(
-      (status) => status[0] === "Next Hearing Date"
-    )?.[1];
-    const caseStage = caseStatus?.find(
-      (status) => status[0] === "Case Stage"
-    )?.[1];
-    const links = detail.cnrDetails["Links"];
-    const filingDate = caseDetails?.["Filing Date"]
-    const filingNumber = caseDetails?.['Filing Number']
-    const registrationDate = caseDetails?.["Registration Date:"]
-    const registrationNumber = caseDetails?.['Registration Number']
 
-    console.log("registrationDate----", registrationDate)
+  const ndata = originalCnrDetails.map((detail) => {
+    const cnrNumber = detail.cnrDetails?.cnr_number || "Not Available";
+
+    // Extract individual fields for the table
+    const caseType =
+      detail.cnrDetails["Case Details"]?.["Case Type"] || "Not Available";
+    const filingNumber =
+      detail.cnrDetails["Case Details"]?.["Filing Number"] || "Not Available";
+    const filingDate =
+      detail.cnrDetails["Case Details"]?.["Filing Date"] || "Not Available";
+    const registrationNumber =
+      detail.cnrDetails["Case Details"]?.["Registration Number"] ||
+      "Not Available";
+    const registrationDate =
+      detail.cnrDetails["Case Details"]?.["Registration Date:"] ||
+      "Not Available";
+
+    const firstHearingDate =
+      detail.cnrDetails["Case Status"]?.[0]?.[1] || "Not Available";
+    const nextHearingDate =
+      detail.cnrDetails["Case Status"]?.[1]?.[1] || "Not Available";
+    const caseStage =
+      detail.cnrDetails["Case Status"]?.[2]?.[1] || "Not Available";
+    const courtAndJudge =
+      detail.cnrDetails["Case Status"]?.[3]?.[1] || "Not Available";
+
+    const petitionerAdvocate =
+      detail.cnrDetails["Petitioner and Advocate"]?.[0]
+        ?.split("\n")[1]
+        ?.replace("Advocate-", "")
+        ?.trim() || "Not Available";
+    const respondentAndAdvocate =
+      detail.cnrDetails["Respondent and Advocate"]?.[0] || "Not Available";
+
+    const links = detail.cnrDetails["Links"]?.[0] || "Not Available";
+
     return {
-      cnrNumber: detail.cnrNumber,
+      cnrNumber,
+      caseType,
+      filingNumber,
+      filingDate,
+      registrationNumber,
+      registrationDate,
       firstHearingDate,
       nextHearingDate,
-      registrationDate,
-      registrationNumber,
-      filingDate,
-      filingNumber,
       caseStage,
+      courtAndJudge,
+      petitionerAdvocate,
+      respondentAndAdvocate,
       links,
     };
   });
 
-  console.log("table data:", data)
 
-   // Toggle select/unselect for all rows
-   const toggleSelectAll = () => {
+  function updateData() {
+    let sdata = ndata.filter((ele) => {
+      if (searchData == "") {
+        return ele;
+      } else {
+        return Object.values(ele).some(
+          (value) =>
+            value &&
+            value.toString().toLowerCase().includes(searchData.toLowerCase())
+        );
+      }
+    });
+    setData(sdata);
+  }
+
+  useEffect(() => {
+    updateData();
+  }, [searchData,originalCnrDetails]);
+
+  console.log("table data:", data);
+
+  // Toggle select/unselect for all rows
+  const toggleSelectAll = () => {
     if (selectedRows.length === data.length) {
       setSelectedRows([]); // Deselect all
     } else {
@@ -65,9 +108,11 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
   };
 
   const handleDownload = () => {
-    let filterCaseData = originalCnrDetails.filter(item => selectedRows.includes(item.cnrNumber));
+    let filterCaseData = originalCnrDetails.filter((item) =>
+      selectedRows.includes(item.cnrNumber)
+    );
     console.log("caseDetailsList filtered :::", filterCaseData);
-    if(!filterCaseData.length ){
+    if (!filterCaseData.length) {
       return toast.error("Please select CNR Number !");
     }
     // if (!filterCaseData.length) return;
@@ -182,33 +227,46 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
     link.click();
   };
 
-  console.log("selectedRows:", selectedRows)
+  console.log("selectedRows:", selectedRows);
 
+  // Define columns for the DataTable
 
-// Define columns for the DataTable
-const columns = [
+  const columns = [
     {
-        name: (
-          <input
-            type="checkbox"
-            checked={selectedRows.length === originalCnrDetails.length}
-            onChange={toggleSelectAll}
-            className="cursor-pointer"
-          />
-        ),
-        cell: (row) => (
-          <input
-            type="checkbox"
-            checked={selectedRows.includes(row.cnrNumber)}
-            onChange={() => handleSelectRow(row.cnrNumber)}
-            className="cursor-pointer"
-          />
-        ),
-        width: "50px", // Set a fixed width for the checkbox column
-      },
+      name: (
+        <input
+          type="checkbox"
+          checked={selectedRows.length === originalCnrDetails.length}
+          onChange={toggleSelectAll}
+          className="cursor-pointer"
+        />
+      ),
+      cell: (row) => (
+        <input
+          type="checkbox"
+          checked={selectedRows.includes(row.cnrNumber)}
+          onChange={() => handleSelectRow(row.cnrNumber)}
+          className="cursor-pointer"
+        />
+      ),
+      width: "50px",
+    },
+    { name: "CNR Number", selector: (row) => row.cnrNumber, sortable: true },
+    { name: "Case Type", selector: (row) => row.caseType, sortable: true },
     {
-      name: "CNR Number",
-      selector: (row) => row.cnrNumber,
+      name: "Filing Number",
+      selector: (row) => row.filingNumber,
+      sortable: true,
+    },
+    { name: "Filing Date", selector: (row) => row.filingDate, sortable: true },
+    {
+      name: "Registration Number",
+      selector: (row) => row.registrationNumber,
+      sortable: true,
+    },
+    {
+      name: "Registration Date",
+      selector: (row) => row.registrationDate,
       sortable: true,
     },
     {
@@ -221,70 +279,55 @@ const columns = [
       selector: (row) => row.nextHearingDate,
       sortable: true,
     },
+    { name: "Case Stage", selector: (row) => row.caseStage, sortable: true },
     {
-      name: "Filing Date",
-      selector: (row) => row.filingDate,
+      name: "Court & Judge",
+      selector: (row) => row.courtAndJudge,
       sortable: true,
     },
     {
-      name:"Filing Number",
-      selector: (row) => row.filingNumber,
+      name: "Petitioner Advocate",
+      selector: (row) => row.petitionerAdvocate,
       sortable: true,
     },
     {
-      name: "Registration Date",
-      selector: (row) => row.registrationDate,
+      name: "Respondent Advocate",
+      selector: (row) => row.respondentAndAdvocate,
       sortable: true,
     },
     {
-      name:"Registration Number",
-      selector: (row) => row.registrationNumber,
-      sortable: true,
-      width:"208px"
-    },
-    {
-      name: "Case Stage",
-      selector: (row) => row.caseStage,
-      sortable: true,
-    },
-    {
-      name: "Order Sheet",
+      name: "Order Links",
       cell: (row) => (
-        <div>
-          {row.links.map((link, index) => (
-            <React.Fragment key={index}>
-              <a
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                Order Sheet {index + 1}
-              </a>
-              <br />
-            </React.Fragment>
-          ))}
-        </div>
+        <a
+          href={row.links}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 hover:underline"
+        >
+          View Document
+        </a>
       ),
     },
   ];
 
   return (
-    <div className="p-4">
-      <button
-        onClick={handleDownload}
-        disabled={!data.length === 0}
-        className={`px-4 py-2 text-white font-semibold rounded-lg ${
-          !data.length
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-green-500 hover:bg-green-600"
-        }`}
-      >
-        Export
-      </button>
-
+    <div className="">
+      <div className="flex">
+        <button
+          onClick={handleDownload}
+          disabled={data.length === 0}
+          className={`px-3 py-2 m-[5px] text-white font-semibold rounded-lg flex items-center ${
+            !data.length
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-500 hover:bg-green-600"
+          }`}
+        >
+          {" "}
+          Export
+          <LiaFileExportSolid className="ml-2" /> {/* Margin for spacing */}
+        </button>
+      </div>
       <DataTable
-        title="CNR Details"
         columns={columns}
         data={data}
         pagination
@@ -294,12 +337,19 @@ const columns = [
           rows: {
             style: {
               minHeight: "72px", // Override the row height
+              backgroundColor: "#f8f9fa", // Light gray background for rows
             },
           },
           headCells: {
             style: {
               fontWeight: "bold",
               fontSize: "16px",
+              backgroundColor: "#e9ecef", // Slightly darker gray for header
+            },
+          },
+          table: {
+            style: {
+              backgroundColor: "#f8f9fa", // Light gray background for the entire table
             },
           },
         }}

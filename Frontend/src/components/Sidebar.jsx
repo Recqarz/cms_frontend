@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Logout from '../Auth/Logout';
-import { FaBriefcase, FaHome } from 'react-icons/fa';
-import { IoMdSettings } from 'react-icons/io';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import Logout from "../Auth/Logout";
+import { FaBriefcase, FaHome } from "react-icons/fa";
+import { IoMdSettings } from "react-icons/io";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,20 +17,35 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex  w-[200px] h-[100vh]">
       <button
         onClick={toggleSidebar}
         className="lg:hidden p-4 text-gray-200 bg-gray-900 h-full hover:bg-gray-800 transition-colors duration-200 z-20 flex relative"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          ></path>
         </svg>
       </button>
 
       <div
-        className={`fixed inset-y-0 left-0 z-20 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 w-64 bg-gray-900 text-white shadow-lg lg:relative lg:inset-0 transition-transform duration-300 ease-in-out`}
+        className={`fixed inset-y-0 left-0 z-20 transform ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 w-64 bg-gray-900 text-white shadow-lg lg:relative lg:inset-0 transition-transform duration-300 ease-in-out`}
       >
-        <h2 className="p-6 font-bold text-xl text-gray-100 border-b border-gray-700">Dashboard</h2>
+        <h2 className="p-6 font-bold text-xl text-gray-100 border-b border-gray-700">
+          Dashboard
+        </h2>
         <nav className="p-6">
           <ul>
             <li className="mb-4">
@@ -47,7 +62,7 @@ const Sidebar = () => {
             {/* Case Status Section */}
             <li className="mb-4">
               <Link
-              to="/home/party-name"
+                to="/home/party-name"
                 className="flex items-center gap-3 p-3 text-gray-200 hover:bg-gray-700 rounded-lg transition-colors duration-200 cursor-pointer"
                 onClick={() => {
                   setIsOpen(false);

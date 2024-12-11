@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
+import { FaDownload } from "react-icons/fa";
 
 const UploadCnrExcel = () => {
   const [caseDetailsList, setCaseDetailsList] = useState([]);
@@ -55,8 +56,8 @@ const UploadCnrExcel = () => {
 
       // Proceed with valid CNR numbers
       console.log("Valid CNR Numbers:", cnrNumbers);
-      setPendingCount(cnrNumbers.length)
-      handleUploadCnrNumbers(cnrNumbers)
+      setPendingCount(cnrNumbers.length);
+      handleUploadCnrNumbers(cnrNumbers);
       // fetchCaseDetails(cnrNumbers); // crawller
     };
 
@@ -64,26 +65,25 @@ const UploadCnrExcel = () => {
   };
 
   // uploadCnrRoute
-  const handleUploadCnrNumbers = async(cnrNumbers) => {
-    try{
-      setLoading(true)
+  const handleUploadCnrNumbers = async (cnrNumbers) => {
+    try {
+      setLoading(true);
       const storedCnrNumberApi = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/upload-cnr-numbers`,
         { cnrNumbers: cnrNumbers, userID: userId }
       );
 
-      console.log("storedCnrNumberApi----", storedCnrNumberApi)
-
-    }catch(err){
-      console.log("err:", err)
-    }finally{
-      setLoading(false)
+      console.log("storedCnrNumberApi----", storedCnrNumberApi);
+    } catch (err) {
+      console.log("err:", err);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const fetchCaseDetails = async (cnrs) => {
     setLoading(true);
-    setIsCnrUploading(true)
+    setIsCnrUploading(true);
     setError(null);
 
     try {
@@ -124,7 +124,7 @@ const UploadCnrExcel = () => {
       setError("An error occurred while processing the request.");
     } finally {
       setLoading(false);
-      setIsCnrUploading(false)
+      setIsCnrUploading(false);
     }
   };
 
@@ -147,32 +147,34 @@ const UploadCnrExcel = () => {
   };
 
   return (
-    <div className="flex flex-col items-start justify-between mb-3">
-      <div className="flex items-center justify-center gap-4 mb-2">
-        <span className="block text-[12px]">Upload bulk CNR Excel</span>
-        <span
-          disabled={loading}
-          className="text-[12px] cursor-pointer underline"
-          onClick={downloadSampleExcel}
-        >
-          Download Sample Excel
-        </span>
+    <div className=" flex flex-col items-start justify-between">
+     
+     <label className="p-3 flex items-center justify-center w-[250px] h-12 rounded-md cursor-pointer transition duration-200 mt-[40px] outline-none border border-gray-300 hover:border-blue-500">
+  <span className="text-gray-500">Upload bulk CNR Excel</span>
+  <input
+    disabled={isCnrUploading}
+    type="file"
+    accept=".xlsx, .xls"
+    onChange={handleFileUpload}
+    className="hidden"
+  />
+</label>
+
+      <div className=" flex items-center justify-center ">
+      <span
+  className={`text-[12px] cursor-pointer underline font-bold flex items-center text-[#0065FE] ml-[50px] ${
+    loading ? "cursor-not-allowed opacity-50" : ""
+  }`}
+  onClick={!loading ? downloadSampleExcel : undefined} // Disable action if loading
+>
+  Download Sample Excel
+  <FaDownload className="ml-2" />
+</span>
+
       </div>
-      <label className="flex items-center justify-center w-auto h-12 px-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition duration-200 p-1">
-        <span className="text-gray-600">
-          Drag and drop your file here or click to upload
-        </span>
-        <input
-           disabled={isCnrUploading}
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={handleFileUpload}
-          className="hidden"
-        />
-      </label>
       <br />
       {isCnrUploading && (
-        <div className="mb-4">
+        <div className="">
           <p>Processing CNRs: {pendingCount} remaining</p>
         </div>
       )}
