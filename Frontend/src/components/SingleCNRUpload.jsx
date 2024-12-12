@@ -1,20 +1,14 @@
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { dataRefresher } from "../global/actions";
+import { useDispatch } from "react-redux";
 
 const SingleCNRUpload = () => {
   const [cnrNumber, setCnrNumber] = useState("");
   const [isLoading, setIsLoading] = useState("");
   const userId = localStorage.getItem("userId");
-
-  const handleCnrUpload = async (e) => {
-    e.preventDefault();
-
-    if (!cnrNumber.length > 15) {
-      return toast.error("Plase Enter a Valid CNR Number !");
-    }
-    await handleSingleCnrUpload(cnrNumber);
-  };
+  let dispatch = useDispatch()
 
   const handleSingleCnrUpload = async (cnrNumber) => {
     setIsLoading(true);
@@ -25,6 +19,13 @@ const SingleCNRUpload = () => {
       );
 
       console.log("singleCnrUpload:", singleCnrUpload);
+
+      // Success Message
+      if (singleCnrUpload.data?.status) {
+        toast.success(singleCnrUpload.data.message);
+        setCnrNumber(""); // Clear the input field after success
+        dispatch(dataRefresher())
+      }
     } catch (err) {
       console.log("err while single cnr upload:", err);
       toast.error(`${err?.response?.data?.error}`);
@@ -33,9 +34,19 @@ const SingleCNRUpload = () => {
     }
   };
 
+  const handleCnrUpload = async (e) => {
+    e.preventDefault();
+
+    if (!cnrNumber.length > 15) {
+      return toast.error("Please Enter a Valid CNR Number!");
+    }
+    await handleSingleCnrUpload(cnrNumber);
+    setCnrNumber(""); // Clear the input field even if validation fails
+  };
+
   return (
     <div>
-      <form onSubmit={handleCnrUpload} className="flex justify-center gap-2">
+      <form onSubmit={handleCnrUpload} className="flex justify-center gap-2 ">
         <input
           required
           placeholder="Enter a valid CNR Number for upload"
@@ -53,7 +64,7 @@ const SingleCNRUpload = () => {
               : "bg-green-500 hover:bg-green-600"
           }`}
         >
-          Upload
+          Add
         </button>
       </form>
     </div>

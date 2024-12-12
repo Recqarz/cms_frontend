@@ -76,7 +76,6 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
     };
   });
 
-
   function updateData() {
     let sdata = ndata.filter((ele) => {
       if (searchData == "") {
@@ -94,7 +93,7 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
 
   useEffect(() => {
     updateData();
-  }, [searchData,originalCnrDetails]);
+  }, [searchData, originalCnrDetails]);
 
   console.log("table data:", data);
 
@@ -324,9 +323,10 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
         >
           {" "}
           Export
-          <LiaFileExportSolid className="ml-2" /> {/* Margin for spacing */}
+          <LiaFileExportSolid className="ml-2" />
         </button>
       </div>
+
       <DataTable
         columns={columns}
         data={data}
@@ -336,20 +336,24 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
         customStyles={{
           rows: {
             style: {
-              minHeight: "72px", // Override the row height
-              backgroundColor: "#f8f9fa", // Light gray background for rows
+              minHeight: "72px",
+              backgroundColor: "#f8f9fa",
+              fontSize: "12px",
+              fontWeight: "bold",
+              color: "#343a40",
             },
           },
           headCells: {
             style: {
               fontWeight: "bold",
-              fontSize: "16px",
-              backgroundColor: "#e9ecef", // Slightly darker gray for header
+              fontSize: "14px",
+              backgroundColor: "#B0B0B0",
+              color: "#ffffff",
             },
           },
           table: {
             style: {
-              backgroundColor: "#f8f9fa", // Light gray background for the entire table
+              backgroundColor: "#f8f9fa",
             },
           },
         }}

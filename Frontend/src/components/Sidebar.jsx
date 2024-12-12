@@ -6,18 +6,18 @@ import { IoMdSettings } from "react-icons/io";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCaseStatusOpen, setIsCaseStatusOpen] = useState(false); // State for toggling Case Status submenu
+  const [isCaseStatusOpen, setIsCaseStatusOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
   const toggleCaseStatus = () => {
-    setIsCaseStatusOpen(!isCaseStatusOpen); // Toggle the Case Status submenu
+    setIsCaseStatusOpen(!isCaseStatusOpen);
   };
 
   return (
-    <div className="flex  w-[200px] h-[100vh]">
+    <div className="flex  w-[200px] h-[100vh] fixed z-50 ">
       <button
         onClick={toggleSidebar}
         className="lg:hidden p-4 text-gray-200 bg-gray-900 h-full hover:bg-gray-800 transition-colors duration-200 z-20 flex relative"

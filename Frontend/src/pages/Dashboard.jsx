@@ -5,8 +5,10 @@ import CnrDetailsTable from "../components/CnrDetailsTable";
 import UploadCnrExcel from "../components/UploadCnrExcel";
 import * as XLSX from "xlsx";
 import SingleCNRUpload from "../components/SingleCNRUpload";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
+  let refresher = useSelector((state)=>state.refresher)
   const [cnrNumber, setCnrNumber] = useState("");
   const [caseData, setCaseData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +27,7 @@ const Dashboard = () => {
   useEffect(() => {
     // fetchSavedCaseDetails();
     getCnrDetails();
-  }, []);
+  }, [refresher]);
 
   // Fetch saved case details from the backend
   const fetchSavedCaseDetails = async () => {
@@ -334,72 +336,53 @@ const Dashboard = () => {
 
   return (
     <div
-      className="p-2 max-w-[1050px] bg-[#FFFFFF] "
+      className=" "
       style={{ boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }}
     >
-      {/* Search and Add CNR */}
-      <div className=" flex items-center gap-10  justify-end h-[80px] ">
-        <div className="flex items-center  justify-center p-3 w-[250px] h-12 border   rounded-md   outline-none  cursor-pointer transition duration-200">
-          <input
+
+<div className=" flex items-center fixed top-[60px] right-2 justify-end gap-10  justify-end  ">
+  {/* <div className="flex items-center  justify-center p-3 w-[250px] h-12 border   rounded-md   outline-none  cursor-pointer transition duration-200">
+  <input
             type="text"
             // value={cnrNumber}
             // onChange={(e) => setCnrNumber(e.target.value.toUpperCase())}
 
             value={searchTerm}
             onChange={handleSearch}
-            className="flex-grow p-2 rounded-md focus:outline-none "
+            className="flex-grow p-2 rounded-md h-12 w-[250px] "
             placeholder="Search CNR Number..."
           />
-          {/* <button
-          onClick={fetchCaseDetails}
-          className="ml-2 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md"
-        >
-          Search CNR
-        </button>
-
-          {/* <div><GrUpload /></div> */}
-        </div>
-        <SingleCNRUpload />
+  </div> */}
+  <SingleCNRUpload />
         <UploadCnrExcel />
-      </div>
 
-      {/* <div className="mb-6">
-      <input
-        type="file"
-        accept=".xlsx"
-        onChange={handleFileChange}
-        className="mb-3"
-      />
-      <button
-        onClick={handleBulkUpload}
-        disabled={isLoading}
-        className="text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md"
-      >
-        {isLoading ? "Uploading..." : "Upload Bulk CNR"}
-      </button>
-    </div> */}
 
-      {/* Loading and Case Table */}
-      {isLoading ? (
-        <div className=" text-center text-lg font-semibold">Loading...</div>
-      ) : (
-        <div>
-          <CnrDetailsTable
-            // originalCnrDetails={originalCnrDetails}
-            originalCnrDetails={searchTerm ? filteredData : originalCnrDetails}
-          />
-        </div>
-      )}
 
-      {/* Modal for Case Details */}
-      {isModalOpen && modalCaseData && (
-        <Modal
-          caseData={modalCaseData}
-          closeModal={closeModal}
-          saveCase={handleSaveCnr} // Pass the save case function here
-          setCcFields={setCcFields} // Pass the setter function here
-        />
-      )}
+
+
+</div>
+
+{isLoading ? (
+  <div className=" text-center text-lg font-semibold">Loading...</div>
+) : (
+  <div className="  overflow-x-auto mt-[180px] h-[380px] overflow-y-auto">
+    <CnrDetailsTable
+      // originalCnrDetails={originalCnrDetails}
+      originalCnrDetails={searchTerm ? filteredData : originalCnrDetails}
+    />
+  </div>
+)}
+{/* Modal for Case Details */}
+{isModalOpen && modalCaseData && (
+  <Modal
+    caseData={modalCaseData}
+    closeModal={closeModal}
+    saveCase={handleSaveCnr} // Pass the save case function here
+    setCcFields={setCcFields} // Pass the setter function here
+  />
+)}
+
+
     </div>
   );
 };

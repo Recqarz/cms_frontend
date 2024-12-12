@@ -17,7 +17,7 @@ const Signup = () => {
       name: "",
       email: "",
       password: "",
-      number: "", 
+      number: "",
       role: "User",
     },
     validationSchema: Yup.object({
@@ -40,11 +40,8 @@ const Signup = () => {
         toast.dismiss();
         const response = await axios.post(
           `${import.meta.env.VITE_API_URL}/api/email/send-otp`,
-          {
-            email: values.email,
-          }
+          { email: values.email }
         );
-
         if (response.data.success) {
           setOtpSent(true);
           toast.success("OTP has been sent to your email.");
@@ -66,39 +63,31 @@ const Signup = () => {
   const verifyOtp = async () => {
     try {
       setVerifyLoading(true);
-      toast.dismiss(); 
-
+      toast.dismiss();
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/email/verify-otp`,
-        {
-          email: formik.values.email,
-          otp,
-        }
+        { email: formik.values.email, otp }
       );
 
       if (response.data.success) {
-        // If OTP is verified, proceed with signup
         const registerResponse = await axios.post(
           `${import.meta.env.VITE_API_URL}/api/email/signup`,
           {
             name: formik.values.name,
             email: formik.values.email,
             password: formik.values.password,
-            number: formik.values.number, 
-            role: formik.values.role,  // Send role along with other data
-
+            number: formik.values.number,
+            role: formik.values.role,
           }
         );
-
         if (registerResponse.data.success) {
           toast.success("Signup successful!");
-          navigate("/login"); 
+          navigate("/login");
         } else {
           throw new Error(registerResponse.data.message);
         }
       }
     } catch (error) {
-      // Extract and show the error message from server
       const errorMessage =
         error.response?.data?.message ||
         "Failed to verify OTP. Please try again.";
@@ -109,119 +98,41 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
+      <div className="w-full max-w-sm bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+          Sign Up
+        </h2>
         {!otpSent ? (
           <form onSubmit={formik.handleSubmit}>
-            <div className="mb-3">
-              <label className="block text-gray-700">Name</label>
-              <input
-                type="text"
-                name="name"
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                  formik.errors.name && formik.touched.name
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-blue-400"
-                }`}
-                placeholder="Enter your name"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.name}
-              />
-              <div className="h-6">
-                {formik.errors.name && formik.touched.name && (
+            {["name", "email", "password", "number"].map((field) => (
+              <div key={field} className="mb-3">
+                <label className="block text-gray-700 font-medium">
+                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                </label>
+                <input
+                  type={field === "password" ? "password" : "text"}
+                  name={field}
+                  className={`w-full px-3 py-2 mt-1 border rounded-lg focus:outline-none focus:ring-2 ${
+                    formik.errors[field] && formik.touched[field]
+                      ? "border-red-500 focus:ring-red-400"
+                      : "focus:ring-blue-400"
+                  }`}
+                  placeholder={`Enter your ${field}`}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values[field]}
+                />
+                {formik.errors[field] && formik.touched[field] && (
                   <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.name}
+                    {formik.errors[field]}
                   </p>
                 )}
               </div>
-            </div>
-            <div className="mb-3">
-              <label className="block text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                  formik.errors.email && formik.touched.email
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-blue-400"
-                }`}
-                placeholder="Enter your email"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.email}
-              />
-              <div className="h-6">
-                {formik.errors.email && formik.touched.email && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.email}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="mb-3">
-              <label className="block text-gray-700">Role</label>
-              <select
-                name="role"
-                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2"
-                onChange={formik.handleChange}
-                value={formik.values.role}
-              >
-                <option value="User">User</option>
-                <option value="Admin">Admin</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label className="block text-gray-700">Password</label>
-              <input
-                type="password"
-                name="password"
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                  formik.errors.password && formik.touched.password
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-blue-400"
-                }`}
-                placeholder="Enter your password"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.password}
-              />
-              <div className="h-6">
-                {formik.errors.password && formik.touched.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.password}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="mb-3">
-              <label className="block text-gray-700">Phone Number</label>
-              <input
-                type="text"
-                name="number" // Fix: Change "phoneNumber" to "number" to match formik's key
-                className={`w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 ${
-                  formik.errors.number && formik.touched.number
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-blue-400"
-                }`}
-                placeholder="Enter your phone number"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.number} // Fix: Use formik's "number" value
-              />
-              <div className="h-6">
-                {formik.errors.number && formik.touched.number && (
-                  <p className="text-red-500 text-sm mt-1">{formik.errors.number}</p>
-                )}
-              </div>
-            </div>
-
+            ))}
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+              className="w-full py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90"
               disabled={loading}
             >
               {loading ? "Sending OTP..." : "Sign Up"}
@@ -229,28 +140,29 @@ const Signup = () => {
           </form>
         ) : (
           <div>
-            <div className="mb-3">
-              <label className="block text-gray-700">Enter OTP</label>
-              <input
-                type="text"
-                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
-            </div>
+            <label className="block text-gray-700 font-medium mb-2">OTP</label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 mb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+            />
             <button
               onClick={verifyOtp}
-              className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600"
+              className="w-full py-2 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg hover:opacity-90"
               disabled={verifyLoading}
             >
               {verifyLoading ? "Verifying..." : "Verify OTP"}
             </button>
           </div>
         )}
-        <p className="mt-4 text-center">
+        <p className="mt-4 text-center text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-500 hover:underline">
+          <Link
+            to="/login"
+            className="text-blue-400 hover:underline transition duration-200"
+          >
             Login
           </Link>
         </p>

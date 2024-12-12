@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { FaDownload } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 const UploadCnrExcel = () => {
   const [caseDetailsList, setCaseDetailsList] = useState([]);
@@ -15,7 +16,7 @@ const UploadCnrExcel = () => {
     const file = event.target.files[0];
 
     if (!file) {
-      alert("Please upload a valid Excel file.");
+      toast.error("Please upload a valid Excel file.");
       return;
     }
 
@@ -30,7 +31,7 @@ const UploadCnrExcel = () => {
       const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
       if (rows.length === 0) {
-        alert("The uploaded file is empty.");
+        toast.error("The uploaded file is empty.");
         return;
       }
 
@@ -39,7 +40,9 @@ const UploadCnrExcel = () => {
       const cnrIndex = header.indexOf("CNR_Numbers");
 
       if (cnrIndex === -1) {
-        alert("The uploaded file does not contain a 'CNR_Numbers' column.");
+        toast.error(
+          "The uploaded file does not contain a 'CNR_Numbers' column."
+        );
         return;
       }
 
@@ -50,7 +53,7 @@ const UploadCnrExcel = () => {
         .filter(Boolean);
 
       if (cnrNumbers.length === 0) {
-        alert("No valid CNR numbers found in the uploaded file.");
+        toast.error("No valid CNR numbers found in the uploaded file.");
         return;
       }
 
@@ -58,13 +61,14 @@ const UploadCnrExcel = () => {
       console.log("Valid CNR Numbers:", cnrNumbers);
       setPendingCount(cnrNumbers.length);
       handleUploadCnrNumbers(cnrNumbers);
-      // fetchCaseDetails(cnrNumbers); // crawller
+
+      // Reset file input
+      event.target.value = ""; // Clear the file input field
     };
 
     reader.readAsArrayBuffer(file);
   };
 
-  // uploadCnrRoute
   const handleUploadCnrNumbers = async (cnrNumbers) => {
     try {
       setLoading(true);
@@ -74,8 +78,19 @@ const UploadCnrExcel = () => {
       );
 
       console.log("storedCnrNumberApi----", storedCnrNumberApi);
+
+      if (storedCnrNumberApi.data?.status) {
+        toast.success(
+          storedCnrNumberApi.data.message ||
+            "CNR numbers uploaded successfully!"
+        );
+        setPendingCount(0); // Reset the pending count
+      }
     } catch (err) {
-      console.log("err:", err);
+      console.error("err:", err);
+      toast.error(
+        err?.response?.data?.error || "Failed to upload CNR numbers."
+      );
     } finally {
       setLoading(false);
     }
@@ -148,29 +163,27 @@ const UploadCnrExcel = () => {
 
   return (
     <div className=" flex flex-col items-start justify-between">
-     
-     <label className="p-3 flex items-center justify-center w-[250px] h-12 rounded-md cursor-pointer transition duration-200 mt-[40px] outline-none border border-gray-300 hover:border-blue-500">
-  <span className="text-gray-500">Upload bulk CNR Excel</span>
-  <input
-    disabled={isCnrUploading}
-    type="file"
-    accept=".xlsx, .xls"
-    onChange={handleFileUpload}
-    className="hidden"
-  />
-</label>
+      <label className="p-3 flex items-center justify-center w-[250px] h-12 rounded-md cursor-pointer transition duration-200 mt-[40px] outline-none border border-gray-300 hover:border-black-500 bg-white">
+        <span className="text-gray-500 ">Upload bulk CNR Excel </span>
+        <input
+          disabled={isCnrUploading}
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+      </label>
 
       <div className=" flex items-center justify-center ">
-      <span
-  className={`text-[12px] cursor-pointer underline font-bold flex items-center text-[#0065FE] ml-[50px] ${
-    loading ? "cursor-not-allowed opacity-50" : ""
-  }`}
-  onClick={!loading ? downloadSampleExcel : undefined} // Disable action if loading
->
-  Download Sample Excel
-  <FaDownload className="ml-2" />
-</span>
-
+        <span
+          className={`text-[12px] cursor-pointer underline font-bold flex items-center text-[#0065FE] ml-[50px] ${
+            loading ? "cursor-not-allowed opacity-50" : ""
+          }`}
+          onClick={!loading ? downloadSampleExcel : undefined} // Disable action if loading
+        >
+          Download Sample Excel
+          <FaDownload className="ml-2" />
+        </span>
       </div>
       <br />
       {isCnrUploading && (
