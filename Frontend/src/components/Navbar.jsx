@@ -10,17 +10,10 @@ const Navbar = () => {
     <div className="p-3 shadow-[rgba(100,_100,_111,_0.2)_0px_7px_29px_0px] fixed top-0 flex mb-[30px] w-full ">
       <h1 className="text-lg font-semibold sm:text-left flex items-center">
         <AiOutlineMenuUnfold className="mr-2" />
+        Navbar
       </h1>
 
-      <div className="border border-gray-500 ml-0 lg:ml-[300px] w-full lg:w-[350px] h-[50px] flex items-center rounded-[30px] px-4 shadow-[rgba(100,_100,_111,_0.2)_0px_7px_29px_0px]">
-        <input
-          onInput={(e) => dispatch(searchDatas(e.target.value))}
-          type="text"
-          placeholder="Type and Search Here...."
-          className="flex-grow outline-none bg-transparent text-sm"
-        />
-        <IoIosSearch size={24} className="text-gray-500 mr-2" />
-      </div>
+      <div className=" ml-0 lg:ml-[300px] w-full lg:w-[350px] h-[50px] flex items-center rounded-[30px] px-4 "></div>
     </div>
   );
 };

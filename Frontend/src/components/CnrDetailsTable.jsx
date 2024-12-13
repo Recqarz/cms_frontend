@@ -14,7 +14,7 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
   const handleSelectRow = (cnrNumber) => {
     setSelectedRows((prev) => {
       if (prev.includes(cnrNumber)) {
-        return prev.filter((num) => num !== cnrNumber); // Unselect
+        return prev.filter((num) => num !== cnrNumber);
       } else {
         return [...prev, cnrNumber]; // Select
       }
@@ -310,54 +310,69 @@ const CnrDetailsTable = ({ originalCnrDetails }) => {
   ];
 
   return (
-    <div className="">
-      <div className="flex">
-        <button
-          onClick={handleDownload}
-          disabled={data.length === 0}
-          className={`px-3 py-2 m-[5px] text-white font-semibold rounded-lg flex items-center ${
-            !data.length
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
-          }`}
-        >
-          {" "}
-          Export
-          <LiaFileExportSolid className="ml-2" />
-        </button>
-      </div>
+    <div className=" ">
+      <button
+        onClick={handleDownload}
+        disabled={data.length === 0}
+        className={`px-3 py-2 m-[5px] text-white font-semibold rounded-lg flex items-center ${
+          !data.length
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-green-500 hover:bg-green-600"
+        }`}
+      >
+        {" "}
+        Export
+        <LiaFileExportSolid className="ml-2" />
+      </button>
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination
-        highlightOnHover
-        responsive
-        customStyles={{
-          rows: {
-            style: {
-              minHeight: "72px",
-              backgroundColor: "#f8f9fa",
-              fontSize: "12px",
-              fontWeight: "bold",
-              color: "#343a40",
-            },
-          },
-          headCells: {
-            style: {
-              fontWeight: "bold",
-              fontSize: "14px",
-              backgroundColor: "#B0B0B0",
-              color: "#ffffff",
-            },
-          },
-          table: {
-            style: {
-              backgroundColor: "#f8f9fa",
-            },
-          },
+      <div
+        className=" w-full max-w-[1060px] overflow-x-auto max-h-[350px] mx-auto scrollbar-hide "
+        style={{
+          overflowY: "scroll",
+          scrollbarWidth: "none", // For Firefox
+          msOverflowStyle: "none", // For IE and Edge
         }}
-      />
+      >
+        <style>
+          {`
+      /* Hide scrollbar for Webkit browsers (Chrome, Safari, Opera) */
+      .p-2::-webkit-scrollbar {
+        display: none;
+      }
+    `}
+        </style>
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination
+          highlightOnHover
+          responsive
+          customStyles={{
+            rows: {
+              style: {
+                minHeight: "72px",
+                backgroundColor: "#f8f9fa",
+                fontSize: "12px",
+                fontWeight: "bold",
+                color: "#343a40",
+              },
+            },
+            headCells: {
+              style: {
+                fontWeight: "bold",
+                fontSize: "14px",
+                backgroundColor: "#B0B0B0",
+                color: "#ffffff",
+              },
+            },
+            table: {
+              style: {
+                backgroundColor: "#f8f9fa",
+              },
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };

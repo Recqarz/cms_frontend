@@ -6,9 +6,14 @@ import UploadCnrExcel from "../components/UploadCnrExcel";
 import * as XLSX from "xlsx";
 import SingleCNRUpload from "../components/SingleCNRUpload";
 import { useSelector } from "react-redux";
+import { IoIosSearch } from "react-icons/io";
+import { AiOutlineMenuUnfold } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { searchDatas } from "../global/actions";
 
 const Dashboard = () => {
-  let refresher = useSelector((state)=>state.refresher)
+  let dispatch = useDispatch();
+  let refresher = useSelector((state) => state.refresher);
   const [cnrNumber, setCnrNumber] = useState("");
   const [caseData, setCaseData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -336,12 +341,11 @@ const Dashboard = () => {
 
   return (
     <div
-      className=" "
+      className=""
       style={{ boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px" }}
     >
-
-<div className=" flex items-center fixed top-[60px] right-2 justify-end gap-10  justify-end  ">
-  {/* <div className="flex items-center  justify-center p-3 w-[250px] h-12 border   rounded-md   outline-none  cursor-pointer transition duration-200">
+      <div className=" flex items-center fixed top-[60px] right-2 justify-end gap-10  justify-end   z-50   ">
+        {/* <div className="flex items-center  justify-center p-3 w-[250px] h-12 border   rounded-md   outline-none  cursor-pointer transition duration-200">
   <input
             type="text"
             // value={cnrNumber}
@@ -353,36 +357,38 @@ const Dashboard = () => {
             placeholder="Search CNR Number..."
           />
   </div> */}
-  <SingleCNRUpload />
+        <div className="border border-gray-500 ml-0 lg:ml-[300px] w-full lg:w-[350px] h-[50px] flex items-center rounded-[30px] px-4 shadow-[rgba(100,_100,_111,_0.2)_0px_7px_29px_0px]">
+          <input
+            onInput={(e) => dispatch(searchDatas(e.target.value))}
+            type="text"
+            placeholder="Type and Search Here...."
+            className="flex-grow outline-none bg-transparent text-sm"
+          />
+          <IoIosSearch size={24} className="text-gray-500 mr-2" />
+        </div>
+        <SingleCNRUpload />
         <UploadCnrExcel />
+      </div>
 
-
-
-
-
-</div>
-
-{isLoading ? (
-  <div className=" text-center text-lg font-semibold">Loading...</div>
-) : (
-  <div className="  overflow-x-auto mt-[180px] h-[380px] overflow-y-auto">
-    <CnrDetailsTable
-      // originalCnrDetails={originalCnrDetails}
-      originalCnrDetails={searchTerm ? filteredData : originalCnrDetails}
-    />
-  </div>
-)}
-{/* Modal for Case Details */}
-{isModalOpen && modalCaseData && (
-  <Modal
-    caseData={modalCaseData}
-    closeModal={closeModal}
-    saveCase={handleSaveCnr} // Pass the save case function here
-    setCcFields={setCcFields} // Pass the setter function here
-  />
-)}
-
-
+      {isLoading ? (
+        <div className=" text-center text-lg font-semibold">Loading...</div>
+      ) : (
+        <div className=" mt-[180px] h-[380px] ">
+          <CnrDetailsTable
+            // originalCnrDetails={originalCnrDetails}
+            originalCnrDetails={searchTerm ? filteredData : originalCnrDetails}
+          />
+        </div>
+      )}
+      {/* Modal for Case Details */}
+      {isModalOpen && modalCaseData && (
+        <Modal
+          caseData={modalCaseData}
+          closeModal={closeModal}
+          saveCase={handleSaveCnr} // Pass the save case function here
+          setCcFields={setCcFields} // Pass the setter function here
+        />
+      )}
     </div>
   );
 };

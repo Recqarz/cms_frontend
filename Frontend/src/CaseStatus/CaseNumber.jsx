@@ -2,7 +2,7 @@ import React from 'react';
 import HighCourtBranchSelect from './StateDistrictSelect'; // Adjust the path as needed
 
 const CaseNumber = () => (
-    <div className='p-4'>
+    <div className='p-4 mt-[100px]'>
         <HighCourtBranchSelect />
   <div className="max-w-4xl mx-auto p-4  rounded-lg ">
     

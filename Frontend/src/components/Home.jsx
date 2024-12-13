@@ -11,11 +11,11 @@ import FilingNumber from "../CaseStatus/FilingNumber";
 
 const Home = () => {
   return (
-    <div className="flex flex-col lg:flex-row w-full overflow-x-auto">
+    <div className="flex flex-col lg:flex-row w-full ">
       <Sidebar />
       <div className="flex flex-col flex-1 ml-[200px]">
         <Navbar />
-        <div className="bg-gray-50 flex-1 overflow-x-auto">
+        <div className="bg-gray-50 flex-1 ">
           <Routes>
             <Route path="/home" element={<Dashboard />} />
             <Route path="/casestatus" element={<Profile />} />

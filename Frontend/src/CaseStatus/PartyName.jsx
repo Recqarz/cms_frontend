@@ -3,7 +3,7 @@ import HighCourtBranchSelect from './StateDistrictSelect'; // Adjust the path as
 
 const PartyName = () => {
   return (
-    <div className="p-4 ">
+    <div className="p-4 mt-[100px] ">
       <HighCourtBranchSelect />
 
       <h2 className="text-3xl font-extrabold text-center text-indigo-700 mb-8 mt-4">
