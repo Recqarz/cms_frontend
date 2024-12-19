@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { FaBriefcase, FaHome, FaUser } from "react-icons/fa";
 import { RiArchiveFill } from "react-icons/ri";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
+import { IoIosSettings } from "react-icons/io";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const [openSection, setOpenSection] = useState(null);
 
   const toggleSection = (section) => {
@@ -50,8 +53,24 @@ const Sidebar = () => {
               </div>
               {openSection === "litigation" && (
                 <ul className="pl-8 space-y-2 bg-[#716868] rounded-lg ">
-                  <li className="py-2 hover:text-gray-300">My Council</li>
-                  <li className="py-2 hover:text-gray-300">Tracked Cases</li>
+                  <li
+                    className="py-2 hover:text-gray-300"
+                    onClick={() => navigate("/case-table")}
+                  >
+                    My Council
+                  </li>
+                  <li
+                    className="py-2 hover:text-gray-300"
+                    onClick={() => navigate("/tracked-cases")}
+                  >
+                    Tracked Cases
+                  </li>
+                  <li
+                    className="py-2 hover:text-gray-300"
+                    onClick={() => navigate("/add-case")}
+                  >
+                    Add Cases
+                  </li>
                 </ul>
               )}
             </li>
@@ -82,6 +101,11 @@ const Sidebar = () => {
             <li className="flex items-center p-3 hover:bg-[#716868] rounded-lg transition duration-200">
               <RiArchiveFill className="mr-3" />
               <span>Archive</span>
+            </li>
+
+            <li className="flex items-center p-3 hover:bg-[#716868] rounded-lg transition duration-200"onClick={()=>navigate("/setting")}>
+              <IoIosSettings className="mr-3" />
+              <span>Setting</span>
             </li>
           </ul>
         </nav>
