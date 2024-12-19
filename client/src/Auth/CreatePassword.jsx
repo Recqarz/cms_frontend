@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { formData } from "../global/action";
+import toast from "react-hot-toast";
 
 const CreatePassword = () => {
   const navigate = useNavigate();
@@ -19,18 +20,18 @@ const CreatePassword = () => {
     setUserData({ ...userData, [name]: value });
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(formData(userData));
-  },[userData])
+  }, [userData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(userData)
-    console.log(signupData);
     if (userData.password !== userData.confirmPassword) {
       setApiMessage("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
+    console.log(signupData)
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/temp-register`,
@@ -46,6 +47,7 @@ const CreatePassword = () => {
       const result = await response.json();
 
       if (result.success) {
+        toast.success(result.message);
         setApiMessage(result.message || "Password created successfully!");
         navigate("/register-verify-otp");
       } else {
@@ -74,11 +76,11 @@ const CreatePassword = () => {
       >
         <style>
           {`
-/* Hide scrollbar for Webkit browsers */
-div::-webkit-scrollbar {
-  display: none;
-}
-`}
+            /* Hide scrollbar for Webkit browsers */
+              div::-webkit-scrollbar {
+              display: none;
+              }
+              `}
         </style>
 
         <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">
@@ -145,19 +147,18 @@ div::-webkit-scrollbar {
             <p className="text-center text-sm text-red-500">{apiMessage}</p>
           )}
           {/* Submit */}
-          <div className="w-full bg-[#b9b0b0] text-white py-2 rounded-[50px] hover:bg-[#716868] transition text-sm font-bold mt-[20px]">
-            <div className="w-[35%] mx-auto flex justify-between gap-2">
+          <div className="w-full text-white py-2 rounded-[50px] transition text-sm font-bold mt-[20px]">
+            <div className=" mx-auto flex justify-between gap-2">
               <button
                 type="button"
-                className="text-white"
+                className="text-white bg-[#716868] hover:bg-[#484444] w-[45%] py-2 rounded-2xl"
                 onClick={() => navigate("/signup")}
               >
                 Back
               </button>
               <button
                 type="submit"
-                className="text-white"
-                onClick={() => navigate("/register-verify-otp")}
+                className="text-white bg-[#716868] hover:bg-[#484444] w-[45%] py-2 rounded-2xl"
               >
                 Next
               </button>

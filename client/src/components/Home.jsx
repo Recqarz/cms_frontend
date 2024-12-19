@@ -7,31 +7,22 @@ import Verification from "../Auth/Verification.jsx";
 import ForgetPassword from "../Auth/ForgetPassword.jsx";
 import GeneratePassword from "../Auth/GeneratePassword.jsx";
 import CreatePassword from "../Auth/CreatePassword.jsx";
+import Allroutes from "../globalRoute/globalRoute.jsx";
+import PrivateRoute from "./privateRoute.jsx";
 
 const Home = () => {
   return (
     <Routes>
-      {/* Default Route: Login Page */}
       <Route path="/" element={<Login />} />
-
-      {/* Forget Password Flow */}
       <Route path="/forget-password" element={<ForgetPassword />} />
       <Route path="/generate-password" element={<GeneratePassword />} />
-
-      {/* Signup Flow */}
       <Route path="/signup" element={<Signup />} />
-
-      {/* Create Password Flow */}
       <Route path="/password" element={<CreatePassword />} />
-
-      {/* Register Verify OTP Flow */}
       <Route path="/register-verify-otp" element={<RegisterVerifyOtp />} />
-
-      {/* Verification Page */}
       <Route path="/verification" element={<Verification />} />
+      <Route path="/*" element={<PrivateRoute Component={Allroutes} />} />
     </Routes>
   );
 };
-
 
 export default Home;

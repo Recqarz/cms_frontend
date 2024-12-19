@@ -1,26 +1,76 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { resetPasswordForm } from "../global/action";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const ForgetPassword = () => {
   const navigate = useNavigate();
+  let dispatch = useDispatch();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    mobile: "",
+  });
+  const [errors, setErrors] = useState({
+    email: "",
+    mobile: "",
+  });
+
+  const handleFormData = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { email: "", mobile: "" };
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email";
+      isValid = false;
+    }
+    if (!formData.mobile) {
+      newErrors.mobile = "Phone number is required";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(formData.mobile)) {
+      newErrors.mobile = "Please enter a valid 10-digit phone number";
+      isValid = false;
+    }
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log("Form submitted");
-    navigate("/generate-password");
+    if (validateForm()) {
+      axios
+        .post(
+          `${import.meta.env.VITE_API_URL}/auth/temp-reset-password`,
+          formData
+        )
+        .then((response) => {
+          dispatch(resetPasswordForm(formData));
+          toast.success(response.data.message);
+          navigate("/generate-password");
+        })
+        .catch((error) => {
+          toast.error("Failed to send OTP");
+        });
+    }
   };
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center">
-      {/* Logo */}
       <div className="pl-6 pt-4 w-full">
-        <img src="/sign_logo.png" alt="Illustration" className="w-[200px]" />
+        <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
       </div>
-
-      {/* Form Container */}
       <div
-        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 mt-[-40px] shadow"
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 mt-4 shadow rounded-lg"
         style={{
           boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px",
           scrollbarWidth: "none",
@@ -36,77 +86,66 @@ const ForgetPassword = () => {
           `}
         </style>
 
-        <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">
+        <h2 className="text-center text-xl font-semibold text-gray-700 mb-6">
           Forgot Password
         </h2>
-        {/* <p className="text-center text-gray-500 mb-4 text-sm">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-500 hover:underline">
-            Log in
-          </a>
-        </p> */}
-
-        {/* Steps */}
-        {/* <div className="flex justify-center space-x-4 mb-4">
-          <div className="flex items-center">
-            <div className="w-5 h-3 bg-black rounded-full mr-1"></div>
-            <span className="text-gray-700 text-sm">Provide basic info</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-5 h-3 border rounded-full mr-1"></div>
-            <span className="text-gray-500 text-sm">Create password</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-5 h-3 border rounded-full mr-1"></div>
-            <span className="text-gray-500 text-sm">Verification</span>
-          </div>
-        </div> */}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3 w-full p-4">
-          {/* Email */}
-
+        <form onSubmit={handleSubmit} className="space-y-4 w-full p-4">
           <div>
-            <label className="block text-gray-700 text-sm">Email</label>
+            <label
+              htmlFor="email"
+              className="block text-gray-700 text-sm font-medium mb-1"
+            >
+              Email
+            </label>
             <input
               type="email"
               id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleFormData}
               placeholder="Enter your email"
-              className="w-full border rounded-md px-2 py-1 text-sm"
+              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              }`}
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            )}
           </div>
-
-          {/* Phone Number */}
           <div>
-            <label className="block text-gray-700 text-sm">Phone Number</label>
-            <div className="flex items-center border border-gray-300 rounded-md">
-              {/* <span className="px-2">
-                <img src="/flag.jpg" alt="Flag" className="w-8" />
-              </span> */}
-              <input
-                type="text"
-                id="phoneNumber"
-                placeholder="Enter your phone number"
-                className="w-full border rounded-md px-2 py-1 text-sm"
-              />
-            </div>
+            <label
+              htmlFor="mobile"
+              className="block text-gray-700 text-sm font-medium mb-1"
+            >
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              id="mobile"
+              name="mobile"
+              value={formData.mobile}
+              onChange={handleFormData}
+              placeholder="Enter your phone number"
+              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 ${
+                errors.mobile ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.mobile && (
+              <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>
+            )}
           </div>
-
-          {/* Submit Button */}
-
-          <div className="w-full bg-[#b9b0b0] text-white py-2 rounded-[50px] hover:bg-[#716868] transition text-sm font-bold mt-[20px]">
-            <div className="w-[35%] mx-auto flex justify-between">
+          <div className="w-full pt-4">
+            <div className="w-full mx-auto flex justify-between gap-4">
               <button
                 type="button"
-                className="text-white"
+                className="text-white bg-gray-600 hover:bg-gray-700 w-full py-2 rounded-full transition duration-200 font-medium"
                 onClick={() => navigate("/")}
               >
                 Back
               </button>
               <button
-                type="button"
-                className="text-white"
-                onClick={() => navigate("/generate-password")}
+                type="submit"
+                className="text-white bg-gray-600 hover:bg-gray-700 w-full py-2 rounded-full transition duration-200 font-medium"
               >
                 Next
               </button>

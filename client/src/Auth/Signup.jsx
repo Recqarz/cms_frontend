@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { formData } from "../global/action";
+import toast from "react-hot-toast";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,7 +18,9 @@ const Signup = () => {
     district: "",
     companyName: "",
     companyAddress: "",
-    designation: "",
+    bankName: "",
+    bankAddress: "",
+    userDegisnation: "",
     pinCode: "",
   });
 
@@ -28,6 +31,19 @@ const Signup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (
+      !userData.name ||
+      !userData.email ||
+      !userData.mobile ||
+      !userData.role ||
+      !userData.address ||
+      !userData.state ||
+      !userData.district ||
+      !userData.pinCode
+    ) {
+      toast.error("Please fill all the required fields");
+      return;
+    }
     dispatch(formData(userData));
     navigate("/password");
   };
@@ -149,24 +165,28 @@ const Signup = () => {
               className="w-full border rounded-md px-2 py-1 text-sm"
             >
               <option value="">Select Role</option>
-              <option value="Company">Company</option>
-              <option value="Bank">Bank</option>
-              <option value="Individual">Individual</option>
-              <option value="Advocate">Advocate</option>
+              <option value="company">Company</option>
+              <option value="bank">Bank</option>
+              <option value="individual">Individual</option>
+              <option value="advocate">Advocate</option>
             </select>
           </div>
 
           {/* Conditional Fields */}
-          {(userData.role === "Company" || userData.role === "Bank") && (
+          {(userData.role === "company" || userData.role === "bank") && (
             <>
               <div>
                 <label className="block text-gray-700 text-sm">
-                  {userData.role === "Bank" ? "Bank Name" : "Company Name"}
+                  {userData.role === "bank" ? "Bank Name" : "Company Name"}
                 </label>
                 <input
                   type="text"
-                  name="companyName"
-                  value={userData.companyName}
+                  name={userData.role == "bank" ? "bankName" : "companyName"}
+                  value={
+                    userData.role == "bank"
+                      ? userData.bankName
+                      : userData.companyName
+                  }
                   onChange={handleInputChange}
                   placeholder={`Enter ${
                     userData.role === "Bank" ? "Bank" : "Company"
@@ -177,14 +197,20 @@ const Signup = () => {
 
               <div>
                 <label className="block text-gray-700 text-sm">
-                  {userData.role === "Bank"
+                  {userData.role === "bank"
                     ? "Bank Address"
                     : "Company Address"}
                 </label>
                 <input
                   type="text"
-                  name="companyAddress"
-                  value={userData.companyAddress}
+                  name={
+                    userData.role == "bank" ? "bankAddress" : "companyAddress"
+                  }
+                  value={
+                    userData.role == "bank"
+                      ? userData.bankAddress
+                      : userData.companyAddress
+                  }
                   onChange={handleInputChange}
                   placeholder="Enter address"
                   className="w-full border rounded-md px-2 py-1 text-sm"
@@ -197,8 +223,8 @@ const Signup = () => {
                 </label>
                 <input
                   type="text"
-                  name="designation"
-                  value={userData.designation}
+                  name="userDegisnation"
+                  value={userData.userDegisnation}
                   onChange={handleInputChange}
                   placeholder="Enter designation"
                   className="w-full border rounded-md px-2 py-1 text-sm"
@@ -261,7 +287,7 @@ const Signup = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-[#b9b0b0] text-white py-2 rounded-[50px] hover:bg-[#716868] transition text-sm font-bold mt-[200px]"
+            className="w-full bg-[#716868] text-white py-2 rounded-[50px] hover:bg-[#484444] transition text-sm font-bold mt-[200px]"
           >
             Next
           </button>

@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { loginEmail } from "../global/action";
 
 const Login = () => {
   const navigate = useNavigate();
+  let dispatch = useDispatch();
   const [userData, setUserData] = useState({
     email: "",
     password: "",
@@ -45,8 +49,9 @@ const Login = () => {
       );
 
       if (response.data.success) {
+        dispatch(loginEmail(userData?.email));
         setMessage(response.data.message);
-        alert(response.data.message);
+        toast.success(response.data.message);
         navigate("/verification");
       } else {
         setMessage(response.data.message || "Something went wrong.");

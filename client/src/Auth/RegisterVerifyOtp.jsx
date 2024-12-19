@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 const RegisterVerifyOtp = () => {
   const navigate = useNavigate();
@@ -8,61 +10,73 @@ const RegisterVerifyOtp = () => {
     emailOtp: "",
     mobileOtp: "",
   });
+  const registerEmail = useSelector((state) => state?.formData?.email);
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { emailOtp, mobileOtp } = userData;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
+    if (/^\d{0,6}$/.test(value)) {
+      setUserData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!emailOtp || !mobileOtp) {
+      setMessage("Please enter both Email OTP and SMS OTP");
+      toast.error("Please enter both Email OTP and SMS OTP");
+      return;
+    }
+
+    if (!registerEmail) {
+      setMessage("Email not found. Please register again.");
+      toast.error("Email not found. Please register again.");
+      return;
+    }
+    setMessage("");
+    setIsLoading(true);
+
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/verify-otp`,
-        userData,
+        `${import.meta.env.VITE_API_URL}/auth/register`,
         {
-          headers: { "Content-Type": "application/json" },
+          email: registerEmail,
+          emailOtp,
+          mobileOtp,
         }
       );
-      const result = response.data;
 
-      if (result.success) {
-        setMessage(result.message); 
+      const { success, message: responseMessage } = response.data;
+
+      if (success) {
+        toast.success(responseMessage);
+        setMessage(responseMessage);
         navigate("/");
       } else {
-        setMessage(result.message || "Invalid OTPs."); 
+        toast.error(responseMessage || "Invalid OTPs.");
+        setMessage(responseMessage || "Invalid OTPs.");
       }
     } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to verify OTP. Please try again.";
       console.error("Error:", error);
-      setMessage("Failed to verify OTP. Please try again.");
+      toast.error(errorMessage);
+      setMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center ">
-      {/* Logo */}
+    <div className="w-full min-h-screen flex flex-col items-center">
       <div className="pl-6 pt-4 w-full">
-        <img src="/sign_logo.png" alt="Illustration" className="w-[200px]" />
+        <img src="/sign_logo.png" alt="Company Logo" className="w-[200px]" />
       </div>
-      {/* Form Container */}
-      <div
-        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 shadow"
-        style={{
-          boxShadow: "box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <style>
-          {`
-          /* Hide scrollbar for Webkit browsers */
-          div::-webkit-scrollbar {
-            display: none;
-          }
-          `}
-        </style>
 
+      <div className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 shadow-sm">
         <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">
           Create an account
         </h2>
@@ -73,27 +87,31 @@ const RegisterVerifyOtp = () => {
           </a>
         </p>
 
-        {/* Steps */}
+        {/* Progress Steps */}
         <div className="flex justify-center space-x-4 mb-4">
-          <div className="flex items-center">
-            <div className="w-5 h-3 bg-black rounded-full mr-1"></div>
-            <span className="text-gray-700 text-sm">Provide basic info</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-5 h-3 border rounded-full mr-1"></div>
-            <span className="text-gray-500 text-sm">Create password</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-5 h-3 border rounded-full mr-1"></div>
-            <span className="text-gray-500 text-sm">Verification</span>
-          </div>
+          {["Provide basic info", "Create password", "Verification"].map(
+            (step, index) => (
+              <div key={step} className="flex items-center">
+                <div
+                  className={`w-5 h-3 ${
+                    index === 0 ? "bg-black" : "border"
+                  } rounded-full mr-1`}
+                ></div>
+                <span
+                  className={`text-sm ${
+                    index === 0 ? "text-gray-700" : "text-gray-500"
+                  }`}
+                >
+                  {step}
+                </span>
+              </div>
+            )
+          )}
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3 w-full p-4">
-          {/* Email OTP */}
           <div>
-            <label className="block text-gray-700 text-sm">
+            <label htmlFor="emailOtp" className="block text-gray-700 text-sm">
               Enter Email OTP
             </label>
             <input
@@ -104,12 +122,15 @@ const RegisterVerifyOtp = () => {
               value={userData.emailOtp}
               onChange={handleInputChange}
               className="w-full border rounded-md px-2 py-1 text-sm"
+              maxLength={6}
+              disabled={isLoading}
             />
           </div>
 
-          {/* Mobile OTP */}
           <div>
-            <label className="block text-gray-700 text-sm">Enter SMS OTP</label>
+            <label htmlFor="mobileOtp" className="block text-gray-700 text-sm">
+              Enter SMS OTP
+            </label>
             <input
               type="text"
               id="mobileOtp"
@@ -118,33 +139,42 @@ const RegisterVerifyOtp = () => {
               value={userData.mobileOtp}
               onChange={handleInputChange}
               className="w-full border rounded-md px-2 py-1 text-sm"
+              maxLength={6}
+              disabled={isLoading}
             />
           </div>
-        </form>
-        {/* Submit */}
 
-        <div className="w-full bg-[#b9b0b0] text-white py-2 rounded-[50px] hover:bg-[#716868] transition text-sm font-bold mt-[20px]">
-          <div className="w-[35%] mx-auto flex justify-between gap-2">
-            <button
-              type="button"
-              className="text-white"
-              onClick={() => navigate("/signup")}
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              className="text-white"
-              onClick={() => navigate("/")}
-            >
-              Next
-            </button>
+          <div className="w-full text-white py-2 rounded-[50px] transition text-sm font-bold mt-[20px]">
+            <div className="w-full mx-auto flex justify-between gap-1">
+              <button
+                type="button"
+                className="text-white bg-[#716868] hover:bg-[#484444] w-[48%] py-2 rounded-2xl disabled:opacity-50"
+                onClick={() => navigate("/password")}
+                disabled={isLoading}
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                className="text-white bg-[#716868] hover:bg-[#484444] w-[48%] py-2 rounded-2xl disabled:opacity-50"
+                disabled={isLoading}
+              >
+                {isLoading ? "Verifying..." : "Submit"}
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
 
-        {/* Message Display */}
         {message && (
-          <div className="mt-4 text-center text-sm text-red-500">{message}</div>
+          <div
+            className={`mt-4 text-center text-sm ${
+              message.toLowerCase().includes("success")
+                ? "text-green-500"
+                : "text-red-500"
+            }`}
+          >
+            {message}
+          </div>
         )}
       </div>
     </div>
