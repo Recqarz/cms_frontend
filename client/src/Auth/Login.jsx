@@ -39,7 +39,7 @@ const Login = () => {
       setMessage("");
 
       const response = await axios.post(
-        "http://localhost:8081/api/auth/temp-login",
+        `${import.meta.env.VITE_API_URL}/auth/temp-login`,
         payload,
         {
           headers: {

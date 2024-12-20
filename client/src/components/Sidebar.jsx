@@ -17,9 +17,12 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { isLogin, roleUpdater } from "@/global/action";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  let dispatch = useDispatch();
   const [openSection, setOpenSection] = useState(null);
   let [name, setName] = useState("");
   let [isOpen, setIsOpen] = useState(false);
@@ -29,6 +32,15 @@ const Sidebar = () => {
   const toggleSection = (section) => {
     setOpenSection(openSection === section ? null : section);
   };
+
+  function handleLogout() {
+    localStorage.removeItem("cmstoken");
+    localStorage.removeItem("cmsrole");
+    localStorage.removeItem("cmsusername");
+    dispatch(isLogin(false));
+    dispatch(roleUpdater(""));
+    navigate("/");
+  }
 
   function handleAddUser() {
     setIsOpen(true);
@@ -74,7 +86,7 @@ const Sidebar = () => {
         />
 
         <nav className="mt-6 px-2">
-          <ul className="space-y-4">
+          <ul className="space-y-2">
             <li className="flex items-center cursor-pointer px-[12px] py-[8px] hover:bg-[#716868] rounded-lg  transition duration-200">
               <FaHome className="mr-3" />
               <span>Dashboard</span>
@@ -165,7 +177,10 @@ const Sidebar = () => {
         </nav>
         <div className="absolute bottom-2 left-0 w-full text-center border-t border-gray-300 cursor-pointer">
           <div className="px-4 mt-2">
-            <button className="w-full py-2 bg-[#484444] px-4 hover:bg-[#716868] transition duration-200 rounded-lg">
+            <button
+              onClick={handleLogout}
+              className="w-full py-2 bg-[#484444] px-4 hover:bg-[#716868] transition duration-200 rounded-lg"
+            >
               Logout
             </button>
           </div>
