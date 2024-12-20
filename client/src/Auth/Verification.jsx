@@ -49,7 +49,7 @@ const Verification = () => {
     try {
       setIsLoading(true);
       const response = await axios.post(
-        "http://localhost:8081/api/auth/login",
+        `${import.meta.env.VITE_API_URL}/auth/login`,
         payload,
         {
           headers: { "Content-Type": "application/json" },

@@ -12,10 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import toast from "react-hot-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FaFileUpload } from "react-icons/fa";
 
 const FilterData = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,10 +24,11 @@ const FilterData = () => {
   const [selectUser, setSelectUser] = useState({});
   const [users, setUsers] = useState([]);
   let role = JSON.parse(localStorage.getItem("cmsrole"));
+  const [file, setFile] = useState(null);
+  const [isSingle, setIsSingle] = useState(true);
 
   const handleSelectionChange = (value) => {
     setSelectUser(value);
-    console.log("Selected Value:", value);
   };
   const handleAddClick = () => {
     if (searchQuery.length !== 16) {
@@ -35,6 +36,19 @@ const FilterData = () => {
       return;
     }
     setIsOpen(true);
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectUser({});
+    }
+  }, [isOpen]);
+
+  const handleFileChange = (event) => {
+    const uploadedFile = event.target.files[0];
+    if (uploadedFile) {
+      setFile(uploadedFile);
+    }
   };
 
   function fetchData() {
@@ -51,28 +65,51 @@ const FilterData = () => {
 
   function handleAddCnr() {
     let token = JSON.parse(localStorage.getItem("cmstoken"));
-    axios
-      .post(
-        `${import.meta.env.VITE_API_URL}/cnr/addnew-singlecnr`,
-        {
-          cnrNumber: searchQuery,
-          externalUserId: selectUser._id,
-          externalUserName: selectUser.name,
-        },
-        {
+    if (isSingle) {
+      axios
+        .post(
+          `${import.meta.env.VITE_API_URL}/cnr/addnew-singlecnr`,
+          {
+            cnrNumber: searchQuery,
+            externalUserId: selectUser._id,
+            externalUserName: selectUser.name,
+          },
+          {
+            headers: {
+              token: token,
+            },
+          }
+        )
+        .then((res) => {
+          toast.success(res.data.message);
+          setIsOpen(false);
+          fetchData();
+        })
+        .catch((error) => {
+          toast.error(error?.response?.data?.message || "Something went wrong");
+        });
+    } else {
+      const formData = new FormData();
+      formData.append("externalUserId", selectUser._id);
+      formData.append("externalUserName", selectUser.name);
+      formData.append("excelFile", file);
+      axios
+        .post(`${import.meta.env.VITE_API_URL}/cnr/addnew-bulkcnr`, formData, {
           headers: {
+            "Content-Type": "multipart/form-data",
             token: token,
           },
-        }
-      )
-      .then((res) => {
-        toast.success("Case added successfully");
-        setIsOpen(false);
-        fetchData();
-      })
-      .catch((error) => {
-        toast.error(error?.response?.data?.message || "Something went wrong");
-      });
+        })
+        .then((res) => {
+          toast.success(res.data.message);
+          setIsOpen(false);
+          setIsSingle(true);
+          setFile(null);
+        })
+        .catch((error) => {
+          toast.error(error?.response?.data?.message || "Something went wrong");
+        });
+    }
   }
 
   function fetchUsersData() {
@@ -104,6 +141,16 @@ const FilterData = () => {
     }
   }, [searchQuery]);
 
+  function handleFileUpload(e) {
+    e.preventDefault();
+    if (!file) {
+      toast.error("Please select a file");
+      return;
+    }
+    setIsSingle(false);
+    setIsOpen(true);
+  }
+
   return (
     <div className="mx-auto p-6 bg-white border border-gray-100 transition-all duration-300 max-w-full sm:max-w-4xl md:max-w-full">
       <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">
@@ -117,11 +164,35 @@ const FilterData = () => {
           />
         </div>
         <div className="w-full">
-          <FileInput />
+          <div className="flex items-center justify-center w-full bg-gray-100 p-4 border-2 border-dashed border-gray-300 rounded-lg shadow-sm hover:border-blue-500 transition">
+            <label
+              htmlFor="file-upload"
+              className="flex items-center space-x-2 text-gray-600 cursor-pointer"
+            >
+              <FaFileUpload className="text-xl" />
+              <span>Upload a file</span>
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
+          {file && (
+            <div className="mt-4 text-gray-700">
+              <p>Uploaded File: {file.name}</p>
+            </div>
+          )}
         </div>
+
         <div className="w-full">
           <div className="flex items-center justify-center space-x-4">
-            <button className="flex w-full items-center justify-center p-4 bg-green-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105">
+            <button
+              type="submit"
+              onClick={handleFileUpload}
+              className="flex w-full items-center justify-center p-4 bg-green-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105"
+            >
               <FiUpload className="mr-2 text-xl" />
               <span className="text-lg font-semibold">Upload</span>
             </button>
@@ -142,19 +213,25 @@ const FilterData = () => {
             </thead>
             <tbody>
               <tr>
-                <td className="px-6 py-3 border-b">{data[0]?.cnrNumber}</td>
                 <td className="px-6 py-3 border-b">
-                  {data[0]?.caseStatus[0][1]}
+                  {data?.[0]?.cnrNumber ?? "N/A"}
                 </td>
                 <td className="px-6 py-3 border-b">
-                  {data[0]?.petitionerAndAdvocate[0]}
+                  {data?.[0]?.caseStatus?.[0]?.[1] ?? "N/A"}
+                </td>
+                
+                <td className="px-6 py-3 border-b">
+                  {data?.[0]?.petitionerAndAdvocate?.[0] ?? "N/A"}
                 </td>
                 <td className="px-6 py-3 border-b">
-                  {data[0]?.respondentAndAdvocate[0]}
+                  {data?.[0]?.respondentAndAdvocate?.[0] ?? "N/A"}
                 </td>
                 <td className="px-6 py-3 border-b">
                   <button
-                    onClick={handleAddClick}
+                    onClick={() => {
+                      setIsSingle(true);
+                      handleAddClick();
+                    }}
                     className="text-white bg-blue-600 px-4 py-2 rounded-md hover:bg-blue-700"
                   >
                     Add+
@@ -168,7 +245,10 @@ const FilterData = () => {
             <p>No matching CNR number found.</p>
             <div className="mt-4 flex flex-col sm:flex-row justify-center items-center gap-2">
               <button
-                onClick={handleAddClick}
+                onClick={() => {
+                  setIsSingle(true);
+                  handleAddClick();
+                }}
                 className="mt-2 sm:mt-0 sm:ml-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
               >
                 Add CNR Number

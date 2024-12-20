@@ -4,6 +4,7 @@ import {
   LOGIN_EMAIL,
   RESET_PASSWORD_FORM,
   RESET_SIGNUP_FORM,
+  ROLE_UPDATER,
 } from "./action";
 
 const initState = {
@@ -28,6 +29,7 @@ const initState = {
     email: "",
     mobile: "",
   },
+  detailPageData: "",
   loginEmail: "",
   isLogin: localStorage.getItem("cmstoken") ? true : false,
   role: localStorage.getItem("cmstoken")
@@ -47,6 +49,10 @@ export function Reducer(state = initState, action) {
       return { ...state, formData: initState.formData };
     case RESET_PASSWORD_FORM:
       return { ...state, resetPasswordForm: action.payload };
+    case DETAIL_PAGE_DATA:
+      return { ...state, detailPageData: action.payload };
+    case ROLE_UPDATER:
+      return { ...state, role: action.payload };
     default:
       return state;
   }
