@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
@@ -71,20 +71,33 @@ const RegisterVerifyOtp = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center">
-      <div className="pl-6 pt-4 w-full">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
+      <div className="absolute top-4 left-4">
         <img src="/sign_logo.png" alt="Company Logo" className="w-[200px]" />
       </div>
 
-      <div className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 shadow-sm">
+      <div
+        //  className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 shadow-sm"
+
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 rounded "
+        style={{
+          boxShadow:
+            "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+
+          // boxShadow: "rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px",
+
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
         <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">
           Create an account
         </h2>
         <p className="text-center text-gray-500 mb-4 text-sm">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-500 hover:underline">
+          <Link href="/login" className="text-blue-500 hover:underline">
             Log in
-          </a>
+          </Link>
         </p>
 
         {/* Progress Steps */}

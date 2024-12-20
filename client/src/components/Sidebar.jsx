@@ -72,7 +72,7 @@ const Sidebar = () => {
 
   return (
     <div className="flex w-[200px] h-[100vh] fixed z-50 top-0 left-0">
-      <div className="lg:translate-x-0 w-64 bg-[#484444] text-white shadow-lg lg:relative lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col">
+      <div className="lg:translate-x-0 w-64 bg-[#484444] text-white  lg:relative lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col">
         <img
           src="/cms_logo.png"
           alt="CMS"
@@ -154,7 +154,7 @@ const Sidebar = () => {
                   >
                     Add User
                   </li>
-                  <li className="py-2 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md">
+                  <li className="py-2 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md" onClick={()=>navigate("/user-directory")}>
                     User Directory
                   </li>
                 </ul>
