@@ -4,14 +4,59 @@ import { RiArchiveFill } from "react-icons/ri";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { IoIosSettings } from "react-icons/io";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const [openSection, setOpenSection] = useState(null);
+  let [name, setName] = useState("");
+  let [isOpen, setIsOpen] = useState(false);
+  let role = JSON.parse(localStorage.getItem("cmsrole"));
+  let token = JSON.parse(localStorage.getItem("cmstoken"));
 
   const toggleSection = (section) => {
     setOpenSection(openSection === section ? null : section);
   };
+
+  function handleAddUser() {
+    setIsOpen(true);
+  }
+
+  function handleAddnewUser() {
+    if (!name) {
+      toast.error("Please enter a name");
+    }
+    axios
+      .post(
+        `${import.meta.env.VITE_API_URL}/external-user/add-external-user`,
+        { name },
+        {
+          headers: {
+            token: token,
+          },
+        }
+      )
+      .then((response) => {
+        toast.success("User added successfully");
+        setName("");
+        setIsOpen(false);
+      })
+      .catch((error) => {
+        toast.error("Failed to add user");
+      });
+  }
 
   return (
     <div className="flex w-[200px] h-[100vh] fixed z-50 top-0 left-0">
@@ -28,17 +73,16 @@ const Sidebar = () => {
           }}
         />
 
-        {/* Sidebar Menu */}
-        <nav className="mt-6">
-          <ul className="space-y-2">
-            <li className="flex items-center p-3 hover:bg-[#716868] rounded-lg  transition duration-200">
+        <nav className="mt-6 px-2">
+          <ul className="space-y-4">
+            <li className="flex items-center cursor-pointer px-[12px] py-[8px] hover:bg-[#716868] rounded-lg  transition duration-200">
               <FaHome className="mr-3" />
               <span>Dashboard</span>
             </li>
 
             <li>
               <div
-                className="flex items-center justify-between p-3 hover:bg-[#716868] transition duration-200 cursor-pointer rounded-lg"
+                className="flex items-center justify-between px-[12px] py-[8px] hover:bg-[#716868] transition duration-200 cursor-pointer rounded-lg"
                 onClick={() => toggleSection("litigation")}
               >
                 <div className="flex items-center">
@@ -52,21 +96,21 @@ const Sidebar = () => {
                 )}
               </div>
               {openSection === "litigation" && (
-                <ul className="pl-8 space-y-2 bg-[#716868] rounded-lg ">
+                <ul className="pl-8 space-y-1 rounded-lg ">
                   <li
-                    className="py-2 hover:text-gray-300"
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/case-table")}
                   >
                     My Council
                   </li>
                   <li
-                    className="py-2 hover:text-gray-300"
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/tracked-cases")}
                   >
                     Tracked Cases
                   </li>
                   <li
-                    className="py-2 hover:text-gray-300"
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/add-case")}
                   >
                     Add Cases
@@ -77,7 +121,7 @@ const Sidebar = () => {
 
             <li>
               <div
-                className="flex items-center justify-between p-3 hover:bg-[#716868] transition duration-200 cursor-pointer rounded-lg "
+                className="flex items-center justify-between px-[12px] py-[8px] hover:bg-[#716868] transition duration-200 cursor-pointer rounded-lg "
                 onClick={() => toggleSection("users")}
               >
                 <div className="flex items-center">
@@ -91,35 +135,71 @@ const Sidebar = () => {
                 )}
               </div>
               {openSection === "users" && (
-                <ul className="pl-8 space-y-2 bg-[#716868] rounded-lg ">
-                  <li className="py-2 hover:text-gray-300">Add User</li>
-                  <li className="py-2 hover:text-gray-300">User Directory</li>
+                <ul className="pl-8 space-y-1 rounded-lg ">
+                  <li
+                    onClick={handleAddUser}
+                    className="py-2 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
+                  >
+                    Add User
+                  </li>
+                  <li className="py-2 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md">
+                    User Directory
+                  </li>
                 </ul>
               )}
             </li>
 
-            <li className="flex items-center p-3 hover:bg-[#716868] rounded-lg transition duration-200">
+            <li className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200">
               <RiArchiveFill className="mr-3" />
               <span>Archive</span>
             </li>
 
-            <li className="flex items-center p-3 hover:bg-[#716868] rounded-lg transition duration-200"onClick={()=>navigate("/setting")}>
+            <li
+              className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200"
+              onClick={() => navigate("/setting")}
+            >
               <IoIosSettings className="mr-3" />
               <span>Setting</span>
             </li>
           </ul>
         </nav>
-        {/* <div className="mb-4 border-t border-gray-300 cursor-pointer">
-          Logout
-        </div> */}
-
-        {/* Sidebar Footer */}
-        <div className="absolute bottom-4 left-0 w-full text-center border-t border-gray-300 cursor-pointer">
-          <button className="w-full py-3 bg-[#484444] hover:bg-[#716868] transition duration-200 rounded-lg">
-            Logout
-          </button>
+        <div className="absolute bottom-2 left-0 w-full text-center border-t border-gray-300 cursor-pointer">
+          <div className="px-4 mt-2">
+            <button className="w-full py-2 bg-[#484444] px-4 hover:bg-[#716868] transition duration-200 rounded-lg">
+              Logout
+            </button>
+          </div>
         </div>
       </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              Add New {role == "advocate" ? "Client" : "Advocate"}
+            </DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                className="col-span-3"
+                value={name}
+                onInput={(e) => setName(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleAddnewUser} type="submit">
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
