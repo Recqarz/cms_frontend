@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { IoIosEye, IoIosEyeOff } from "react-icons/io";
 
 const GeneratePassword = () => {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ const GeneratePassword = () => {
   const [emailOtp, setEmailOtp] = useState(new Array(6).fill(""));
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+ const [showPassword, setShowPassword] = useState(false);
+
   let userEmail = useSelector((state) => state.resetPasswordForm.email);
   const [errors, setErrors] = useState({
     password: "",
@@ -145,13 +148,33 @@ const GeneratePassword = () => {
       });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
-    <div className="w-full min-h-screen flex flex-col items-center">
-      <div className="pl-6 pt-4 w-full">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
+      <div
+        className="absolute top-4 left-4
+"
+      >
         <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
       </div>
 
-      <div className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 mt-4 shadow-sm rounded-lg">
+      <div
+        // className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 mt-4 shadow-sm rounded-lg"
+
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 rounded"
+        style={{
+          boxShadow:
+            "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+
+          // boxShadow: "rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px",
+
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
         <h2 className="text-center text-xl font-semibold text-gray-700 mb-6">
           Generate a New Password
         </h2>
@@ -252,13 +275,13 @@ const GeneratePassword = () => {
             <button
               type="button"
               onClick={() => navigate("/forget-password")}
-              className="px-6 py-[6px] w-[45%] bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="px-6 py-[6px] w-[45%]  text-white rounded-full  transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 bg-[#716868] hover:bg-[#484444]"
             >
               Back
             </button>
             <button
               type="submit"
-              className="px-6 py-[6px] w-[45%] bg-gray-500 text-white rounded-full hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-6 py-[6px] w-[45%]  text-white rounded-full  transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-[#716868] hover:bg-[#484444]"
             >
               Next
             </button>

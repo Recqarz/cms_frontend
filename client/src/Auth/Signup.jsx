@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { formData } from "../global/action";
 import toast from "react-hot-toast";
@@ -49,21 +49,23 @@ const Signup = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center relative ">
       {/* Logo */}
-      <div className="pl-6 pt-4 w-full">
+      <div className="absolute top-4 left-4">
         <img src="/sign_logo.png" alt="Illustration" className="w-[200px]" />
       </div>
 
       {/* Form Container */}
 
       <div
-        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 mt-[-40px] shadow"
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4  rounded "
         style={{
-          boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;",
+          boxShadow:
+            "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+
+          // boxShadow: "rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px",
 
           scrollbarWidth: "none",
-
           msOverflowStyle: "none",
         }}
       >
@@ -87,9 +89,9 @@ const Signup = () => {
 
         <p className="text-center text-gray-500 mb-4 text-sm">
           Already have an account?{" "}
-          <a href="/" className="text-blue-500 hover:underline">
+          <Link to="/" className="text-blue-500 hover:underline">
             Log in
-          </a>
+          </Link>
         </p>
 
         {/* Steps */}
@@ -126,19 +128,26 @@ const Signup = () => {
               onChange={handleInputChange}
               placeholder="Enter your name"
               className="w-full border rounded-md px-2 py-1 text-sm"
+              autoComplete="name"
+              required
             />
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-gray-700 text-sm">Email</label>
+            <label htmlFor="email" className="block text-gray-700 text-sm">
+              Email
+            </label>
             <input
               type="email"
               name="email"
+              id="email"
               value={userData.email}
               onChange={handleInputChange}
               placeholder="Enter your email"
               className="w-full border rounded-md px-2 py-1 text-sm"
+              autoComplete="username" // Explicitly specify this
+              required
             />
           </div>
 
@@ -152,6 +161,8 @@ const Signup = () => {
               onChange={handleInputChange}
               placeholder="Enter mobile number"
               className="w-full border rounded-md px-2 py-1 text-sm"
+              autoComplete="mobile"
+              required
             />
           </div>
 
@@ -163,6 +174,8 @@ const Signup = () => {
               value={userData.role}
               onChange={handleInputChange}
               className="w-full border rounded-md px-2 py-1 text-sm"
+              autoComplete="role"
+              required
             >
               <option value="">Select Role</option>
               <option value="company">Company</option>
@@ -244,6 +257,8 @@ const Signup = () => {
                 onChange={handleInputChange}
                 placeholder="Enter state"
                 className="w-full border rounded-md px-2 py-1 text-sm"
+                autoComplete="state"
+                required
               />
             </div>
             <div>
@@ -255,6 +270,8 @@ const Signup = () => {
                 onChange={handleInputChange}
                 placeholder="Enter district"
                 className="w-full border rounded-md px-2 py-1 text-sm"
+                autoComplete="district"
+                required
               />
             </div>
           </div>
@@ -269,6 +286,8 @@ const Signup = () => {
                 onChange={handleInputChange}
                 placeholder="Enter address"
                 className="w-full border rounded-md px-2 py-1 text-sm"
+                autoComplete="address"
+                required
               />
             </div>
             <div>
@@ -280,6 +299,8 @@ const Signup = () => {
                 onChange={handleInputChange}
                 placeholder="Pincode"
                 className="w-full border rounded-md px-2 py-1 text-sm"
+                autoComplete="pinCode"
+                required
               />
             </div>
           </div>
@@ -287,7 +308,7 @@ const Signup = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-[#716868] text-white py-2 rounded-[50px] hover:bg-[#484444] transition text-sm font-bold mt-[200px]"
+            className="w-full text-white py-2 rounded-[50px] bg-[#716868] hover:bg-[#484444] transition text-sm font-bold mt-[200px]"
           >
             Next
           </button>

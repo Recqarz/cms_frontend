@@ -65,14 +65,22 @@ const ForgetPassword = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center">
-      <div className="pl-6 pt-4 w-full">
+    <div
+      className="w-full min-h-screen flex flex-col items-center justify-center relative
+
+"
+    >
+      <div className="absolute top-4 left-4">
         <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
       </div>
       <div
-        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 mt-4 shadow rounded-lg"
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4  rounded "
         style={{
-          boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px",
+          boxShadow:
+            "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+
+          // boxShadow: "rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px",
+
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
@@ -138,14 +146,14 @@ const ForgetPassword = () => {
             <div className="w-full mx-auto flex justify-between gap-4">
               <button
                 type="button"
-                className="text-white bg-gray-600 hover:bg-gray-700 w-full py-2 rounded-full transition duration-200 font-medium"
+                className="text-white  w-full py-2 rounded-full transition duration-200 font-medium bg-[#716868] hover:bg-[#484444]"
                 onClick={() => navigate("/")}
               >
                 Back
               </button>
               <button
                 type="submit"
-                className="text-white bg-gray-600 hover:bg-gray-700 w-full py-2 rounded-full transition duration-200 font-medium"
+                className="text-white  w-full py-2 rounded-full transition duration-200 font-medium bg-[#716868] hover:bg-[#484444]"
               >
                 Next
               </button>

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 import { formData } from "../global/action";
 import toast from "react-hot-toast";
+import { IoIosEye, IoIosEyeOff } from "react-icons/io";
 
 const CreatePassword = () => {
   const navigate = useNavigate();
@@ -14,10 +15,15 @@ const CreatePassword = () => {
   });
 
   const [apiMessage, setApiMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   useEffect(() => {
@@ -31,7 +37,7 @@ const CreatePassword = () => {
       toast.error("Passwords do not match!");
       return;
     }
-    console.log(signupData)
+    console.log(signupData);
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/temp-register`,
@@ -60,16 +66,23 @@ const CreatePassword = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center ">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
       {/* Logo */}
-      <div className="pl-6 pt-4 w-full">
+      <div
+        className="absolute top-4 left-4
+"
+      >
         <img src="/sign_logo.png" alt="Illustration" className="w-[200px]" />
       </div>
       {/* Form Container */}
       <div
-        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 shadow"
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 mt-[-40px] rounded "
         style={{
-          boxShadow: "box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;",
+          boxShadow:
+            "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
+
+          // boxShadow: "rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px",
+
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
@@ -88,9 +101,9 @@ const CreatePassword = () => {
         </h2>
         <p className="text-center text-gray-500 mb-4 text-sm">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-500 hover:underline">
+          <Link to="/" className="text-blue-500 hover:underline">
             Log in
-          </a>
+          </Link>
         </p>
 
         {/* Steps */}
@@ -113,33 +126,61 @@ const CreatePassword = () => {
         <form onSubmit={handleSubmit} className="space-y-3 w-full p-4">
           {/* Password */}
 
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 text-sm">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Enter your password"
-              value={userData.password}
-              onChange={handleInputChange}
-              className="w-full border rounded-md px-2 py-1 text-sm"
-            />
+            <div className="relative w-full">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                value={userData.password}
+                onChange={handleInputChange}
+                className="w-full border rounded-md px-2 py-1 text-sm"
+                autoComplete="true"
+                // required
+              />
+              <div
+                className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? (
+                  <IoIosEyeOff size={20} />
+                ) : (
+                  <IoIosEye size={20} />
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Confirm Password */}
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 text-sm">
               Confirm Password
             </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="Confirm your password"
-              value={userData.confirmPassword}
-              onChange={handleInputChange}
-              className="w-full border rounded-md px-2 py-1 text-sm"
-            />
+            <div className="relative w-full">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirm your password"
+                value={userData.confirmPassword}
+                onChange={handleInputChange}
+                className="w-full border rounded-md px-2 py-1 text-sm"
+                autoComplete="true"
+                // required
+              />
+              <div
+                className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? (
+                  <IoIosEyeOff size={20} />
+                ) : (
+                  <IoIosEye size={20} />
+                )}
+              </div>
+            </div>
           </div>
 
           {/* API Response Message */}
