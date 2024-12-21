@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
 
+
 const GeneratePassword = () => {
   const navigate = useNavigate();
   const [mobileOtp, setMobileOtp] = useState(new Array(6).fill(""));
@@ -12,6 +13,7 @@ const GeneratePassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
  const [showPassword, setShowPassword] = useState(false);
+ 
 
   let userEmail = useSelector((state) => state.resetPasswordForm.email);
   const [errors, setErrors] = useState({
@@ -28,6 +30,7 @@ const GeneratePassword = () => {
   const validateOtp = (otp) => {
     return otp.every((digit) => digit !== "") && otp.length === 6;
   };
+  
 
   const handleChange = (e, index, otpType) => {
     const { value } = e.target;
@@ -151,6 +154,7 @@ const GeneratePassword = () => {
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
+  
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
@@ -228,12 +232,13 @@ const GeneratePassword = () => {
             )}
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 text-sm font-medium mb-2">
               Password
             </label>
-            <input
-              type="password"
+           <div className="relative w-full">
+           <input
+              type={showPassword ? "text" : "password"}
               id="password"
               placeholder="Enter your password"
               value={password}
@@ -241,6 +246,17 @@ const GeneratePassword = () => {
               className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-describedby="password-error"
             />
+             <div
+                className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? (
+                  <IoIosEyeOff size={20} />
+                ) : (
+                  <IoIosEye size={20} />
+                )}
+              </div>
+           </div>
             {errors.password && (
               <p id="password-error" className="text-red-500 text-xs mt-1">
                 {errors.password}
@@ -248,12 +264,13 @@ const GeneratePassword = () => {
             )}
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 text-sm font-medium mb-2">
               Confirm Password
             </label>
+            <div>
             <input
-              type="password"
+             type={showPassword ? "text" : "password"}
               id="confirmPassword"
               placeholder="Confirm your password"
               value={confirmPassword}
@@ -261,6 +278,9 @@ const GeneratePassword = () => {
               className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-describedby="confirm-password-error"
             />
+            </div>
+          
+            
             {errors.confirmPassword && (
               <p
                 id="confirm-password-error"

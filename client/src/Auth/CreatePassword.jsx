@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formData } from "../global/action";
 import toast from "react-hot-toast";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
@@ -96,9 +96,9 @@ const CreatePassword = () => {
               `}
         </style>
 
-        <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">
+        <h1 className="text-center text-xl font-semibold text-gray-700 mb-2">
           Create an account
-        </h2>
+        </h1>
         <p className="text-center text-gray-500 mb-4 text-sm">
           Already have an account?{" "}
           <Link to="/" className="text-blue-500 hover:underline">
@@ -188,8 +188,8 @@ const CreatePassword = () => {
             <p className="text-center text-sm text-red-500">{apiMessage}</p>
           )}
           {/* Submit */}
-          <div className="w-full text-white py-2 rounded-[50px] transition text-sm font-bold mt-[20px]">
-            <div className=" mx-auto flex justify-between gap-2">
+          <div className="w-full text-white py-2 rounded-[50px] transition text-sm font-bold ">
+            <div className=" mx-auto flex justify-between gap-2 mt-[10px]">
               <button
                 type="button"
                 className="text-white bg-[#716868] hover:bg-[#484444] w-[45%] py-2 rounded-2xl"

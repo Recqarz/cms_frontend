@@ -47,6 +47,8 @@ const Signup = () => {
     dispatch(formData(userData));
     navigate("/password");
   };
+ 
+  
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative ">
@@ -83,9 +85,9 @@ const Signup = () => {
     `}
         </style>
 
-        <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">
+        <h1 className="text-center text-xl font-semibold text-gray-700 mb-2">
           Create an account
-        </h2>
+        </h1>
 
         <p className="text-center text-gray-500 mb-4 text-sm">
           Already have an account?{" "}
@@ -115,6 +117,8 @@ const Signup = () => {
             <span className="text-gray-500 text-sm">Verification</span>
           </div>
         </div>
+
+    
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3 w-full p-4">
