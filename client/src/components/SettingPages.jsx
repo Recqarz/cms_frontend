@@ -11,7 +11,7 @@ const SettingPages = () => {
     "3 Day Before notifications",
     "2 Day Before notifications",
     "1 Day Before notifications",
-    "Default same day at 6 AM", // Add the default row here
+    "Default same day at 6 AM", 
   ];
   const [toggles, setToggles] = useState(Array(contentData.length).fill(false));
 
