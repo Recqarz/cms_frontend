@@ -1,4 +1,5 @@
 import {
+  DETAIL_PAGE_DATA,
   FORMDATA,
   IS_LOGIN,
   LOGIN_EMAIL,

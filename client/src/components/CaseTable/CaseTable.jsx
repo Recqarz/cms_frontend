@@ -42,7 +42,7 @@ const CaseTable = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8081/api/cnr/get-cnr", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/cnr/get-cnr`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -362,7 +362,7 @@ const CaseTable = () => {
                           className="bg-blue-600 text-white px-4 py-2 rounded-md"
                           onClick={() => {
                             dispatch(detailPageData(caseData));
-                            navigate(`/case-details/${caseData.caseId}`);
+                            navigate("/case-detail");
                           }}
                         >
                           View Details
