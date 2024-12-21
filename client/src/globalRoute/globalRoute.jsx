@@ -26,7 +26,7 @@ const Allroutes = () => {
         <Route path="/case-table" element={<CaseTable/>}/>
         <Route path="/add-case" element={<FilterData/>}/>
         {/* <Route path="/add-user" element={<AddUser/>}/> */}
-        <Route path="/case-detail" element={<CaseDetail/>}/>
+        <Route path="/case-detail/:cnrNumber" element={<CaseDetail />} />
         <Route path="/user-directory" element={<UserDirectory/>}/>
 
         <Route path="/setting" element={<SettingPages/>}/>

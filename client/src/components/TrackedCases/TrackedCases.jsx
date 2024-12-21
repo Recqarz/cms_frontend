@@ -126,7 +126,7 @@ const TrackedCases = () => {
 
   return (
     <div className="mx-auto px-4 py-6">
-      <h2 className="text-2xl font-semibold mb-4 text-center text-gray-800">
+      <h2 className="text-2xl font-semibold mb-4 text-center text-green-800 ">
         Tracked Cases
       </h2>
 
@@ -135,20 +135,20 @@ const TrackedCases = () => {
           <input
             type="text"
             placeholder="Search Users by Name, Email or Date"
-            className="border bg-[#F4F2FF] border-[#F4F2FF] rounded-md px-4 py-3 sm:placeholder:text-[20px] w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
+            className="border bg-green-100 text-green-700 rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-green-600 w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <CiSearch
             size={24}
-            className="absolute left-3 top-3  text-gray-400"
+            className="absolute left-3 top-3  text-green-600"
           />
         </div>
 
         <div className="flex gap-4 sm:gap-6 justify-center sm:justify-end mb-4">
           <div className="relative">
             <button
-              className="filter-button px-4 rounded-md py-2 flex justify-center items-center gap-x-4 border-2 border-[#C6C2DE] text-gray-600 w-auto"
+              className="filter-button px-4 rounded-md py-2 flex justify-center items-center gap-x-4 border-2 bg-green-100 text-green-700 w-auto"
               onClick={toggleDropdown}
             >
               <FaFilter className="mr-2" /> {selectedFilter}
@@ -174,7 +174,7 @@ const TrackedCases = () => {
           </div>
 
           <button
-            className="flex px-4 rounded-md py-2 items-center bg-purple-600 text-white hover:bg-purple-500 shadow-md transition"
+            className="flex px-4 rounded-md py-2 items-center bg-green-100 text-green-700 hover:bg-purple-500 shadow-md transition"
             onClick={toggleExportInput}
           >
             <FaDownload className="mr-2" /> Export
@@ -185,7 +185,7 @@ const TrackedCases = () => {
       {showExportInput && (
         <div className="mb-4">
           <button
-            className="bg-green-600 text-white px-4 py-2 rounded-lg w-full sm:w-auto"
+            className="bg-green-100 text-green-700 px-4 py-2 rounded-lg w-full sm:w-auto"
             onClick={handleExport}
             disabled={isExportDisabled}
           >
@@ -197,7 +197,7 @@ const TrackedCases = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
-            <tr className="bg-purple-100">
+            <tr className="bg-green-100 text-green-700">
               {showCheckboxes && (
                 <th className="py-3 px-6 text-left">
                   <input
