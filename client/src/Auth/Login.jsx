@@ -102,7 +102,7 @@ const Login = () => {
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3 w-full p-4">
+        <form onSubmit={handleSubmit} className="space-y-3 w-full p-6">
           {/* Email */}
           <div>
             <label className="block text-gray-700 text-sm">Email</label>
@@ -148,7 +148,8 @@ const Login = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full text-white py-2 rounded-[50px] bg-[#716868] hover:bg-[#484444]  transition text-sm font-bold"
+            className="w-full text-white py-2 rounded-[50px] bg-[#716868] hover:bg-[#484444]  transition text-sm font-bold "
+            style={{ marginTop: "30px" }}
             disabled={isLoading}
           >
             {isLoading ? "Loading..." : "Next"}

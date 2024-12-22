@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { Server } from 'lucide-react';
 
 const UserDirectory = () => {
   const [users, setUsers] = useState([]);  // State to store fetched users data
