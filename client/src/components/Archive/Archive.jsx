@@ -11,7 +11,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MdAutoDelete } from "react-icons/md";
 
 import { MdRestorePage } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
@@ -52,26 +51,22 @@ const Archive = () => {
 
     setLoading(true);
 
-    try {
-      axios
-        .get(`${import.meta.env.VITE_API_URL}/cnr/get-archive-cnr`, {
-          headers: {
-            token: token,
-          },
-        })
-        .then((response) => {
-          setCases(response.data.cnrDetails);
-        })
-        .catch((error) => {
-          console.error("Error fetching cases:", error.message);
-          setError("An error occurred while fetching cases.");
-        });
-    } catch (error) {
-      console.error("Error fetching cases:", error.message);
-      setError("An error occurred while fetching cases.");
-    } finally {
-      setLoading(false);
-    }
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/cnr/get-archive-cnr`, {
+        headers: {
+          token: token,
+        },
+      })
+      .then((response) => {
+        setCases(response.data.cnrDetails);
+      })
+      .catch((error) => {
+        console.error("Error fetching cases:", error.message);
+        setError("An error occurred while fetching cases.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -106,27 +101,63 @@ const Archive = () => {
   // ----------------------------
   // cnr archive
 
-  const handleCnrRestore = async (cnrNumber) => {
+  const handleCnrRestore = (cnrNumber) => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
-    console.log(token);
     if (!token) {
       toast.error("Unauthorized access. Please login again.");
       return;
     }
+
     axios
-      .put(`${import.meta.env.VITE_API_URL}/cnr/restore-cnr/${cnrNumber}`, {
-        headers: {
-          token: token,
-          "Content-Type": "application/json",
-        },
-      })
+      .put(
+        `${import.meta.env.VITE_API_URL}/cnr/restore-cnr/${cnrNumber}`,
+        {}, // Empty object for the body since it's a PUT request without data
+        {
+          headers: {
+            token: token,
+          },
+        }
+      )
       .then((response) => {
-        toast.success("Case restore successfully.");
-        fetchCases();
+        toast.success("Case restored successfully.");
+        // Remove the restored case from the state
+        setCases((prevCases) =>
+          prevCases.filter((caseItem) => caseItem.cnrNumber !== cnrNumber)
+        );
       })
       .catch((error) => {
-        console.log(error);
         toast.error("Failed to restore case. Please try again later.");
+      });
+  };
+
+  const handleCnrDelete = (cnrNumber) => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Unauthorized access. Please login again.");
+      return;
+    }
+
+    axios
+      .delete(
+        `${
+          import.meta.env.VITE_API_URL
+        }/cnr/permanently-delete-cnr/${cnrNumber}`,
+        {
+          headers: {
+            token: token,
+          },
+        }
+      )
+      .then((response) => {
+        toast.success("Case deleted successfully.");
+
+        // Update the state to remove the deleted case
+        setCases((prevCases) =>
+          prevCases.filter((caseItem) => caseItem.cnrNumber !== cnrNumber)
+        );
+      })
+      .catch((error) => {
+        toast.error("Failed to delete case. Please try again later.");
       });
   };
 
@@ -246,7 +277,7 @@ const Archive = () => {
     <div className="shadow-md rounded-lg p-6">
       <div>
         <h1 className="text-2xl text-center text-green-900 mb-5 font-bold">
-          My Councils Case
+          My Archive Case
         </h1>
       </div>
 
@@ -436,7 +467,7 @@ const Archive = () => {
                       </button>
                       <button
                         className=" bg-red-300 text-red-700 px-4 py-2 rounded-md hover:bg-red-500 flex items-center gap-2 ml-2"
-                        onClick={() => {}}
+                        onClick={() => handleCnrDelete(caseData?.cnrNumber)}
                       >
                         <MdDelete />
                         <span> Delete</span>
