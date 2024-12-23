@@ -12,10 +12,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MdAutoDelete } from "react-icons/md";
-import { BiSolidMessageRoundedDetail } from "react-icons/bi";
+
+import { MdRestorePage } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 import axios from "axios";
 
-const CaseTable = () => {
+const Archive = () => {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
   const [filterText, setFilterText] = useState("");
@@ -27,9 +29,8 @@ const CaseTable = () => {
   const [showCheckboxes, setShowCheckboxes] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  let dispatch = useDispatch();
+  const dispatch = useDispatch();
   const filterDropdownRef = useRef(null);
-
   const filteredData = cases.filter(
     (caseData) =>
       Object.values(caseData)
@@ -43,7 +44,6 @@ const CaseTable = () => {
 
   const fetchCases = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
-
     if (!token) {
       console.error("No token found");
       setError("Unauthorized access. Please login again.");
@@ -53,39 +53,24 @@ const CaseTable = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/cnr/get-cnr`,
-        {
-          method: "GET",
+      axios
+        .get(`${import.meta.env.VITE_API_URL}/cnr/get-archive-cnr`, {
           headers: {
-            "Content-Type": "application/json",
             token: token,
           },
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          setError("Unauthorized access. Please login again.");
-        } else {
-          setError(`Error: ${response.statusText}`);
-        }
-        return;
-      }
-
-      const responseData = await response.json();
-
-      if (responseData.success && Array.isArray(responseData.data)) {
-        setCases(responseData.data);
-      } else {
-        console.error("Unexpected API response format", responseData);
-        setError("Failed to load cases. Invalid response format.");
-      }
+        })
+        .then((response) => {
+          setCases(response.data.cnrDetails);
+        })
+        .catch((error) => {
+          console.error("Error fetching cases:", error.message);
+          setError("An error occurred while fetching cases.");
+        });
     } catch (error) {
       console.error("Error fetching cases:", error.message);
       setError("An error occurred while fetching cases.");
     } finally {
-      setLoading(false); // Stop loading once the fetch is complete
+      setLoading(false);
     }
   };
 
@@ -121,24 +106,27 @@ const CaseTable = () => {
   // ----------------------------
   // cnr archive
 
-  const handleCnrDelete = (cnrNumber) => {
+  const handleCnrRestore = async (cnrNumber) => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
+    console.log(token);
     if (!token) {
       toast.error("Unauthorized access. Please login again.");
       return;
     }
     axios
-      .delete(`${import.meta.env.VITE_API_URL}/cnr/delte-cnr/${cnrNumber}`, {
+      .put(`${import.meta.env.VITE_API_URL}/cnr/restore-cnr/${cnrNumber}`, {
         headers: {
           token: token,
+          "Content-Type": "application/json",
         },
       })
       .then((response) => {
-        toast.success("Case deleted successfully.");
+        toast.success("Case restore successfully.");
         fetchCases();
       })
       .catch((error) => {
-        toast.error("Failed to delete case. Please try again later.");
+        console.log(error);
+        toast.error("Failed to restore case. Please try again later.");
       });
   };
 
@@ -440,21 +428,18 @@ const CaseTable = () => {
 
                     <td className="py-2 px-4 text-center flex justify-center">
                       <button
-                        className="bg-green-300 text-green-700  px-4 py-2 rounded-md hover:bg-green-500 flex items-center gap-2 ml-2"
-                        onClick={() => {
-                          dispatch(detailPageData(caseData));
-                          navigate(`/case-detail/${caseData.cnrNumber}`);
-                        }}
+                        className=" bg-green-300 text-green-700 px-4 py-2 rounded-md hover:bg-green-500 flex items-center gap-2 ml-2"
+                        onClick={() => handleCnrRestore(caseData?.cnrNumber)}
                       >
-                        <BiSolidMessageRoundedDetail />
-                        <span> Details</span>
+                        <MdRestorePage />
+                        <span>Restore</span>
                       </button>
                       <button
                         className=" bg-red-300 text-red-700 px-4 py-2 rounded-md hover:bg-red-500 flex items-center gap-2 ml-2"
-                        onClick={() => handleCnrDelete(caseData?.cnrNumber)}
+                        onClick={() => {}}
                       >
-                        <MdAutoDelete />
-                        <span>Delete</span>
+                        <MdDelete />
+                        <span> Delete</span>
                       </button>
                     </td>
                   </tr>
@@ -468,4 +453,4 @@ const CaseTable = () => {
   );
 };
 
-export default CaseTable;
+export default Archive;
