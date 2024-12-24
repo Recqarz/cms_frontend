@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import { useParams,Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 
 const CaseDetail = () => {
@@ -21,6 +21,7 @@ const CaseDetail = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
 
   const intrimOrders = data?.intrimOrders || [];
   const caseDetailsColumn1 = [
@@ -285,7 +286,6 @@ const CaseDetail = () => {
           </div>
         </div>
 
-        {/* Interim Orders */}
         <div className="w-full p-4">
           <div className="bg-white rounded-lg p-6 shadow">
             <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
@@ -322,14 +322,14 @@ const CaseDetail = () => {
                           {order.order_date || "-"}
                         </td>
                         <td className="border border-green-200 px-2 py-1">
-                          <a
-                            href={order.s3_url}
+                          <Link
+                            to={order.s3_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
                             View Order
-                          </a>
+                          </Link>
                         </td>
                       </tr>
                     ))
@@ -339,15 +339,23 @@ const CaseDetail = () => {
                         className="border border-green-200 px-2 py-1"
                         colSpan="2"
                       >
-                        No interim orders available
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                        View Order
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="border border-green-200 px-2 py-1" colSpan="2">
+                    No interim orders available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   );
