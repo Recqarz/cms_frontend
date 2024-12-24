@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
+import { PDFDocument } from "pdf-lib";
 
 const CaseDetail = () => {
   const [data, setData] = useState([]);
@@ -19,11 +20,9 @@ const CaseDetail = () => {
 
   useEffect(() => {
     fetchData();
-  });
+  }, []);
 
   const intrimOrders = data?.intrimOrders || [];
-
-  // Case Details Columns
   const caseDetailsColumn1 = [
     { label: "Case Type", value: data?.caseDetails?.["Case Type"] || "-" },
     {
@@ -72,7 +71,37 @@ const CaseDetail = () => {
     },
   ];
 
-  // Respondent and Petitioner Data
+  async function mergeAndDownloadPDF() {
+    try {
+      const pdfLinks = intrimOrders?.map((ele) => {
+        return ele?.s3_url;
+      });
+      const fileName = `${data?.cnrNumber}_merged.pdf`;
+      const mergedPdf = await PDFDocument.create();
+      for (const link of pdfLinks) {
+        const pdfBytes = await fetch(link).then((res) => res.arrayBuffer());
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const pages = await mergedPdf.copyPages(
+          pdfDoc,
+          pdfDoc.getPageIndices()
+        );
+        pages.forEach((page) => mergedPdf.addPage(page));
+      }
+      const mergedPdfBytes = await mergedPdf.save();
+      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log("Merged PDF downloaded successfully");
+    } catch (error) {
+      console.error("Error merging PDFs:", error);
+    }
+  }
+
   const rowData =
     data?.respondentAndAdvocate?.map((item) => {
       const names = item[0]
@@ -262,6 +291,14 @@ const CaseDetail = () => {
             <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
               Interim Orders
             </h2>
+            <div className="flex justify-end mb-2">
+              <button
+                onClick={mergeAndDownloadPDF}
+                className="px-4 py-2 bg-green-200 rounded-md"
+              >
+                Download Merge Pdf
+              </button>
+            </div>
             <div className="overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
