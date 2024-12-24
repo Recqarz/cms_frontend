@@ -21,6 +21,26 @@ const CaseDetail = () => {
     fetchData();
   });
 
+  const downloadAll = async () => {
+    for (const order of intrimOrders) {
+      if (order.s3_url) {
+        try {
+          const link = document.createElement('a');
+          link.href = order.s3_url;
+          link.download = true;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1-second delay
+        } catch (error) {
+          console.error('Error downloading the file:', error);
+        }
+      }
+    }
+  };
+
+
   const intrimOrders = data?.intrimOrders || [];
 
   // Case Details Columns
@@ -256,61 +276,60 @@ const CaseDetail = () => {
           </div>
         </div>
 
-        {/* Interim Orders */}
         <div className="w-full p-4">
-          <div className="bg-white rounded-lg p-6 shadow">
-            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
-              Interim Orders
-            </h2>
-            <div className="overflow-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="bg-green-100 text-green-700">
-                    <th className="border border-green-300 px-2 py-1 text-left">
-                      Order Date
-                    </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
-                      Order Link
-                    </th>
+      <div className="bg-white rounded-lg p-6 shadow">
+        <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+          Interim Orders
+        </h2>
+        <div className="overflow-auto">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr className="bg-green-100 text-green-700">
+                <th className="border border-green-300 px-2 py-1 text-left">
+                  Order Date
+                </th>
+                <th className="border border-green-300 px-2 py-1 text-left">
+                  Order Link
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {intrimOrders.length > 0 ? (
+                intrimOrders.map((order, index) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                    <td className="border border-green-200 px-2 py-1">
+                      {order.order_date || '-'}
+                    </td>
+                    <td className="border border-green-200 px-2 py-1">
+                      <a
+                        href={order.s3_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        View Order
+                      </a>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {intrimOrders.length > 0 ? (
-                    intrimOrders.map((order, index) => (
-                      <tr
-                        key={index}
-                        className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                      >
-                        <td className="border border-green-200 px-2 py-1">
-                          {order.order_date || "-"}
-                        </td>
-                        <td className="border border-green-200 px-2 py-1">
-                          <a
-                            href={order.s3_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline"
-                          >
-                            View Order
-                          </a>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        className="border border-green-200 px-2 py-1"
-                        colSpan="2"
-                      >
-                        No interim orders available
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td className="border border-green-200 px-2 py-1" colSpan="2">
+                    No interim orders available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
+        <button
+          onClick={downloadAll}
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        >
+          Download All
+        </button>
+      </div>
+    </div>
       </div>
     </div>
   );
