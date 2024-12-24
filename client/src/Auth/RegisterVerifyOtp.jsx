@@ -95,7 +95,7 @@ const RegisterVerifyOtp = () => {
         </h2>
         <p className="text-center text-gray-500 mb-4 text-sm">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-500 hover:underline">
+          <Link to="/" className="text-blue-500 hover:underline">
             Log in
           </Link>
         </p>
@@ -157,8 +157,10 @@ const RegisterVerifyOtp = () => {
             />
           </div>
 
-          <div className="w-full text-white py-2 rounded-[50px] transition text-sm font-bold mt-[20px]">
-            <div className="w-full mx-auto flex justify-between gap-1">
+          
+
+          <div className="w-full text-white py-2 rounded-[50px] transition text-sm font-bold">
+            <div className=" mx-auto flex justify-between gap-2 mt-[10px]">
               <button
                 type="button"
                 className="text-white bg-[#716868] hover:bg-[#484444] w-[48%] py-2 rounded-2xl disabled:opacity-50"

@@ -1,7 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import { useParams,Link } from "react-router-dom";
+import { PDFDocument } from "pdf-lib";
 
 const CaseDetail = () => {
   const [data, setData] = useState([]);
@@ -19,31 +20,10 @@ const CaseDetail = () => {
 
   useEffect(() => {
     fetchData();
-  });
-
-  const downloadAll = async () => {
-    for (const order of intrimOrders) {
-      if (order.s3_url) {
-        try {
-          const link = document.createElement('a');
-          link.href = order.s3_url;
-          link.download = true;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          await new Promise(resolve => setTimeout(resolve, 1000)); // 1-second delay
-        } catch (error) {
-          console.error('Error downloading the file:', error);
-        }
-      }
-    }
-  };
+  }, []);
 
 
   const intrimOrders = data?.intrimOrders || [];
-
-  // Case Details Columns
   const caseDetailsColumn1 = [
     { label: "Case Type", value: data?.caseDetails?.["Case Type"] || "-" },
     {
@@ -92,7 +72,37 @@ const CaseDetail = () => {
     },
   ];
 
-  // Respondent and Petitioner Data
+  async function mergeAndDownloadPDF() {
+    try {
+      const pdfLinks = intrimOrders?.map((ele) => {
+        return ele?.s3_url;
+      });
+      const fileName = `${data?.cnrNumber}_merged.pdf`;
+      const mergedPdf = await PDFDocument.create();
+      for (const link of pdfLinks) {
+        const pdfBytes = await fetch(link).then((res) => res.arrayBuffer());
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const pages = await mergedPdf.copyPages(
+          pdfDoc,
+          pdfDoc.getPageIndices()
+        );
+        pages.forEach((page) => mergedPdf.addPage(page));
+      }
+      const mergedPdfBytes = await mergedPdf.save();
+      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log("Merged PDF downloaded successfully");
+    } catch (error) {
+      console.error("Error merging PDFs:", error);
+    }
+  }
+
   const rowData =
     data?.respondentAndAdvocate?.map((item) => {
       const names = item[0]
@@ -277,35 +287,57 @@ const CaseDetail = () => {
         </div>
 
         <div className="w-full p-4">
-      <div className="bg-white rounded-lg p-6 shadow">
-        <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
-          Interim Orders
-        </h2>
-        <div className="overflow-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-green-100 text-green-700">
-                <th className="border border-green-300 px-2 py-1 text-left">
-                  Order Date
-                </th>
-                <th className="border border-green-300 px-2 py-1 text-left">
-                  Order Link
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {intrimOrders.length > 0 ? (
-                intrimOrders.map((order, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                    <td className="border border-green-200 px-2 py-1">
-                      {order.order_date || '-'}
-                    </td>
-                    <td className="border border-green-200 px-2 py-1">
-                      <a
-                        href={order.s3_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
+          <div className="bg-white rounded-lg p-6 shadow">
+            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+              Interim Orders
+            </h2>
+            <div className="flex justify-end mb-2">
+              <button
+                onClick={mergeAndDownloadPDF}
+                className="px-4 py-2 bg-green-200 rounded-md"
+              >
+                Download Merge Pdf
+              </button>
+            </div>
+            <div className="overflow-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-green-100 text-green-700">
+                    <th className="border border-green-300 px-2 py-1 text-left">
+                      Order Date
+                    </th>
+                    <th className="border border-green-300 px-2 py-1 text-left">
+                      Order Link
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {intrimOrders.length > 0 ? (
+                    intrimOrders.map((order, index) => (
+                      <tr
+                        key={index}
+                        className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                      >
+                        <td className="border border-green-200 px-2 py-1">
+                          {order.order_date || "-"}
+                        </td>
+                        <td className="border border-green-200 px-2 py-1">
+                          <Link
+                            to={order.s3_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Order
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        className="border border-green-200 px-2 py-1"
+                        colSpan="2"
                       >
                         View Order
                       </a>
@@ -322,12 +354,6 @@ const CaseDetail = () => {
             </tbody>
           </table>
         </div>
-        <button
-          onClick={downloadAll}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >
-          Download All
-        </button>
       </div>
     </div>
       </div>

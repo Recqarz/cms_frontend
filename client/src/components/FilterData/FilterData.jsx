@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FiSearch, FiUpload, FiPlus } from "react-icons/fi";
-import FileInput from "../FileInput";
+import { FiUpload } from "react-icons/fi";
 import SearchInput from "../SearchInput";
 import axios from "axios";
 import { Button } from "../ui/button";
@@ -16,6 +15,7 @@ import { Label } from "../ui/label";
 import toast from "react-hot-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FaFileUpload } from "react-icons/fa";
+import { Input } from "../ui/input";
 
 const FilterData = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,6 +26,10 @@ const FilterData = () => {
   let role = JSON.parse(localStorage.getItem("cmsrole"));
   const [file, setFile] = useState(null);
   const [isSingle, setIsSingle] = useState(true);
+  const [isSecOpen, setIsSecOpen] = useState(false);
+  const [nusers, setNusers] = useState([
+    { name: "", email: "", mobile: "", dayBeforeNotification: "" },
+  ]);
 
   const handleSelectionChange = (value) => {
     setSelectUser(value);
@@ -65,7 +69,26 @@ const FilterData = () => {
 
   function handleAddCnr() {
     let token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!selectUser) {
+      toast.error("Please select a user");
+      return;
+    }
+    if (!token) {
+      toast.error("Please login again to add CNR");
+      return;
+    }
     if (isSingle) {
+      const newusers = nusers
+        .filter((ele) => ele.email || ele.phone)
+        .map((ele) => ({
+          name: ele?.name,
+          email: ele?.email,
+          mobile: ele?.mobile,
+          dayBeforeNotification: Math.min(
+            parseInt(ele?.dayBeforeNotification) || 4,
+            4
+          ),
+        }));
       axios
         .post(
           `${import.meta.env.VITE_API_URL}/cnr/addnew-singlecnr`,
@@ -73,6 +96,7 @@ const FilterData = () => {
             cnrNumber: searchQuery,
             externalUserId: selectUser._id,
             externalUserName: selectUser.name,
+            jointUser: newusers,
           },
           {
             headers: {
@@ -83,6 +107,10 @@ const FilterData = () => {
         .then((res) => {
           toast.success(res.data.message);
           setIsOpen(false);
+          setNusers([
+            { name: "", email: "", mobile: "", dayBeforeNotification: "" },
+          ]);
+          setIsSecOpen(false);
           fetchData();
         })
         .catch((error) => {
@@ -111,6 +139,43 @@ const FilterData = () => {
         });
     }
   }
+
+  function handleAddCnrtype() {
+    if (isSingle) {
+      setIsSecOpen(true);
+    } else {
+      handleAddCnr();
+    }
+  }
+
+  useEffect(() => {
+    if (!isSecOpen) {
+      setNusers([
+        { name: "", email: "", mobile: "", dayBeforeNotification: "" },
+      ]);
+    }
+  }, [isSecOpen]);
+
+  // Handler to add a new user input field
+  const handleAddUser = () => {
+    if (nusers.length < 8) {
+      setNusers([...nusers, { name: "", email: "", mobile: "" }]);
+    }
+  };
+
+  // Handler to remove the last user input field
+  const handleRemoveUser = () => {
+    if (nusers.length > 1) {
+      setNusers(nusers.slice(0, -1));
+    }
+  };
+
+  // Handler to update a specific user's input
+  const handleInputChange = (index, field, value) => {
+    const updatedUsers = [...nusers];
+    updatedUsers[index][field] = value;
+    setNusers(updatedUsers);
+  };
 
   function fetchUsersData() {
     let token = JSON.parse(localStorage.getItem("cmstoken"));
@@ -219,7 +284,7 @@ const FilterData = () => {
                 <td className="px-6 py-3 border-b">
                   {data?.[0]?.caseStatus?.[0]?.[1] ?? "N/A"}
                 </td>
-                
+
                 <td className="px-6 py-3 border-b">
                   {data?.[0]?.petitionerAndAdvocate?.[0] ?? "N/A"}
                 </td>
@@ -289,11 +354,140 @@ const FilterData = () => {
           </div>
           <DialogFooter>
             {users.length > 0 ? (
-              <Button onClick={handleAddCnr} type="submit">
+              <Button
+                onClick={() => {
+                  handleAddCnrtype();
+                }}
+                type="submit"
+              >
                 Add
               </Button>
             ) : null}
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSecOpen} onOpenChange={setIsSecOpen}>
+        <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-hidden">
+          <DialogHeader className="space-y-2">
+            <DialogTitle>Notification Setting</DialogTitle>
+            <DialogDescription className="text-red-500">
+              You can add up to 8 users for notifications by providing their
+              name, email, and phone number.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-6 py-4 px-1 overflow-y-auto max-h-[50vh] scrollbar-hide">
+            {nusers.map((user, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-4 pb-4 border-b border-gray-200"
+              >
+                <h3 className="text-center font-medium">User {index + 1}</h3>
+
+                <div className="grid grid-cols-4 items-center gap-3">
+                  <Label
+                    htmlFor={`name-${index}`}
+                    className="text-right text-sm"
+                  >
+                    Name
+                  </Label>
+                  <Input
+                    id={`name-${index}`}
+                    className="col-span-3"
+                    placeholder="Eg:- CMS"
+                    value={user.name}
+                    onChange={(e) =>
+                      handleInputChange(index, "name", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-3">
+                  <Label
+                    htmlFor={`email-${index}`}
+                    className="text-right text-sm"
+                  >
+                    Email
+                  </Label>
+                  <Input
+                    id={`email-${index}`}
+                    className="col-span-3"
+                    placeholder="Eg:- cms@recqarz.com"
+                    value={user.email}
+                    onChange={(e) =>
+                      handleInputChange(index, "email", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-3">
+                  <Label
+                    htmlFor={`mobile-${index}`}
+                    className="text-right text-sm"
+                  >
+                    Mobile
+                  </Label>
+                  <Input
+                    id={`mobile-${index}`}
+                    className="col-span-3"
+                    placeholder="Eg:- 9876543211"
+                    value={user.mobile}
+                    onChange={(e) =>
+                      handleInputChange(index, "mobile", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-3">
+                  <Label
+                    htmlFor={`dayBeforeNotification-${index}`}
+                    className="text-right text-sm"
+                  >
+                    Day Before Notification
+                  </Label>
+                  <Input
+                    id={`dayBeforeNotification-${index}`}
+                    className="col-span-3"
+                    placeholder="Max 4 days allowed"
+                    value={user.dayBeforeNotification}
+                    onChange={(e) =>
+                      handleInputChange(
+                        index,
+                        "dayBeforeNotification",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAddUser}
+                disabled={nusers.length >= 8}
+                variant="secondary"
+                size="sm"
+              >
+                + Add
+              </Button>
+              <Button
+                onClick={handleRemoveUser}
+                disabled={nusers.length <= 1}
+                variant="secondary"
+                size="sm"
+              >
+                - Remove
+              </Button>
+            </div>
+
+            <Button onClick={handleAddCnr} type="submit" size="sm">
+              Submit
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

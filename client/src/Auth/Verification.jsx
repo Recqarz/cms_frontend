@@ -78,8 +78,10 @@ const Verification = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center relative
-">
+    <div
+      className="w-full min-h-screen flex flex-col items-center justify-center relative
+"
+    >
       <div className="absolute top-4 left-4">
         <img src="/sign_logo.png" alt="Illustration" className="w-[200px]" />
       </div>
@@ -87,7 +89,7 @@ const Verification = () => {
         // className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 shadow"
         // style={{ boxShadow: "rgba(0, 0, 0, 0.05) 0px 0px 0px 1px" }}
 
-        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4 rounded "
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-6 rounded "
         style={{
           boxShadow:
             "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
@@ -98,59 +100,71 @@ const Verification = () => {
           msOverflowStyle: "none",
         }}
       >
-        <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">
+        <h1 className="text-center text-xl font-semibold text-gray-700 mb-2">
           OTP Verification
-        </h2>
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-3 w-full p-4">
+        <form onSubmit={handleSubmit} className="space-y-3 w-full p-4 ">
           {/* Email OTP */}
-          <div>
-            <label className="block text-gray-700 text-sm">
-              Enter Email OTP
-            </label>
-            <div className="flex space-x-2">
-              {emailOtp.map((value, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength="1"
-                  value={value}
-                  onChange={(e) => handleChange(e, index, "email")}
-                  onKeyDown={(e) => handleBackspace(e, index, "email")}
-                  onPaste={(e) => handlePaste(e, "email")}
-                  className="w-10 h-10 border rounded text-center"
-                />
-              ))}
-            </div>
+
+          <label className="block text-gray-700 text-sm ">
+            Enter Email OTP
+          </label>
+          <div className="space-x-10">
+            {emailOtp.map((value, index) => (
+              <input
+                key={index}
+                type="text"
+                maxLength="1"
+                value={value}
+                onChange={(e) => handleChange(e, index, "email")}
+                onKeyDown={(e) => handleBackspace(e, index, "email")}
+                onPaste={(e) => handlePaste(e, "email")}
+                className="w-10 h-10 border rounded text-center"
+              />
+            ))}
           </div>
 
           {/* Mobile OTP */}
-          <div>
-            <label className="block text-gray-700 text-sm">Enter SMS OTP</label>
-            <div className="flex space-x-2">
-              {mobileOtp.map((value, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength="1"
-                  value={value}
-                  onChange={(e) => handleChange(e, index, "mobile")}
-                  onKeyDown={(e) => handleBackspace(e, index, "mobile")}
-                  onPaste={(e) => handlePaste(e, "mobile")}
-                  className="w-10 h-10 border rounded text-center"
-                />
-              ))}
-            </div>
+
+          <label className="block text-gray-700 text-sm mb-2">
+            Enter SMS OTP
+          </label>
+          <div className="space-x-10">
+            {mobileOtp.map((value, index) => (
+              <input
+                key={index}
+                type="text"
+                maxLength="1"
+                value={value}
+                onChange={(e) => handleChange(e, index, "mobile")}
+                onKeyDown={(e) => handleBackspace(e, index, "mobile")}
+                onPaste={(e) => handlePaste(e, "mobile")}
+                className="w-10 h-10 border rounded text-center"
+              />
+            ))}
           </div>
 
           {/* Submit */}
-          <button
-            type="submit"
-            className="w-full  text-white py-2 rounded-[50px]  transition text-sm font-bold bg-[#716868] hover:bg-[#484444]"
-            disabled={isLoading}
-          >
-            {isLoading ? "Verifying..." : "Verify"}
-          </button>
+
+          <div className="w-full text-white py-2 rounded-[50px] transition text-sm font-bold ">
+            <div className=" mx-auto flex justify-between gap-2 mt-[20px]">
+              <button
+                type="button"
+                className="text-white bg-[#716868] hover:bg-[#484444] w-[45%] py-2 rounded-2xl"
+                onClick={() => navigate("/")}
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                className="w-[45%]  text-white py-2 rounded-2xl  transition text-sm font-bold bg-[#716868] hover:bg-[#484444]"
+                disabled={isLoading}
+              >
+                {isLoading ? "Verifying..." : "Verify"}
+              </button>
+            </div>
+          </div>
         </form>
 
         {/* Display API response message */}

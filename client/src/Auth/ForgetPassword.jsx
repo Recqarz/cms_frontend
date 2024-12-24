@@ -74,12 +74,12 @@ const ForgetPassword = () => {
         <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
       </div>
       <div
-        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-4  rounded "
+        className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-8  rounded "
         style={{
           boxShadow:
             "rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px",
 
-          // boxShadow: "rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px",
+          
 
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -94,14 +94,14 @@ const ForgetPassword = () => {
           `}
         </style>
 
-        <h2 className="text-center text-xl font-semibold text-gray-700 mb-6">
+        <h1 className="text-center text-xl font-semibold text-gray-700 mb-6">
           Forgot Password
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4 w-full p-4">
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-3 w-full p-4">
           <div>
             <label
               htmlFor="email"
-              className="block text-gray-700 text-sm font-medium mb-1"
+              className="block text-gray-700 text-sm "
             >
               Email
             </label>
@@ -112,7 +112,7 @@ const ForgetPassword = () => {
               value={formData.email}
               onChange={handleFormData}
               placeholder="Enter your email"
-              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 ${
+              className={`w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
             />
@@ -123,7 +123,7 @@ const ForgetPassword = () => {
           <div>
             <label
               htmlFor="mobile"
-              className="block text-gray-700 text-sm font-medium mb-1"
+              className="block text-gray-700 text-sm "
             >
               Phone Number
             </label>
@@ -134,7 +134,7 @@ const ForgetPassword = () => {
               value={formData.mobile}
               onChange={handleFormData}
               placeholder="Enter your phone number"
-              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 ${
+              className={`w-full border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 ${
                 errors.mobile ? "border-red-500" : "border-gray-300"
               }`}
             />
@@ -142,7 +142,7 @@ const ForgetPassword = () => {
               <p className="text-red-500 text-xs mt-1">{errors.mobile}</p>
             )}
           </div>
-          <div className="w-full pt-4">
+          {/* <div className="w-full pt-4">
             <div className="w-full mx-auto flex justify-between gap-4">
               <button
                 type="button"
@@ -158,7 +158,25 @@ const ForgetPassword = () => {
                 Next
               </button>
             </div>
-          </div>
+          </div> */}
+          <div className="w-full pt-4">
+  <div className="w-full mx-auto flex justify-between gap-4">
+    <button
+      type="button"
+      className="text-white w-full py-1.5  rounded-[50px] transition duration-200 font-bold bg-[#716868] hover:bg-[#484444]"
+      onClick={() => navigate("/")}
+    >
+      Back
+    </button>
+    <button
+      type="submit"
+      className="text-white w-full py-1 rounded-[50px] transition duration-200 font-bold bg-[#716868] hover:bg-[#484444]"
+    >
+      Next
+    </button>
+  </div>
+</div>
+
         </form>
       </div>
     </div>
