@@ -135,7 +135,7 @@ const TrackedCases = () => {
           <input
             type="text"
             placeholder="Search Users by Name, Email or Date"
-            className="border bg-green-100 text-green-700 rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-green-600 w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
+            className="border bg-green-100 text-green-700 rounded-md px-4 py-3 sm:placeholder:text-[16px] placeholder:text-green-600 w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -174,7 +174,7 @@ const TrackedCases = () => {
           </div>
 
           <button
-            className="flex px-4 rounded-md py-2 items-center bg-green-100 text-green-700 hover:bg-purple-500 shadow-md transition"
+            className="flex px-4 rounded-md py-2 items-center bg-green-100 text-green-700 hover:bg-green-500 shadow-md transition"
             onClick={toggleExportInput}
           >
             <FaDownload className="mr-2" /> Export

@@ -9,6 +9,7 @@ import AddUser from "../components/Add User/AddUser.jsx";
 import CaseDetail from "../components/Case Detail/CaseDetail.jsx";
 import SettingPages from "../components/SettingPages.jsx";
 import UserDirectory from "@/components/User Directory/UserDirectory";
+import Archive from "@/components/Archive/Archive";
 
 
 
@@ -28,6 +29,8 @@ const Allroutes = () => {
         {/* <Route path="/add-user" element={<AddUser/>}/> */}
         <Route path="/case-detail/:cnrNumber" element={<CaseDetail />} />
         <Route path="/user-directory" element={<UserDirectory/>}/>
+
+        <Route path="/archive" element={<Archive />}/>
 
         <Route path="/setting" element={<SettingPages/>}/>
 
