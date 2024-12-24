@@ -428,10 +428,10 @@ const CaseTable = () => {
                       </TooltipProvider>
                     </td>
                     <TooltipProvider>
-                      <td className="py-2 px-4 ">
+                      <td className="py-2 px-4  text-left">
                         <Tooltip className="border ">
                           <TooltipTrigger>
-                            <span>{truncatedRespondent}</span>
+                            <span >{truncatedRespondent}</span>
                           </TooltipTrigger>
                           <TooltipContent>{respondent}</TooltipContent>
                         </Tooltip>

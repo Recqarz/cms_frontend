@@ -1,14 +1,11 @@
-
-
-
-
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { Server } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Server } from "lucide-react";
+import { MdDelete } from "react-icons/md";
 
 const UserDirectory = () => {
-  const [users, setUsers] = useState([]);  // State to store fetched users data
+  const [users, setUsers] = useState([]);
 
   const fetchUsersData = () => {
     let token = JSON.parse(localStorage.getItem("cmstoken"));
@@ -19,8 +16,8 @@ const UserDirectory = () => {
         },
       })
       .then((res) => {
-        setUsers(res.data.data);  // Set users data to state
-        console.log(res.data.data);  // Log the data for debugging
+        setUsers(res.data.data);
+        console.log(res.data.data);
       })
       .catch((error) => {
         toast.error("Error fetching data");
@@ -28,11 +25,11 @@ const UserDirectory = () => {
   };
 
   useEffect(() => {
-    fetchUsersData();  // Call the function when the component mounts
+    fetchUsersData();
   }, []);
 
   return (
-    <div className="w-full p-4" style={{ height: '480px' }}>
+    <div className="w-full p-4" style={{ height: "480px" }}>
       <div className="bg-white rounded-lg p-6 shadow-lg h-full">
         <h1 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
           User Directory
@@ -59,8 +56,12 @@ const UserDirectory = () => {
                   <td className="border border-green-200 px-2 py-1">
                     {user.name}
                   </td>
-                  <td className="border border-green-200 px-2 py-1">
+
+                  <td className="border border-green-200 px-2 py-1 flex items-center justify-between">
                     {user.noOfAssigncases}
+                    {user.noOfAssigncases === 0 && (
+                      <MdDelete className="text-red-500  cursor-pointer" />
+                    )}
                   </td>
                 </tr>
               ))}
