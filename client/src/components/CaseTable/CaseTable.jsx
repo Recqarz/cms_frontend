@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { detailPageData } from "@/global/action";
+import * as XLSX from "xlsx";
 import {
   Tooltip,
   TooltipContent,
@@ -119,93 +120,80 @@ const CaseTable = () => {
     const exportData = selectedCases.length
       ? selectedCases.map((index) => filteredData[index])
       : filteredData;
-
-    // CSV Header with detailed case information
-    const csvHeader = [
-      "CNR Number",
-      "Case Type",
-      "Filing Number",
-      "Filing Date",
-      "Registration Number",
-      "Registration Date",
-      "First Hearing Date",
-      "Next Hearing Date",
-      "Case Stage",
-      "Court Number and Judge",
-      "Respondent",
-      "Petitioner",
-      "Case History",
-      "Interim Orders",
-    ];
-
-    const csvRows = exportData.map((caseData) => {
+ 
+    const excelData = [];
+ 
+    exportData.forEach((caseData) => {
       const caseDetails = caseData.caseDetails || {};
+      const caseStatus = caseData.caseStatus || [];
       const caseHistory = caseData.caseHistory || [];
-      const interimOrders = caseData.interimOrders || [];
-
-      // Format case history into a readable string
-      const caseHistoryFormatted = caseHistory
-        .map(
-          (history) =>
-            `${history[0] || ""} - ${history[1] || ""} - ${
-              history[2] || ""
-            } - ${history[3] || ""}`
-        )
-        .join(" | ");
-
-      // Format interim orders into a readable string
-      const interimOrdersFormatted = interimOrders
-        .map(
-          (order) =>
-            `${order[0] || ""} - ${
-              order[1] ? `<a href="${order[1]}">View Order</a>` : ""
-            }`
-        )
-        .join(" | ");
-
-      return [
-        caseDetails.caseType || "",
-        caseDetails.filingNumber || "",
-        caseDetails.filingDate || "",
-        caseDetails.registrationNumber || "",
-        caseDetails.cnrNumber || "",
-        caseDetails.registrationDate || "",
-        caseDetails.firstHearingDate || "",
-        caseDetails.courtNumberAndJudge || "",
-        caseDetails.caseStage || "",
-        caseDetails.nextHearingDate || "",
-        (caseData.respondentAndAdvocate || [])
-          .map(
-            (item) =>
-              `${item[0] || ""}: ${item[1] || ""} - ${item[2] || ""} - ${
-                item[3] || ""
-              }`
-          )
-          .join(", ") || "N/A",
-        (caseData.petitionerAndAdvocate || [])
-          .map(
-            (item) =>
-              `${item[0] || ""}: ${item[1] || ""} - ${item[2] || ""} - ${
-                item[3] || ""
-              }`
-          )
-          .join(", ") || "N/A",
-        caseHistoryFormatted,
-        interimOrdersFormatted,
-      ];
+      const interimOrders = caseData.intrimOrders || [];
+ 
+      // Determine the maximum number of rows needed
+      const maxRows = Math.max(caseHistory.length, interimOrders.length);
+ 
+      // Add main case details in the first row
+      excelData.push({
+        "CNR Number": caseDetails["CNR Number"] || caseDetails.cnrNumber || "N/A",
+        "Case Type": caseDetails["Case Type"] || "N/A",
+        "Filing Number": caseDetails["Filing Number"] || "N/A",
+        "Filing Date": caseDetails["Filing Date"] || "N/A",
+        "Registration Number": caseDetails["Registration Number"] || "N/A",
+        "Registration Date": caseDetails["Registration Date:"] || "N/A",
+        "First Hearing Date": caseStatus.find((status) => status[0] === "First Hearing Date")?.[1] || "N/A",
+        "Next Hearing Date":
+          caseStatus.find((status) => status[0] === "Next Hearing Date" || status[0] === "Decision Date")?.[1] || "N/A",
+        "Case Stage": caseStatus.find((status) => status[0] === "Case Status")?.[1] || "N/A",
+        "Court Number and Judge": caseStatus.find((status) => status[0] === "Court Number and Judge")?.[1] || "N/A",
+        "Case History": "",
+        "Interim Orders": "", // Header for Interim Orders column
+      });
+ 
+      // Add case history and interim orders side by side
+      for (let i = 0; i < maxRows; i++) {
+        excelData.push({
+          "CNR Number": "",
+          "Case Type": "",
+          "Filing Number": "",
+          "Filing Date": "",
+          "Registration Number": "",
+          "Registration Date": "",
+          "First Hearing Date": "",
+          "Next Hearing Date": "",
+          "Case Stage": "",
+          "Court Number and Judge": "",
+          "Case History":
+            caseHistory[i]
+              ? `${caseHistory[i][0] || "N/A"} - ${caseHistory[i][1] || "N/A"} - ${caseHistory[i][2] || "N/A"} - ${
+                  caseHistory[i][3] || "N/A"
+                }`
+              : "",
+          "Interim Orders":
+            interimOrders[i]
+              ? `${interimOrders[i].order_date || "N/A"} - ${
+                  interimOrders[i].s3_url ? `View Order: ${interimOrders[i].s3_url}` : "No URL"
+                }`
+              : "",
+        });
+      }
+ 
+      // Add a separator row (optional, for better distinction between cases)
+      excelData.push({});
     });
-
-    const csvContent = [
-      csvHeader.join(","),
-      ...csvRows.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "exported_cases.csv";
-    link.click();
-
+ 
+    // Create a workbook and add the data as a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+ 
+    // Adjust column widths
+    const columnWidths = Object.keys(excelData[0]).map((key) => ({ wch: Math.max(key.length, 30) }));
+    worksheet["!cols"] = columnWidths;
+ 
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Cases");
+ 
+    // Generate the downloadable file
+    XLSX.writeFile(workbook, "exported_cases.xlsx");
+ 
     toast.success("Export successful!");
     setShowExportConfirm(false);
     setShowCheckboxes(false);
