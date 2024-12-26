@@ -29,22 +29,9 @@ const CaseTable = () => {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageLimit, setPageLimit] = useState(10);
-  // const [totalCases, setTotalCases] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  // const [pageSize, setPageSize] = useState(10);
   let dispatch = useDispatch();
   const filterDropdownRef = useRef(null);
-
-  // const filteredData = cases.filter(
-  //   (caseData) =>
-  //     Object.values(caseData)
-  //       .join(" ")
-  //       .toLowerCase()
-  //       .includes(filterText.toLowerCase()) &&
-  //     (filterOption
-  //       ? caseData.status.toLowerCase() === filterOption.toLowerCase()
-  //       : true)
-  // );
 
   const fetchCases = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
@@ -100,10 +87,9 @@ const CaseTable = () => {
     }
   };
 
-  // Handle page limit change
   const handlePageLimitChange = (newLimit) => {
     setPageLimit(newLimit);
-    setCurrentPage(1); // Reset to the first page when the page limit changes
+    setCurrentPage(1); 
   };
 
   useEffect(() => {
@@ -166,18 +152,14 @@ const CaseTable = () => {
 
     const excelData = [];
 
-    let maxInterimOrderLength = 0; // To track the maximum length of the Interim Orders content
+    let maxInterimOrderLength = 0; 
 
     exportData.forEach((caseData) => {
       const caseDetails = caseData.caseDetails || {};
       const caseStatus = caseData.caseStatus || [];
       const caseHistory = caseData.caseHistory || [];
       const interimOrders = caseData.intrimOrders || [];
-
-      // Determine the maximum number of rows needed
       const maxRows = Math.max(caseHistory.length, interimOrders.length);
-
-      // Add main case details in the first row
       excelData.push({
         "CNR Number":
           caseDetails["CNR Number"] || caseDetails.cnrNumber || "N/A",
@@ -203,24 +185,18 @@ const CaseTable = () => {
             (status) => status[0] === "Court Number and Judge"
           )?.[1] || "N/A",
         "Case History": "",
-        "Interim Orders": "", // Header for Interim Orders column
+        "Interim Orders": "", 
       });
-
-      // Add case history and interim orders side by side
       for (let i = 0; i < maxRows; i++) {
         const interimOrder = interimOrders[i]
           ? interimOrders[i].s3_url
             ? interimOrders[i].s3_url
             : "No URL"
           : "";
-
-        // Track the maximum length of Interim Orders content
         maxInterimOrderLength = Math.max(
           maxInterimOrderLength,
           interimOrder.length
         );
-
-        // Create hyperlink for Interim Orders
         const interimOrderHyperlink =
           interimOrder && interimOrder !== "No URL"
             ? {
@@ -246,21 +222,14 @@ const CaseTable = () => {
                 caseHistory[i][1] || "N/A"
               } - ${caseHistory[i][2] || "N/A"} - ${caseHistory[i][3] || "N/A"}`
             : "",
-          "Interim Orders": interimOrderHyperlink, // Store the hyperlink here
+          "Interim Orders": interimOrderHyperlink,
         });
       }
-
-      // Add a separator row (optional, for better distinction between cases)
       excelData.push({});
     });
-
-    // Create a workbook and add the data as a worksheet
     const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-    // Adjust column widths dynamically
     const columnWidths = Object.keys(excelData[0]).map((key) => {
       if (key === "Interim Orders") {
-        // Set the width for Interim Orders based on the maximum length of its content
         return { wch: Math.max(30, maxInterimOrderLength) };
       }
       return { wch: Math.max(key.length, 30) };
@@ -269,8 +238,6 @@ const CaseTable = () => {
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Cases");
-
-    // Generate the downloadable file
     XLSX.writeFile(workbook, "exported_cases.xlsx");
 
     toast.success("Export successful!");
@@ -307,7 +274,7 @@ const CaseTable = () => {
             <input
               type="text"
               placeholder="Search cases"
-              className="border  border-[#F4F2FF] bg-[#F4F2FF]  hover:bg-[#8B83BA] hover:text-white w-full border-green-100 rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-[#6E6893] focus:outline-none pl-10"
+              className="border  border-[#F4F2FF] bg-[#F4F2FF]  hover:bg-[#8B83BA] hover:text-white w-full  rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-[#6E6893] focus:outline-none pl-10"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
             />
