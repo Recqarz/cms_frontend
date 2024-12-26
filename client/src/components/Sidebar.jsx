@@ -113,7 +113,7 @@ const Sidebar = () => {
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/case-table")}
                   >
-                    My {role=="advocate" ? "Council" : "Cases"}
+                    My Council
                   </li>
                   <li
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
@@ -126,6 +126,12 @@ const Sidebar = () => {
                     onClick={() => navigate("/add-case")}
                   >
                     Add Cases
+                  </li>
+                  <li
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
+                    onClick={() => navigate("/case-research")}
+                  >
+                    Case researcher
                   </li>
                 </ul>
               )}
@@ -154,14 +160,20 @@ const Sidebar = () => {
                   >
                     Add User
                   </li>
-                  <li className="py-2 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md" onClick={()=>navigate("/user-directory")}>
+                  <li
+                    className="py-2 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
+                    onClick={() => navigate("/user-directory")}
+                  >
                     User Directory
                   </li>
                 </ul>
               )}
             </li>
 
-            <li className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200" onClick={()=>navigate("/archive")}>
+            <li
+              className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200"
+              onClick={() => navigate("/archive")}
+            >
               <RiArchiveFill className="mr-3" />
               <span>Archive</span>
             </li>
