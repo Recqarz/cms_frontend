@@ -84,6 +84,12 @@ const Sidebar = () => {
             marginBottom: "10px",
           }}
         />
+        {/* <img
+          src="/logo cms 1.png"
+          alt="CMS Logo"
+          className="w-[180px] h-[24px]   mx-auto ml-[8px] mt-8"
+        /> */}
+
 
         <nav className="mt-6 px-2">
           <ul className="space-y-2">
@@ -113,7 +119,7 @@ const Sidebar = () => {
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/case-table")}
                   >
-                    My {role == "advocate" ? "Council" : "Cases"}
+                    My Council
                   </li>
                   <li
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
@@ -137,7 +143,7 @@ const Sidebar = () => {
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/case-route")}
                   >
-                    Case Management
+                     Management
                   </li>
                 </ul>
               )}

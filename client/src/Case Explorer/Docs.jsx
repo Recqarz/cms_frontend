@@ -54,7 +54,7 @@ const Docs = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="bg-white hover:bg-green-50">
+              <tr className="bg-white hover:bg-gray-100">
                 <td className="py-3 px-4">12345678</td>
                 <td className="py-3 px-4">20/01/2025</td>
                 <td className="py-3 px-4">

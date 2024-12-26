@@ -19,15 +19,15 @@ const CaseResearch = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative mt-2">
       <div
         className={`shadow-lg rounded-xl p-8 bg-white ${
           isModalOpen ? "blur-sm" : ""
         }`}
       >
-        <h1 className="text-3xl text-center text-[#8B83BA] font-bold mb-6">
+        <h2 className="text-3xl text-center text-[#6E6893] font-bold mb-8">
           All Case Research
-        </h1>
+        </h2>
 
         <div className="flex flex-wrap gap-6 justify-between items-center mb-8">
           <div className="flex items-center gap-3 w-full sm:w-auto">

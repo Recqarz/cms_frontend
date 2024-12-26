@@ -229,7 +229,7 @@ const FilterData = () => {
           />
         </div>
         <div className="w-full">
-          <div className="flex items-center justify-center w-full bg-gray-100 p-4 border-2 border-dashed border-gray-300 rounded-lg shadow-sm hover:border-blue-500 transition">
+          <div className="flex items-center justify-center w-full bg-gray-100 p-4 border-2 border-dashed border-gray-300 rounded-lg shadow-sm hover:border-[#8B83BA] transition">
             <label
               htmlFor="file-upload"
               className="flex items-center space-x-2 text-gray-600 cursor-pointer"
@@ -256,7 +256,7 @@ const FilterData = () => {
             <button
               type="submit"
               onClick={handleFileUpload}
-              className="flex w-full items-center justify-center p-4 bg-green-500 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105"
+              className="flex w-full items-center justify-center p-4 bg-[#8B83BA] text-white rounded-lg shadow-md cursor-pointer hover:bg-[#5a518c] transition duration-300 ease-in-out transform hover:scale-105"
             >
               <FiUpload className="mr-2 text-xl" />
               <span className="text-lg font-semibold">Upload</span>
