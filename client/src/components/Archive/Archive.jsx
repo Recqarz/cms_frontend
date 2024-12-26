@@ -276,7 +276,7 @@ const Archive = () => {
   return (
     <div className="shadow-md rounded-lg p-6">
       <div>
-        <h1 className="text-2xl text-center text-green-900 mb-5 font-bold">
+        <h1 className="text-2xl text-center text-[#5a518c]    mb-5 font-bold">
           My Archive Case
         </h1>
       </div>

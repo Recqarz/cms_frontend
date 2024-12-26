@@ -7,6 +7,11 @@ import { toast } from "react-hot-toast";
 const CaseDetail = () => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedpdf, setSelectedPdfs] = useState([]);
+  const [showExportConfirm, setShowExportConfirm] = useState(false);
+
   const { cnrNumber } = useParams();
 
   useEffect(() => {
@@ -84,7 +89,7 @@ const CaseDetail = () => {
       partyType,
       name: item[0]
         ?.split("\n")
-        .map((entry) => entry.trim())
+        .map((entry) => entry.replace(/^\d+\)\s*/, "").trim())
         .join("\n"),
       advocate: "",
       address: "Address not available",
@@ -99,18 +104,32 @@ const CaseDetail = () => {
     "Petitioner"
   );
 
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    setSelectedPdfs(selectAll ? [] : intrimOrders.map((_, index) => index));
+  };
+
+  const handlePdfSelect = (index) => {
+    setSelectedPdfs((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
   const mergeAndDownloadPDF = async () => {
     try {
-      const pdfLinks = intrimOrders?.map((order) => order?.s3_url) || [];
-      if (pdfLinks.length === 0) {
-        toast.error("No PDFs available to merge");
+      const selectedLinks = intrimOrders
+        .filter((order) => selectedpdf.includes(intrimOrders.indexOf(order)))
+        .map((order) => order?.s3_url);
+
+      if (selectedLinks.length === 0) {
+        toast.error("No PDFs selected to merge");
         return;
       }
 
       const fileName = `${data?.cnrNumber}_merged.pdf`;
       const mergedPdf = await PDFDocument.create();
 
-      for (const link of pdfLinks) {
+      for (const link of selectedLinks) {
         const pdfBytes = await fetch(link).then((res) => res.arrayBuffer());
         const pdfDoc = await PDFDocument.load(pdfBytes);
         const pages = await mergedPdf.copyPages(
@@ -131,10 +150,19 @@ const CaseDetail = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       toast.success("PDFs merged and downloaded successfully");
+      setSelectAll(false);
+      setSelectedPdfs([]);
+      setShowExportConfirm(false);
+      setShowCheckboxes(false);
     } catch (error) {
       console.error("Error merging PDFs:", error);
       toast.error("Failed to merge PDFs");
     }
+  };
+
+  const toggleExportConfirm = () => {
+    setShowExportConfirm((prev) => !prev);
+    setShowCheckboxes(!showExportConfirm);
   };
 
   if (isLoading) {
@@ -228,8 +256,8 @@ const CaseDetail = () => {
         </div>
 
         <div className="w-full md:w-1/2 p-4 space-y-6">
-          <TableSection title="Respondent" data={respondentData} />
           <TableSection title="Petitioner" data={petitionerData} />
+          <TableSection title="Respondent" data={respondentData} />
         </div>
 
         <div className="w-full p-4">
@@ -297,19 +325,40 @@ const CaseDetail = () => {
             <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
               Interim Orders
             </h2>
-            <div className="flex justify-end mb-2">
+            <div className="flex justify-end items-center space-x-4 mb-2">
               <button
-                onClick={mergeAndDownloadPDF}
-                className="px-4 py-2 bg-green-200 hover:bg-green-300 rounded-md transition-colors"
-                disabled={intrimOrders.length === 0}
+                onClick={toggleExportConfirm}
+                className="px-4 py-2 bg-green-100 text-green-700 hover:bg-green-500 rounded-md w-full sm:w-auto mt-2 sm:mt-0"
               >
                 Download Merged PDF
               </button>
+              {showExportConfirm && (
+                <div className="flex justify-end">
+                  <button
+                    className="px-4 py-2 bg-green-100 text-green-700 hover:bg-green-500 rounded-md w-full sm:w-auto mt-2 sm:mt-0"
+                    onClick={mergeAndDownloadPDF}
+                    disabled={selectedpdf.length === 0}
+                  >
+                    Confirm download
+                  </button>
+                </div>
+              )}
             </div>
+
             <div className="overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-green-100 text-green-700">
+                    {showCheckboxes && (
+                      <th className="py-2 px-4 w-10 border border-green-300">
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          className="w-6 h-6 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5"
+                        />
+                      </th>
+                    )}
                     <th className="border border-green-300 px-2 py-1 text-left">
                       Order Date
                     </th>
@@ -325,6 +374,16 @@ const CaseDetail = () => {
                         key={index}
                         className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                       >
+                        {showCheckboxes && (
+                          <td className="py-2 px-4 border border-green-300">
+                            <input
+                              type="checkbox"
+                              checked={selectedpdf.includes(index)}
+                              onChange={() => handlePdfSelect(index)}
+                              className="w-6 h-6 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5"
+                            />
+                          </td>
+                        )}
                         <td className="border border-green-200 px-2 py-1">
                           {order.order_date || "-"}
                         </td>
@@ -344,7 +403,7 @@ const CaseDetail = () => {
                     <tr>
                       <td
                         className="border border-green-200 px-2 py-1"
-                        colSpan="2"
+                        colSpan="3"
                       >
                         No interim orders available
                       </td>
