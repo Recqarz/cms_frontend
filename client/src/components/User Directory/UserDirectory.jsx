@@ -71,21 +71,21 @@ const UserDirectory = () => {
   return (
     <div className="w-full p-4" style={{ height: "480px" }}>
       <div className="bg-white rounded-lg p-6 shadow-lg h-full">
-        <h1 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+        <h1 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
           User Directory
         </h1>
 
         <div className="overflow-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-green-100 text-green-700">
-                <th className="border border-green-300 px-2 py-1 text-left">
+              <tr className="bg-[#F4F2FF] text-[#5a518c]">
+                <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                   User Name
                 </th>
-                <th className="border border-green-300 px-2 py-1 text-left">
+                <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                   No. of Assigned Cases
                 </th>
-                <th className="border border-green-300 px-2 py-1 text-left">
+                <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                   Delete
                 </th>
               </tr>
@@ -96,15 +96,15 @@ const UserDirectory = () => {
                   key={index}
                   className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                 >
-                  <td className="border border-green-200 px-2 py-1">
+                  <td className="border border-[#F4F2FF] px-2 py-1">
                     {user.name}
                   </td>
 
-                  <td className="border border-green-200 px-2 py-1">
+                  <td className="border border-[#F4F2FF] px-2 py-1">
                     {user.noOfAssigncases}
                   </td>
 
-                  <td className="border border-green-200 px-2 py-1 text-center">
+                  <td className="border border-[#F4F2FF] px-2 py-1 text-center">
                     <td className=" px-2 py-1 text-center">
                       <MdDelete
                         onClick={() =>

@@ -96,7 +96,7 @@ const SettingPages = () => {
   return (
     <div className="w-full p-4" style={{ height: "540px" }}>
       <div className="bg-white rounded-lg p-6 shadow-lg h-full">
-        <h1 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+        <h1 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#5a518c] rounded-lg">
           Settings
         </h1>
         {error && <p className="text-red-600 text-center">{error}</p>}
@@ -109,7 +109,7 @@ const SettingPages = () => {
                   className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                 >
                   <td
-                    className={`border border-green-200 px-2 py-1 ${
+                    className={`border border-[#F4F2FF] px-2 py-1 ${
                       label === "Default same day at 6 AM"
                         ? "text-center font-medium bg-gray-50 text-gray-600"
                         : ""
@@ -119,7 +119,7 @@ const SettingPages = () => {
                     {label}
                   </td>
                   {field && (
-                    <td className="border border-green-200 px-2 py-1 text-center">
+                    <td className="border border-[#F4F2FF] px-2 py-1 text-center">
                       <button
                         onClick={() => handleToggle(field)}
                         className={`flex items-center justify-center px-3 py-1 rounded-lg text-white font-medium mx-auto ${
@@ -148,7 +148,7 @@ const SettingPages = () => {
         <div className="flex justify-center mt-4">
           <button
             onClick={handleSaveSetting}
-            className="border bg-green-600 text-white text-sm font-bold px-8 py-2 rounded-lg hover:bg-green-400 hover:text-white transition-all"
+            className="border bg-[#8B83BA] text-white text-sm font-bold px-8 py-2 rounded-lg hover:bg-[#5a518c]  hover:text-white transition-all"
           >
             Save
           </button>

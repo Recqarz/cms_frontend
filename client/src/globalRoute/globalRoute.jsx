@@ -11,6 +11,7 @@ import SettingPages from "../components/SettingPages.jsx";
 import UserDirectory from "@/components/User Directory/UserDirectory";
 import Archive from "@/components/Archive/Archive";
 import CaseResearch from "@/components/Case Research/CaseResearch";
+import CaseRoute from "@/Case Explorer/CaseRoute";
 
 const Allroutes = () => {
   return (
@@ -28,6 +29,7 @@ const Allroutes = () => {
           <Route path="/case-detail/:cnrNumber" element={<CaseDetail />} />
           <Route path="/user-directory" element={<UserDirectory />} />
           <Route path="/case-research" element={<CaseResearch />} />
+          <Route path="/case-route" element={<CaseRoute />} />
 
           <Route path="/archive" element={<Archive />} />
 

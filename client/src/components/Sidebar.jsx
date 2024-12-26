@@ -113,7 +113,7 @@ const Sidebar = () => {
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/case-table")}
                   >
-                    My Council
+                    My {role == "advocate" ? "Council" : "Cases"}
                   </li>
                   <li
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
@@ -132,6 +132,12 @@ const Sidebar = () => {
                     onClick={() => navigate("/case-research")}
                   >
                     Case researcher
+                  </li>
+                  <li
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
+                    onClick={() => navigate("/case-route")}
+                  >
+                    Case Management
                   </li>
                 </ul>
               )}

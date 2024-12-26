@@ -82,8 +82,6 @@ const CaseTable = () => {
 
       if (responseData.success && Array.isArray(responseData.data)) {
         setCases(responseData.data);
-        // setTotalCases(responseData.total);
-        // setPageSize(responseData.pageSize);
         setTotalPages(responseData.pageSize);
       } else {
         console.error("Unexpected API response format", responseData);
@@ -299,23 +297,23 @@ const CaseTable = () => {
   return (
     <div className="shadow-md rounded-lg p-6">
       <div>
-        <h1 className="text-2xl text-center text-green-900 mb-5 font-bold">
+        <h1 className="text-2xl text-center text-[#8B83BA] mb-5 font-bold">
           My Councils Case
         </h1>
       </div>
       <div className="flex items-center mb-4 flex-wrap gap-4 justify-between">
-        <div className="flex items-center gap-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 text-green-700">
+        <div className="flex items-center gap-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 text-[#8B83BA]">
           <div className="relative w-full text-green-700  ">
             <input
               type="text"
               placeholder="Search cases"
-              className="border bg-green-100 text-green-700 w-full border-green-100 rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-green-500 focus:outline-none pl-10"
+              className="border  border-[#F4F2FF] bg-[#F4F2FF]  hover:bg-[#8B83BA] hover:text-white w-full border-green-100 rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-[#6E6893] focus:outline-none pl-10"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
             />
             <CiSearch
               size={24}
-              className="absolute left-3 top-3  text-green-400"
+              className="absolute left-3 top-3  text-[#6E6893]"
             />
           </div>
         </div>
@@ -323,7 +321,7 @@ const CaseTable = () => {
         <div className="flex gap-x-3 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           <div className="relative w-full sm:w-auto" ref={filterDropdownRef}>
             <button
-              className="px-4 py-2 rounded-md flex border-2 border-green-100 bg-green-100 text-green-700 items-center gap-2 w-full sm:w-auto"
+              className="px-4 py-2 rounded-md flex border-2 border-[#F4F2FF] bg-[#F4F2FF] text-[#6E6893] hover:bg-[#8B83BA] hover:text-white items-center gap-2 w-full sm:w-auto"
               onClick={toggleFilterDropdown}
             >
               <FaFilter />
@@ -354,7 +352,7 @@ const CaseTable = () => {
           </div>
 
           <button
-            className="px-4 py-2 bg-green-100 text-green-700 hover:bg-green-500 rounded-md w-full sm:w-auto mt-2 sm:mt-0"
+            className="px-4 py-2 bg-[#F4F2FF] text-[#6E6893] hover:bg-[#8B83BA] hover:text-white rounded-md w-full sm:w-auto mt-2 sm:mt-0"
             onClick={toggleExportConfirm}
           >
             <FaDownload className="inline-block mr-2" />

@@ -286,11 +286,24 @@ const FilterData = () => {
                 </td>
 
                 <td className="px-6 py-3 border-b">
-                  {data?.[0]?.petitionerAndAdvocate?.[0] ?? "N/A"}
+                  {data?.[0]?.petitionerAndAdvocate?.[0]
+                    ? (typeof data?.[0]?.petitionerAndAdvocate?.[0] === "string"
+                        ? data?.[0]?.petitionerAndAdvocate?.[0]
+                        : data?.[0]?.petitionerAndAdvocate[0]?.[0]
+                      )?.replace(/^1\)\s*/, "")
+                    : "N/A"}
                 </td>
                 <td className="px-6 py-3 border-b">
-                  {data?.[0]?.respondentAndAdvocate?.[0] ?? "N/A"}
+                  {data?.[0]?.respondentAndAdvocate?.[0]
+                    ? (typeof data?.[0]?.respondentAndAdvocate?.[0] === "string"
+                        ? data?.[0]?.respondentAndAdvocate?.[0]
+                        : data?.[0]?.respondentAndAdvocate[0]?.[0]
+                      )
+                        ?.replace(/\d+\)\s*/g, "")
+                        .replace(/\n/g, " , ")
+                    : "N/A"}
                 </td>
+
                 <td className="px-6 py-3 border-b">
                   <button
                     onClick={() => {
