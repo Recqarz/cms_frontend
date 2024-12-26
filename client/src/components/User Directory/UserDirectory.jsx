@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Server } from "lucide-react";
 import { MdDelete } from "react-icons/md";
 
 const UserDirectory = () => {
   const [users, setUsers] = useState([]);
 
   const fetchUsersData = () => {
-    let token = JSON.parse(localStorage.getItem("cmstoken"));
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
     axios
       .get(`${import.meta.env.VITE_API_URL}/external-user/get-external-user`, {
         headers: {
@@ -21,6 +20,47 @@ const UserDirectory = () => {
       })
       .catch((error) => {
         toast.error("Error fetching data");
+      });
+  };
+
+  const handleDeleteUser = (_id, noOfAssigncases) => {
+    console.log("Deleting user with ID:", _id);
+
+    if (noOfAssigncases > 0) {
+      toast.error("Cannot delete user with assigned cases.");
+      return;
+    }
+
+    if (!_id) {
+      toast.error("Invalid user ID. Please try again.");
+      return;
+    }
+
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Unauthorized access. Please login again.");
+      return;
+    }
+
+    axios
+      .delete(
+        `${
+          import.meta.env.VITE_API_URL
+        }/external-user/delete-external-user/${_id}`,
+        {
+          headers: {
+            token: token,
+          },
+        }
+      )
+      .then((response) => {
+        console.log("User deleted successfully:", response);
+        toast.success("User deleted successfully.");
+        fetchUsersData();
+      })
+      .catch((error) => {
+        console.error("Error deleting user:", error);
+        toast.error("Failed to delete user. Please try again later.");
       });
   };
 
@@ -45,6 +85,9 @@ const UserDirectory = () => {
                 <th className="border border-green-300 px-2 py-1 text-left">
                   No. of Assigned Cases
                 </th>
+                <th className="border border-green-300 px-2 py-1 text-left">
+                  Delete
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -57,11 +100,23 @@ const UserDirectory = () => {
                     {user.name}
                   </td>
 
-                  <td className="border border-green-200 px-2 py-1 flex items-center justify-between">
+                  <td className="border border-green-200 px-2 py-1">
                     {user.noOfAssigncases}
-                    {user.noOfAssigncases === 0 && (
-                      <MdDelete className="text-red-500  cursor-pointer" />
-                    )}
+                  </td>
+
+                  <td className="border border-green-200 px-2 py-1 text-center">
+                    <td className=" px-2 py-1 text-center">
+                      <MdDelete
+                        onClick={() =>
+                          handleDeleteUser(user._id, user.noOfAssigncases)
+                        }
+                        className={`cursor-pointer ${
+                          user.noOfAssigncases === 0
+                            ? "text-red-500"
+                            : "text-red-200"
+                        }`}
+                      />
+                    </td>
                   </td>
                 </tr>
               ))}
