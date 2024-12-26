@@ -98,7 +98,6 @@ const Archive = () => {
     setShowCheckboxes(!showExportConfirm);
   };
 
-  // ----------------------------
   // cnr archive
 
   const handleCnrRestore = (cnrNumber) => {
@@ -276,24 +275,24 @@ const Archive = () => {
   return (
     <div className="shadow-md rounded-lg p-6">
       <div>
-        <h1 className="text-2xl text-center text-[#5a518c]    mb-5 font-bold">
+        <h1 className="text-2xl text-center text-[#5a518c] mb-5 font-bold">
           My Archive Case
         </h1>
       </div>
 
-      <div className="flex items-center mb-4 flex-wrap gap-4 justify-between">
+      <div className="flex items-center mb-4 flex-wrap gap-4 justify-between ">
         <div className="flex items-center gap-2 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 text-green-700">
           <div className="relative w-full text-green-700  ">
             <input
               type="text"
               placeholder="Search cases"
-              className="border bg-green-100 text-green-700 w-full border-green-100 rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-green-500 focus:outline-none pl-10"
+              className="border bg-[#F4F2FF] text-[#8B83BA]  w-full border-[#F4F2FF] rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-[#8B83BA] focus:outline-none pl-10"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
             />
             <CiSearch
               size={24}
-              className="absolute left-3 top-3  text-green-400"
+              className="absolute left-3 top-3  text-[#8B83BA]"
             />
           </div>
         </div>
@@ -301,7 +300,7 @@ const Archive = () => {
         <div className="flex gap-x-3 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           <div className="relative w-full sm:w-auto" ref={filterDropdownRef}>
             <button
-              className="px-4 py-2 rounded-md flex border-2 border-green-100 bg-green-100 text-green-700 items-center gap-2 w-full sm:w-auto"
+              className="px-4 py-2 rounded-md flex border-2 border-[#F4F2FF] bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white items-center gap-2 w-full sm:w-auto"
               onClick={toggleFilterDropdown}
             >
               <FaFilter />
@@ -326,7 +325,7 @@ const Archive = () => {
           </div>
 
           <button
-            className="px-4 py-2 bg-green-100 text-green-700 hover:bg-green-500 rounded-md w-full sm:w-auto mt-2 sm:mt-0"
+            className="px-4 py-2 bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white rounded-md w-full sm:w-auto mt-2 sm:mt-0"
             onClick={toggleExportConfirm}
           >
             <FaDownload className="inline-block mr-2" />
@@ -338,7 +337,7 @@ const Archive = () => {
       {showExportConfirm && (
         <div className="mb-4">
           <button
-            className="bg-green-300 text-green-700 hover:bg-green-500 px-4 py-2 rounded-lg"
+            className="bg-[#8B83BA] text-white hover:bg-[#F4F2FF] hover:text-[#8B83BA] border border-transparent hover:border-[#8B83BA] px-4 py-2 rounded-lg"
             onClick={handleExport}
             disabled={selectedCases.length === 0}
           >
@@ -350,7 +349,7 @@ const Archive = () => {
       <div className="mt-8 overflow-x-auto">
         <table className="min-w-full rounded-lg table-auto">
           <thead>
-            <tr className="bg-green-100 text-green-700 text-left">
+            <tr className="bg-[#F4F2FF] text-[#8B83BA] text-left">
               {showCheckboxes && (
                 <th className="py-2 px-4 ">
                   <input
@@ -382,7 +381,13 @@ const Archive = () => {
             ) : filteredData.length === 0 ? (
               <tr>
                 <td colSpan="7" className="py-4 text-center">
-                  No cases found
+                <div className="flex justify-center items-center">
+        <img
+          src="/Nodata_found.png"
+          alt="No cases found"
+          className="max-w-xs mx-auto  p-8 "
+        />
+      </div>
                 </td>
               </tr>
             ) : (
@@ -419,7 +424,7 @@ const Archive = () => {
                 return (
                   <tr
                     key={index}
-                    className="bg-white hover:bg-green-50 text-sm border-t"
+                    className="bg-white hover:bg-gray-100 text-sm border-t"
                   >
                     {showCheckboxes && (
                       <td className="py-2 px-4">
@@ -459,14 +464,14 @@ const Archive = () => {
 
                     <td className="py-2 px-4 text-center flex justify-center">
                       <button
-                        className=" bg-green-300 text-green-700 px-4 py-2 rounded-md hover:bg-green-500 flex items-center gap-2 ml-2"
+                        className=" bg-[#F4F2FF] text-[#8B83BA] px-4 py-2 rounded-md hover:bg-[#6E6893] hover:text-white flex items-center gap-2 ml-2"
                         onClick={() => handleCnrRestore(caseData?.cnrNumber)}
                       >
                         <MdRestorePage />
                         <span>Restore</span>
                       </button>
                       <button
-                        className=" bg-red-300 text-red-700 px-4 py-2 rounded-md hover:bg-red-500 flex items-center gap-2 ml-2"
+                        className=" bg-red-200 text-red-700 px-4 py-2 rounded-md hover:bg-red-400 hover:text-white flex items-center gap-2 ml-2"
                         onClick={() => handleCnrDelete(caseData?.cnrNumber)}
                       >
                         <MdDelete />
