@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const TrackedCases = () => {
-
   const [cases, setCases] = useState([]);
 
   function fetchData() {
@@ -85,8 +84,9 @@ const TrackedCases = () => {
   const filteredCases = cases
     .filter((caseItem) => {
       if (selectedFilter === "All") return true;
-      return caseItem.status.toLowerCase().includes(selectedFilter.toLowerCase());
-
+      return caseItem.status
+        .toLowerCase()
+        .includes(selectedFilter.toLowerCase());
     })
     .filter((caseItem) => {
       const query = searchQuery.toLowerCase();
@@ -126,7 +126,7 @@ const TrackedCases = () => {
 
   return (
     <div className="mx-auto px-4 py-6">
-      <h2 className="text-2xl font-semibold mb-4 text-center text-green-800 ">
+      <h2 className="text-2xl font-semibold mb-4 text-center text-[#8B83BA] ">
         Tracked Cases
       </h2>
 
@@ -135,20 +135,20 @@ const TrackedCases = () => {
           <input
             type="text"
             placeholder="Search Users by Name, Email or Date"
-            className="border bg-green-100 text-green-700 rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-green-600 w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
+            className="border bg-[#F4F2FF] text-[#8B83BA] rounded-md px-4 py-3 sm:placeholder:text-[16px] placeholder:text-[#8B83BA] w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <CiSearch
             size={24}
-            className="absolute left-3 top-3  text-green-600"
+            className="absolute left-3 top-3  text-[#8B83BA]"
           />
         </div>
 
         <div className="flex gap-4 sm:gap-6 justify-center sm:justify-end mb-4">
           <div className="relative">
             <button
-              className="filter-button px-4 rounded-md py-2 flex justify-center items-center gap-x-4 border-2 bg-green-100 text-green-700 w-auto"
+              className="filter-button px-4 rounded-md py-2 flex justify-center items-center gap-x-4  bg-[#F4F2FF] hover:bg-[#8B83BA] hover:text-white shadow-lg text-[#8B83BA] w-auto "
               onClick={toggleDropdown}
             >
               <FaFilter className="mr-2" /> {selectedFilter}
@@ -161,7 +161,7 @@ const TrackedCases = () => {
                     (filter) => (
                       <li
                         key={filter}
-                        className="px-2 py-2 font-medium hover:bg-gray-100 cursor-pointer"
+                        className="px-2 py-2 font-medium hover:bg-gray-100 cursor-pointer shadow-md"
                         onClick={() => handleFilterChange(filter)}
                       >
                         {filter}
@@ -174,7 +174,8 @@ const TrackedCases = () => {
           </div>
 
           <button
-            className="flex px-4 rounded-md py-2 items-center bg-green-100 text-green-700 hover:bg-purple-500 shadow-md transition"
+            className="flex px-4 rounded-md py-2 items-center shadow-lg bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white shadow-md transition"
+
             onClick={toggleExportInput}
           >
             <FaDownload className="mr-2" /> Export
@@ -185,7 +186,7 @@ const TrackedCases = () => {
       {showExportInput && (
         <div className="mb-4">
           <button
-            className="bg-green-100 text-green-700 px-4 py-2 rounded-lg w-full sm:w-auto"
+            className="bg-[#F4F2FF] text-[#8B83BA] px-4 py-2 shadow-lg rounded-lg w-full sm:w-auto hover:bg-[#8B83BA] hover:text-white shadow-md transition cursor-pointer"
             onClick={handleExport}
             disabled={isExportDisabled}
           >
@@ -197,7 +198,7 @@ const TrackedCases = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
-            <tr className="bg-green-100 text-green-700">
+            <tr className="bg-[#F4F2FF] text-[#8B83BA">
               {showCheckboxes && (
                 <th className="py-3 px-6 text-left">
                   <input
@@ -208,8 +209,8 @@ const TrackedCases = () => {
                   />
                 </th>
               )}
-              <th className="py-3 px-6 text-left">CNR NUMBER</th>
-              <th className="py-3 px-6 text-left">STATUS</th>
+              <th className="py-3 px-6 text-left text-[#6E6893]">CNR NUMBER</th>
+              <th className="py-3 px-6 text-left text-[#6E6893]">STATUS</th>
             </tr>
           </thead>
           <tbody>
@@ -231,16 +232,44 @@ const TrackedCases = () => {
                     <span
                       className={`px-6 py-1 text-sm rounded-xl flex items-center ${
                         caseItem.status === "Completed"
-                          ? "bg-[#CDFFCD] text-[#007F00]"
-                          : "bg-[#e3c795e9] text-[#965E00]"
+                          ? "bg-[#F4F2FF] text-[#8B83BA]"
+                          : caseItem.status === "processed"
+                          ? "bg-[#F4F2FF] text-[#8B83BA]" // green
+                          : caseItem.status === "wrong"
+                          ? "bg-red-200 text-red-700" // red
+                          : caseItem.status === "Different_format"
+                          ? "bg-red-200 text-red-700" // red
+                          : caseItem.status === "invalidcnr"
+                          ? "bg-blue-200 text-blue-700" // blue
+                          : caseItem.status === "pending"
+                          ? "bg-yellow-200 text-yellow-700" // yellow
+                          : caseItem.status === "underProgress"
+                          ? "bg-blue-200 text-blue-700" // blue
+                          : caseItem.status === "alreadyprocessed"
+                          ? "bg-pink-200 text-pink-700" // pink
+                          : "bg-gray-200 text-gray-700" // default color
                       }`}
                     >
                       <FaCircle
                         size={10}
                         className={
                           caseItem.status === "Completed"
-                            ? "text-[#007F00]"
-                            : "text-[#965E00]"
+                            ? "text-[#8B83BA]"
+                            : caseItem.status === "processed"
+                            ? "text-[#8B83BA]" // green
+                            : caseItem.status === "wrong"
+                            ? "text-red-700" // red
+                            : caseItem.status === "Different_format"
+                            ? "text-red-700" // red
+                            : caseItem.status === "invalidcnr"
+                            ? "text-blue-700" // blue
+                            : caseItem.status === "pending"
+                            ? "text-yellow-700" // yellow
+                            : caseItem.status === "underProgress"
+                            ? "text-blue-700" // blue
+                            : caseItem.status === "alreadyprocessed"
+                            ? "text-pink-700" // pink
+                            : "text-gray-700" // default color
                         }
                       />
                       {caseItem.status}

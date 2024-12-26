@@ -1,29 +1,41 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import axios from "axios";
+import { useParams, Link } from "react-router-dom";
+import { PDFDocument } from "pdf-lib";
+import { toast } from "react-hot-toast";
 
 const CaseDetail = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedpdf, setSelectedPdfs] = useState([]);
+  const [showExportConfirm, setShowExportConfirm] = useState(false);
+
   const { cnrNumber } = useParams();
-  function fetchData() {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/cnr/get-singlecnr/${cnrNumber}`)
-      .then((res) => {
-        setData(res.data.data);
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
-  }
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/cnr/get-singlecnr/${cnrNumber}`
+        );
+        setData(response.data.data);
+      } catch (err) {
+        toast.error(
+          err.response?.data?.message || "Failed to fetch case details"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchData();
-  });
+  }, [cnrNumber]);
 
   const intrimOrders = data?.intrimOrders || [];
 
-  // Case Details Columns
   const caseDetailsColumn1 = [
     { label: "Case Type", value: data?.caseDetails?.["Case Type"] || "-" },
     {
@@ -72,45 +84,150 @@ const CaseDetail = () => {
     },
   ];
 
-  // Respondent and Petitioner Data
-  const rowData =
-    data?.respondentAndAdvocate?.map((item) => {
-      const names = item[0]
+  const processPartyData = (partyData, partyType) =>
+    partyData?.map((item) => ({
+      partyType,
+      name: item[0]
         ?.split("\n")
-        .map((entry) => entry.trim())
-        .join("\n"); // Join names into a single string with line breaks
-      return {
-        partyType: "Respondent",
-        name: names, // All names combined into one string
-        advocate: "", // Advocate info if needed
-        address: "Address not available",
-      };
-    }) || [];
+        .map((entry) => entry.replace(/^\d+\)\s*/, "").trim())
+        .join("\n"),
+      advocate: "",
+      address: "Address not available",
+    })) || [];
 
-  const rowData2 =
-    data?.petitionerAndAdvocate?.map((item) => {
-      const names = item[0]
-        ?.split("\n")
-        .map((entry) => entry.trim())
-        .join("\n"); // Join names into a single string with line breaks
-      return {
-        partyType: "Petitioner",
-        name: names, // All names combined into one string
-        advocate: "", // Advocate info if needed
-        address: "Address not available",
-      };
-    }) || [];
+  const respondentData = processPartyData(
+    data?.respondentAndAdvocate,
+    "Respondent"
+  );
+  const petitionerData = processPartyData(
+    data?.petitionerAndAdvocate,
+    "Petitioner"
+  );
 
-  // Case History Table Logic
-  const caseHistory = data?.caseHistory || [];
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    setSelectedPdfs(selectAll ? [] : intrimOrders.map((_, index) => index));
+  };
+
+  const handlePdfSelect = (index) => {
+    setSelectedPdfs((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
+  const mergeAndDownloadPDF = async () => {
+    try {
+      const selectedLinks = intrimOrders
+        .filter((order) => selectedpdf.includes(intrimOrders.indexOf(order)))
+        .map((order) => order?.s3_url);
+
+      if (selectedLinks.length === 0) {
+        toast.error("No PDFs selected to merge");
+        return;
+      }
+
+      const fileName = `${data?.cnrNumber}_merged.pdf`;
+      const mergedPdf = await PDFDocument.create();
+
+      for (const link of selectedLinks) {
+        const pdfBytes = await fetch(link).then((res) => res.arrayBuffer());
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const pages = await mergedPdf.copyPages(
+          pdfDoc,
+          pdfDoc.getPageIndices()
+        );
+        pages.forEach((page) => mergedPdf.addPage(page));
+      }
+
+      const mergedPdfBytes = await mergedPdf.save();
+      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("PDFs merged and downloaded successfully");
+      setSelectAll(false);
+      setSelectedPdfs([]);
+      setShowExportConfirm(false);
+      setShowCheckboxes(false);
+    } catch (error) {
+      console.error("Error merging PDFs:", error);
+      toast.error("Failed to merge PDFs");
+    }
+  };
+
+  const toggleExportConfirm = () => {
+    setShowExportConfirm((prev) => !prev);
+    setShowCheckboxes(!showExportConfirm);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#8B83BA] border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  const TableSection = ({ title, data }) => (
+    <div className="bg-white rounded-lg p-6 shadow">
+      <h2 className="text-left text-lg font-bold mb-2 text-[#8B83BA]">
+        {title}
+      </h2>
+      <div className="overflow-auto">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="bg-[#F4F2FF] text-[#8B83BA]">
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
+                Party Type
+              </th>
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
+                Name
+              </th>
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
+                Advocate
+              </th>
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
+                Address
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row, index) => (
+              <tr
+                key={index}
+                className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+              >
+                <td className="border border-[#F4F2FF] px-2 py-1">
+                  {row.partyType}
+                </td>
+                <td className="border border-[#F4F2FF] px-2 py-1 whitespace-pre-line">
+                  {row.name}
+                </td>
+                <td className="border border-[#F4F2FF] px-2 py-1">
+                  {row.advocate}
+                </td>
+                <td className="border border-[#F4F2FF] px-2 py-1">
+                  {row.address}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <div className="flex flex-wrap bg-gray-100 rounded-lg">
-        {/* Case Details */}
         <div className="w-full md:w-1/2 p-4">
           <div className="bg-white rounded-lg p-6 shadow">
-            <h1 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+            <h1 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
               Case Details
             </h1>
             <div className="flex flex-col sm:flex-row gap-6">
@@ -139,103 +256,50 @@ const CaseDetail = () => {
         </div>
 
         <div className="w-full md:w-1/2 p-4 space-y-6">
-          {[
-            { title: "Respondent", data: rowData },
-            { title: "Petitioner", data: rowData2 },
-          ].map((section, idx) => (
-            <div key={idx} className="bg-white rounded-lg p-6 shadow">
-              <h2 className="text-left text-lg font-bold mb-2 text-green-600">
-                {section.title}
-              </h2>
-              <div className="overflow-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-green-100 text-green-700">
-                      <th className="border border-green-300 px-2 py-1 text-left">
-                        Party Type
-                      </th>
-                      <th className="border border-green-300 px-2 py-1 text-left">
-                        Name
-                      </th>
-                      <th className="border border-green-300 px-2 py-1 text-left">
-                        Advocate
-                      </th>
-                      <th className="border border-green-300 px-2 py-1 text-left">
-                        Address
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {section.data.map((row, index) => (
-                      <tr
-                        key={index}
-                        className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                      >
-                        <td className="border border-green-200 px-2 py-1">
-                          {row.partyType}
-                        </td>
-                        <td
-                          className="border border-green-200 px-2 py-1"
-                          style={{ whiteSpace: "pre-line" }}
-                        >
-                          {row.name}
-                        </td>
-                        <td className="border border-green-200 px-2 py-1">
-                          {row.advocate}
-                        </td>
-                        <td className="border border-green-200 px-2 py-1">
-                          {row.address}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
+          <TableSection title="Petitioner" data={petitionerData} />
+          <TableSection title="Respondent" data={respondentData} />
         </div>
 
-        {/* Case History */}
         <div className="w-full p-4">
           <div className="bg-white rounded-lg p-6 shadow">
-            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
               Case History
             </h2>
             <div className="overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="bg-green-100 text-green-700">
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                  <tr className="bg-[#F4F2FF] text-[#8B83BA]">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Judge
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Business on Date
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Hearing Date
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Purpose of Hearing
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {caseHistory.length > 0 ? (
-                    caseHistory.slice(1).map((row, index) => (
+                  {data?.caseHistory?.length > 1 ? (
+                    data.caseHistory.slice(1).map((row, index) => (
                       <tr
                         key={index}
                         className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                       >
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[0] || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[1] || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[2] || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[3] || "-"}
                         </td>
                       </tr>
@@ -243,10 +307,16 @@ const CaseDetail = () => {
                   ) : (
                     <tr>
                       <td
-                        className="border border-green-200 px-2 py-1"
+                        className="border border-[#F4F2FF] px-2 py-1"
                         colSpan="4"
                       >
-                        No case history available
+                        <div className="flex justify-center items-center">
+                          <img
+                            src="/Nodata_found.png"
+                            alt="No cases history found"
+                            className="max-w-xs mx-auto  p-8 "
+                          />
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -256,20 +326,49 @@ const CaseDetail = () => {
           </div>
         </div>
 
-        {/* Interim Orders */}
         <div className="w-full p-4">
           <div className="bg-white rounded-lg p-6 shadow">
-            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
               Interim Orders
             </h2>
+            <div className="flex justify-end items-center space-x-4 mb-2">
+              <button
+                onClick={toggleExportConfirm}
+                className="px-4 py-2 bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white rounded-md w-full sm:w-auto mt-2 sm:mt-0"
+              >
+                Download Merged PDF
+              </button>
+              {showExportConfirm && (
+                <div className="flex justify-end">
+                  <button
+                    className="px-4 py-2 bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white rounded-md w-full sm:w-auto mt-2 sm:mt-0"
+                    onClick={mergeAndDownloadPDF}
+                    disabled={selectedpdf.length === 0}
+                  >
+                    Confirm download
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="bg-green-100 text-green-700">
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                  <tr className="bg-[#F4F2FF] text-[#8B83BA]">
+                    {showCheckboxes && (
+                      <th className="py-2 px-4 w-10 border border-[#F4F2FF ]">
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          className="w-6 h-6 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5"
+                        />
+                      </th>
+                    )}
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
                       Order Date
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
                       Order Link
                     </th>
                   </tr>
@@ -281,26 +380,36 @@ const CaseDetail = () => {
                         key={index}
                         className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                       >
-                        <td className="border border-green-200 px-2 py-1">
+                        {showCheckboxes && (
+                          <td className="py-2 px-4 border border-[#F4F2FF ]">
+                            <input
+                              type="checkbox"
+                              checked={selectedpdf.includes(index)}
+                              onChange={() => handlePdfSelect(index)}
+                              className="w-6 h-6 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5"
+                            />
+                          </td>
+                        )}
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {order.order_date || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
-                          <a
-                            href={order.s3_url}
+                        <td className="border border-[#F4F2FF] px-2 py-1">
+                          <Link
+                            to={order.s3_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
                             View Order
-                          </a>
+                          </Link>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
                       <td
-                        className="border border-green-200 px-2 py-1"
-                        colSpan="2"
+                        className="border border-[#F4F2FF] px-2 py-1"
+                        colSpan="3"
                       >
                         No interim orders available
                       </td>
