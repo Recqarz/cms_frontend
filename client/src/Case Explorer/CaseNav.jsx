@@ -14,7 +14,7 @@ const CaseNav = () => {
   ];
 
   return (
-    <div className="flex justify-between items-center px-2 py-4 border border-gray-200">
+    <div className="flex justify-between items-center px-2 py-4 shadow-lg mb-2">
       {navItems.map((item) => (
         <Link
           key={item.name}

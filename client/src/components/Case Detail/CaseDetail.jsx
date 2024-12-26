@@ -168,30 +168,30 @@ const CaseDetail = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#8B83BA] border-t-transparent"></div>
       </div>
     );
   }
 
   const TableSection = ({ title, data }) => (
     <div className="bg-white rounded-lg p-6 shadow">
-      <h2 className="text-left text-lg font-bold mb-2 text-green-600">
+      <h2 className="text-left text-lg font-bold mb-2 text-[#8B83BA]">
         {title}
       </h2>
       <div className="overflow-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="bg-green-100 text-green-700">
-              <th className="border border-green-300 px-2 py-1 text-left">
+            <tr className="bg-[#F4F2FF] text-[#8B83BA]">
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                 Party Type
               </th>
-              <th className="border border-green-300 px-2 py-1 text-left">
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                 Name
               </th>
-              <th className="border border-green-300 px-2 py-1 text-left">
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                 Advocate
               </th>
-              <th className="border border-green-300 px-2 py-1 text-left">
+              <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                 Address
               </th>
             </tr>
@@ -202,16 +202,16 @@ const CaseDetail = () => {
                 key={index}
                 className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
               >
-                <td className="border border-green-200 px-2 py-1">
+                <td className="border border-[#F4F2FF] px-2 py-1">
                   {row.partyType}
                 </td>
-                <td className="border border-green-200 px-2 py-1 whitespace-pre-line">
+                <td className="border border-[#F4F2FF] px-2 py-1 whitespace-pre-line">
                   {row.name}
                 </td>
-                <td className="border border-green-200 px-2 py-1">
+                <td className="border border-[#F4F2FF] px-2 py-1">
                   {row.advocate}
                 </td>
-                <td className="border border-green-200 px-2 py-1">
+                <td className="border border-[#F4F2FF] px-2 py-1">
                   {row.address}
                 </td>
               </tr>
@@ -227,7 +227,7 @@ const CaseDetail = () => {
       <div className="flex flex-wrap bg-gray-100 rounded-lg">
         <div className="w-full md:w-1/2 p-4">
           <div className="bg-white rounded-lg p-6 shadow">
-            <h1 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+            <h1 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
               Case Details
             </h1>
             <div className="flex flex-col sm:flex-row gap-6">
@@ -262,23 +262,23 @@ const CaseDetail = () => {
 
         <div className="w-full p-4">
           <div className="bg-white rounded-lg p-6 shadow">
-            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
               Case History
             </h2>
             <div className="overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="bg-green-100 text-green-700">
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                  <tr className="bg-[#F4F2FF] text-[#8B83BA]">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Judge
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Business on Date
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Hearing Date
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Purpose of Hearing
                     </th>
                   </tr>
@@ -290,16 +290,16 @@ const CaseDetail = () => {
                         key={index}
                         className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                       >
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[0] || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[1] || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[2] || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {row[3] || "-"}
                         </td>
                       </tr>
@@ -307,10 +307,16 @@ const CaseDetail = () => {
                   ) : (
                     <tr>
                       <td
-                        className="border border-green-200 px-2 py-1"
+                        className="border border-[#F4F2FF] px-2 py-1"
                         colSpan="4"
                       >
-                        No case history available
+                        <div className="flex justify-center items-center">
+                          <img
+                            src="/Nodata_found.png"
+                            alt="No cases history found"
+                            className="max-w-xs mx-auto  p-8 "
+                          />
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -322,20 +328,20 @@ const CaseDetail = () => {
 
         <div className="w-full p-4">
           <div className="bg-white rounded-lg p-6 shadow">
-            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-green-100 text-green-600 rounded-lg">
+            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
               Interim Orders
             </h2>
             <div className="flex justify-end items-center space-x-4 mb-2">
               <button
                 onClick={toggleExportConfirm}
-                className="px-4 py-2 bg-green-100 text-green-700 hover:bg-green-500 rounded-md w-full sm:w-auto mt-2 sm:mt-0"
+                className="px-4 py-2 bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white rounded-md w-full sm:w-auto mt-2 sm:mt-0"
               >
                 Download Merged PDF
               </button>
               {showExportConfirm && (
                 <div className="flex justify-end">
                   <button
-                    className="px-4 py-2 bg-green-100 text-green-700 hover:bg-green-500 rounded-md w-full sm:w-auto mt-2 sm:mt-0"
+                    className="px-4 py-2 bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white rounded-md w-full sm:w-auto mt-2 sm:mt-0"
                     onClick={mergeAndDownloadPDF}
                     disabled={selectedpdf.length === 0}
                   >
@@ -348,9 +354,9 @@ const CaseDetail = () => {
             <div className="overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
-                  <tr className="bg-green-100 text-green-700">
+                  <tr className="bg-[#F4F2FF] text-[#8B83BA]">
                     {showCheckboxes && (
-                      <th className="py-2 px-4 w-10 border border-green-300">
+                      <th className="py-2 px-4 w-10 border border-[#F4F2FF ]">
                         <input
                           type="checkbox"
                           checked={selectAll}
@@ -359,10 +365,10 @@ const CaseDetail = () => {
                         />
                       </th>
                     )}
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
                       Order Date
                     </th>
-                    <th className="border border-green-300 px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
                       Order Link
                     </th>
                   </tr>
@@ -375,7 +381,7 @@ const CaseDetail = () => {
                         className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                       >
                         {showCheckboxes && (
-                          <td className="py-2 px-4 border border-green-300">
+                          <td className="py-2 px-4 border border-[#F4F2FF ]">
                             <input
                               type="checkbox"
                               checked={selectedpdf.includes(index)}
@@ -384,10 +390,10 @@ const CaseDetail = () => {
                             />
                           </td>
                         )}
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           {order.order_date || "-"}
                         </td>
-                        <td className="border border-green-200 px-2 py-1">
+                        <td className="border border-[#F4F2FF] px-2 py-1">
                           <Link
                             to={order.s3_url}
                             target="_blank"
@@ -402,7 +408,7 @@ const CaseDetail = () => {
                   ) : (
                     <tr>
                       <td
-                        className="border border-green-200 px-2 py-1"
+                        className="border border-[#F4F2FF] px-2 py-1"
                         colSpan="3"
                       >
                         No interim orders available

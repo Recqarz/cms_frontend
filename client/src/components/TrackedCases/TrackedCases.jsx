@@ -126,7 +126,7 @@ const TrackedCases = () => {
 
   return (
     <div className="mx-auto px-4 py-6">
-      <h2 className="text-2xl font-semibold mb-4 text-center text-green-800 ">
+      <h2 className="text-2xl font-semibold mb-4 text-center text-[#8B83BA] ">
         Tracked Cases
       </h2>
 
@@ -135,20 +135,20 @@ const TrackedCases = () => {
           <input
             type="text"
             placeholder="Search Users by Name, Email or Date"
-            className="border bg-green-100 text-green-700 rounded-md px-4 py-3 sm:placeholder:text-[16px] placeholder:text-green-600 w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
+            className="border bg-[#F4F2FF] text-[#8B83BA] rounded-md px-4 py-3 sm:placeholder:text-[16px] placeholder:text-[#8B83BA] w-full focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <CiSearch
             size={24}
-            className="absolute left-3 top-3  text-green-600"
+            className="absolute left-3 top-3  text-[#8B83BA]"
           />
         </div>
 
         <div className="flex gap-4 sm:gap-6 justify-center sm:justify-end mb-4">
           <div className="relative">
             <button
-              className="filter-button px-4 rounded-md py-2 flex justify-center items-center gap-x-4  bg-green-100 hover:bg-green-500 shadow-lg text-green-700 w-auto "
+              className="filter-button px-4 rounded-md py-2 flex justify-center items-center gap-x-4  bg-[#F4F2FF] hover:bg-[#8B83BA] hover:text-white shadow-lg text-[#8B83BA] w-auto "
               onClick={toggleDropdown}
             >
               <FaFilter className="mr-2" /> {selectedFilter}
@@ -174,7 +174,7 @@ const TrackedCases = () => {
           </div>
 
           <button
-            className="flex px-4 rounded-md py-2 items-center shadow-lg bg-green-100 text-green-700 hover:bg-green-500 shadow-md transition"
+            className="flex px-4 rounded-md py-2 items-center shadow-lg bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white shadow-md transition"
 
             onClick={toggleExportInput}
           >
@@ -186,7 +186,7 @@ const TrackedCases = () => {
       {showExportInput && (
         <div className="mb-4">
           <button
-            className="bg-green-100 text-green-700 px-4 py-2 shadow-lg rounded-lg w-full sm:w-auto hover:bg-green-500 shadow-md transition cursor-pointer"
+            className="bg-[#F4F2FF] text-[#8B83BA] px-4 py-2 shadow-lg rounded-lg w-full sm:w-auto hover:bg-[#8B83BA] hover:text-white shadow-md transition cursor-pointer"
             onClick={handleExport}
             disabled={isExportDisabled}
           >
@@ -198,7 +198,7 @@ const TrackedCases = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
-            <tr className="bg-green-100 text-green-700">
+            <tr className="bg-[#F4F2FF] text-[#8B83BA">
               {showCheckboxes && (
                 <th className="py-3 px-6 text-left">
                   <input
@@ -209,8 +209,8 @@ const TrackedCases = () => {
                   />
                 </th>
               )}
-              <th className="py-3 px-6 text-left">CNR NUMBER</th>
-              <th className="py-3 px-6 text-left">STATUS</th>
+              <th className="py-3 px-6 text-left text-[#6E6893]">CNR NUMBER</th>
+              <th className="py-3 px-6 text-left text-[#6E6893]">STATUS</th>
             </tr>
           </thead>
           <tbody>
@@ -232,9 +232,9 @@ const TrackedCases = () => {
                     <span
                       className={`px-6 py-1 text-sm rounded-xl flex items-center ${
                         caseItem.status === "Completed"
-                          ? "bg-green-200 text-green-700"
+                          ? "bg-[#F4F2FF] text-[#8B83BA]"
                           : caseItem.status === "processed"
-                          ? "bg-green-200 text-green-700" // green
+                          ? "bg-[#F4F2FF] text-[#8B83BA]" // green
                           : caseItem.status === "wrong"
                           ? "bg-red-200 text-red-700" // red
                           : caseItem.status === "Different_format"
@@ -254,9 +254,9 @@ const TrackedCases = () => {
                         size={10}
                         className={
                           caseItem.status === "Completed"
-                            ? "text-green-700"
+                            ? "text-[#8B83BA]"
                             : caseItem.status === "processed"
-                            ? "text-green-700" // green
+                            ? "text-[#8B83BA]" // green
                             : caseItem.status === "wrong"
                             ? "text-red-700" // red
                             : caseItem.status === "Different_format"

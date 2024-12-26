@@ -157,6 +157,7 @@ const Docs = () => {
                   </td>
                 </tr>
               )}
+
             </tbody>
           </table>
         </div>

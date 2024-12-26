@@ -89,7 +89,7 @@ const CaseTable = () => {
 
   const handlePageLimitChange = (newLimit) => {
     setPageLimit(newLimit);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   };
 
   useEffect(() => {
@@ -152,7 +152,7 @@ const CaseTable = () => {
 
     const excelData = [];
 
-    let maxInterimOrderLength = 0; 
+    let maxInterimOrderLength = 0;
 
     exportData.forEach((caseData) => {
       const caseDetails = caseData.caseDetails || {};
@@ -185,7 +185,7 @@ const CaseTable = () => {
             (status) => status[0] === "Court Number and Judge"
           )?.[1] || "N/A",
         "Case History": "",
-        "Interim Orders": "", 
+        "Interim Orders": "",
       });
       for (let i = 0; i < maxRows; i++) {
         const interimOrder = interimOrders[i]
@@ -262,7 +262,7 @@ const CaseTable = () => {
   }, []);
 
   return (
-    <div className="shadow-md rounded-lg p-6">
+    <div className="shadow-md rounded-lg p-6  shadow-lg">
       <div>
         <h1 className="text-2xl text-center text-[#8B83BA] mb-5 font-bold">
           My Councils Case
@@ -274,13 +274,13 @@ const CaseTable = () => {
             <input
               type="text"
               placeholder="Search cases"
-              className="border  border-[#F4F2FF] bg-[#F4F2FF]  hover:bg-[#8B83BA] hover:text-white w-full  rounded-md px-4 py-3 sm:placeholder:text-[20px] placeholder:text-[#6E6893] focus:outline-none pl-10"
+              className="border bg-[#F4F2FF] text-[#8B83BA] w-full rounded-md px-4 py-3 placeholder:text-[20px] placeholder:text-[#8B83BA] pl-10 focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] sm:placeholder:text-[16px]"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
             />
             <CiSearch
               size={24}
-              className="absolute left-3 top-3  text-[#6E6893]"
+              className="absolute left-3 top-3 text-[#6E6893] hover:text-white"
             />
           </div>
         </div>
@@ -330,7 +330,7 @@ const CaseTable = () => {
       {showExportConfirm && (
         <div className="mb-4">
           <button
-            className="bg-green-300 text-green-700 hover:bg-green-500 px-4 py-2 rounded-lg"
+            className="bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white px-4 py-2 rounded-lg"
             onClick={handleExport}
             disabled={selectedCases.length === 0}
           >
@@ -341,7 +341,7 @@ const CaseTable = () => {
       <div className="mt-8 overflow-x-auto">
         <table className="min-w-full rounded-lg table-auto">
           <thead>
-            <tr className="bg-green-100 text-green-700 text-left">
+            <tr className="bg-[#F4F2FF] text-[#8B83BA] text-left">
               {showCheckboxes && (
                 <th className="py-2 px-4 ">
                   <input
@@ -373,7 +373,13 @@ const CaseTable = () => {
             ) : cases.length === 0 ? (
               <tr>
                 <td colSpan="7" className="py-4 text-center">
-                  No cases found
+                  <div className="flex justify-center items-center">
+                    <img
+                      src="/Nodata_found.png"
+                      alt="No cases found"
+                      className="max-w-xs mx-auto  p-8 "
+                    />
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -410,7 +416,7 @@ const CaseTable = () => {
                 return (
                   <tr
                     key={index}
-                    className="bg-white hover:bg-green-50 text-sm border-t"
+                    className="bg-white hover:bg-gray-100 text-sm border-t"
                   >
                     {showCheckboxes && (
                       <td className="py-2 px-4">
@@ -450,7 +456,7 @@ const CaseTable = () => {
 
                     <td className="py-2 px-4 text-center flex justify-center">
                       <button
-                        className="bg-green-300 text-green-700  px-4 py-2 rounded-md hover:bg-green-500 flex items-center gap-2 ml-2"
+                        className="bg-[#F4F2FF] text-[#8B83BA]  px-4 py-2 rounded-md hover:bg-[#8B83BA] hover:text-white flex items-center gap-2 ml-2"
                         onClick={() => {
                           dispatch(detailPageData(caseData));
                           navigate(`/case-detail/${caseData.cnrNumber}`);
@@ -460,7 +466,7 @@ const CaseTable = () => {
                         <span> Details</span>
                       </button>
                       <button
-                        className=" bg-red-300 text-red-700 px-4 py-2 rounded-md hover:bg-red-500 flex items-center gap-2 ml-2"
+                        className=" bg-red-200 text-red-500 px-4 py-2 rounded-md hover:bg-red-400 hover:text-white flex items-center gap-2 ml-2"
                         onClick={() => handleCnrDelete(caseData?.cnrNumber)}
                       >
                         <MdAutoDelete />
@@ -477,11 +483,11 @@ const CaseTable = () => {
       <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
         {/* Page Size Selector */}
         <div className="flex gap-4 items-center mb-4 sm:mb-0">
-          <label className="text-green-700 font-medium">Page Size:</label>
+          <label className="text-[#8B83BA] font-medium">Page Size:</label>
           <select
             value={pageLimit}
             onChange={(e) => handlePageLimitChange(Number(e.target.value))}
-            className="px-4 py-2 bg-green-100 text-green-700 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500"
+            className="px-4 py-2 bg-[#F4F2FF] text-[#8B83BA] border border-[#8B83BA] rounded-md focus:ring-2 focus:ring-[#8B83BA]"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -494,7 +500,7 @@ const CaseTable = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="bg-green-300 text-green-700 shadow-lg px-4 py-1 rounded-md hover:bg-green-500"
+            className="bg-[#F4F2FF] text-[#8B83BA] border border-[#8B83BA] shadow-lg px-4 py-1 rounded-md hover:bg-[#8B83BA] hover:text-white "
           >
             Prev
           </button>
@@ -506,8 +512,8 @@ const CaseTable = () => {
                 onClick={() => handlePageChange(page + 1)}
                 className={`min-w-9 rounded-md py-[5px] px-3 text-center text-sm transition-all shadow-sm ${
                   currentPage === page + 1
-                    ? "bg-green-300 text-green-700 border-transparent shadow-md"
-                    : "border border-green-300 text-green-700 hover:text-white hover:bg-green-500"
+                    ? "bg-[#F4F2FF] text-[#8B83BA] border-transparent shadow-md border border-[#8B83BA] "
+                    : "border border-[#8B83BA] text-[#8B83BA] hover:text-white hover:bg-[#8B83BA]"
                 }`}
               >
                 {page + 1}
@@ -517,14 +523,14 @@ const CaseTable = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="bg-green-300 text-green-700 shadow-lg px-4 py-1 rounded-md hover:bg-green-500"
+            className="bg-[#F4F2FF] text-[#8B83BA] border border-[#8B83BA] shadow-lg px-4 py-1 rounded-md hover:bg-[#8B83BA] hover:text-white "
           >
             Next
           </button>
         </div>
 
         <div className="mt-4 sm:mt-0 text-center sm:text-left sm:ml-4">
-          <span className="text-lg font-medium">
+          <span className="text-lg font-medium text-[#8B83BA]">
             Page {currentPage} of {totalPages > 0 ? totalPages : 1}
           </span>
         </div>
