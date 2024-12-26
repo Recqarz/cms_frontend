@@ -14,7 +14,7 @@ import {
 import { MdAutoDelete } from "react-icons/md";
 import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
-import * as XLSX  from "xlsx"
+import * as XLSX from "xlsx";
 
 const CaseTable = () => {
   const navigate = useNavigate();
@@ -22,30 +22,29 @@ const CaseTable = () => {
   const [filterText, setFilterText] = useState("");
   const [selectedCases, setSelectedCases] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
-  const [filterOption, setFilterOption] = useState(null);
+  const [filterOption, setFilterOption] = useState("All");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [showCheckboxes, setShowCheckboxes] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1); // To track the current page
-  const [pageLimit, setPageLimit] = useState(10); // To track the number of records per page
-  const [totalCases, setTotalCases] = useState(0); // To store the total number of cases
-  const [totalPages, setTotalPages] = useState(0); // To store the total number of pages
-  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageLimit, setPageLimit] = useState(10);
+  // const [totalCases, setTotalCases] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  // const [pageSize, setPageSize] = useState(10);
   let dispatch = useDispatch();
   const filterDropdownRef = useRef(null);
 
-  const filteredData = cases.filter(
-    (caseData) =>
-      Object.values(caseData)
-        .join(" ")
-        .toLowerCase()
-        .includes(filterText.toLowerCase()) &&
-      (filterOption
-        ? caseData.status.toLowerCase() === filterOption.toLowerCase()
-        : true)
-  );
+  // const filteredData = cases.filter(
+  //   (caseData) =>
+  //     Object.values(caseData)
+  //       .join(" ")
+  //       .toLowerCase()
+  //       .includes(filterText.toLowerCase()) &&
+  //     (filterOption
+  //       ? caseData.status.toLowerCase() === filterOption.toLowerCase()
+  //       : true)
+  // );
 
   const fetchCases = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
@@ -55,14 +54,12 @@ const CaseTable = () => {
       setError("Unauthorized access. Please login again.");
       return;
     }
-
     setLoading(true);
-
     try {
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
-        }/cnr/get-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}`,
+        }/cnr/get-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterOption=${filterOption}&filterText=${filterText}`,
         {
           method: "GET",
           headers: {
@@ -85,14 +82,9 @@ const CaseTable = () => {
 
       if (responseData.success && Array.isArray(responseData.data)) {
         setCases(responseData.data);
-        console.log(responseData)
-        setTotalCases(responseData.total);
-        console.log(responseData.total)
-        setPageSize(responseData.pageSize); // Set the page size returned by the API
- 
-        // Calculate the total pages (ensure pageSize is valid)
+        // setTotalCases(responseData.total);
+        // setPageSize(responseData.pageSize);
         setTotalPages(responseData.pageSize);
-        
       } else {
         console.error("Unexpected API response format", responseData);
         setError("Failed to load cases. Invalid response format.");
@@ -101,7 +93,7 @@ const CaseTable = () => {
       console.error("Error fetching cases:", error.message);
       setError("An error occurred while fetching cases.");
     } finally {
-      setLoading(false); // Stop loading once the fetch is complete
+      setLoading(false);
     }
   };
   const handlePageChange = (newPage) => {
@@ -109,7 +101,7 @@ const CaseTable = () => {
       setCurrentPage(newPage);
     }
   };
- 
+
   // Handle page limit change
   const handlePageLimitChange = (newLimit) => {
     setPageLimit(newLimit);
@@ -118,7 +110,7 @@ const CaseTable = () => {
 
   useEffect(() => {
     fetchCases();
-  }, [currentPage, pageLimit]);
+  }, [currentPage, pageLimit, filterOption, filterText]);
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
@@ -173,20 +165,20 @@ const CaseTable = () => {
     const exportData = selectedCases.length
       ? selectedCases.map((index) => filteredData[index])
       : filteredData;
- 
+
     const excelData = [];
- 
+
     let maxInterimOrderLength = 0; // To track the maximum length of the Interim Orders content
- 
+
     exportData.forEach((caseData) => {
       const caseDetails = caseData.caseDetails || {};
       const caseStatus = caseData.caseStatus || [];
       const caseHistory = caseData.caseHistory || [];
       const interimOrders = caseData.intrimOrders || [];
- 
+
       // Determine the maximum number of rows needed
       const maxRows = Math.max(caseHistory.length, interimOrders.length);
- 
+
       // Add main case details in the first row
       excelData.push({
         "CNR Number":
@@ -197,8 +189,9 @@ const CaseTable = () => {
         "Registration Number": caseDetails["Registration Number"] || "N/A",
         "Registration Date": caseDetails["Registration Date:"] || "N/A",
         "First Hearing Date":
-          caseStatus.find((status) => status[0] === "First Hearing Date")
-            ?. [1] || "N/A",
+          caseStatus.find(
+            (status) => status[0] === "First Hearing Date"
+          )?.[1] || "N/A",
         "Next Hearing Date":
           caseStatus.find(
             (status) =>
@@ -214,7 +207,7 @@ const CaseTable = () => {
         "Case History": "",
         "Interim Orders": "", // Header for Interim Orders column
       });
- 
+
       // Add case history and interim orders side by side
       for (let i = 0; i < maxRows; i++) {
         const interimOrder = interimOrders[i]
@@ -222,18 +215,23 @@ const CaseTable = () => {
             ? interimOrders[i].s3_url
             : "No URL"
           : "";
- 
+
         // Track the maximum length of Interim Orders content
         maxInterimOrderLength = Math.max(
           maxInterimOrderLength,
           interimOrder.length
         );
- 
+
         // Create hyperlink for Interim Orders
-        const interimOrderHyperlink = interimOrder && interimOrder !== "No URL"
-          ? { t: 's', v: interimOrder, l: { Target: interimOrder, Tooltip: 'Click to open' } }
-          : interimOrder;
- 
+        const interimOrderHyperlink =
+          interimOrder && interimOrder !== "No URL"
+            ? {
+                t: "s",
+                v: interimOrder,
+                l: { Target: interimOrder, Tooltip: "Click to open" },
+              }
+            : interimOrder;
+
         excelData.push({
           "CNR Number": "",
           "Case Type": "",
@@ -253,14 +251,14 @@ const CaseTable = () => {
           "Interim Orders": interimOrderHyperlink, // Store the hyperlink here
         });
       }
- 
+
       // Add a separator row (optional, for better distinction between cases)
       excelData.push({});
     });
- 
+
     // Create a workbook and add the data as a worksheet
     const worksheet = XLSX.utils.json_to_sheet(excelData);
- 
+
     // Adjust column widths dynamically
     const columnWidths = Object.keys(excelData[0]).map((key) => {
       if (key === "Interim Orders") {
@@ -270,13 +268,13 @@ const CaseTable = () => {
       return { wch: Math.max(key.length, 30) };
     });
     worksheet["!cols"] = columnWidths;
- 
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Cases");
- 
+
     // Generate the downloadable file
     XLSX.writeFile(workbook, "exported_cases.xlsx");
- 
+
     toast.success("Export successful!");
     setShowExportConfirm(false);
     setShowCheckboxes(false);
@@ -335,13 +333,19 @@ const CaseTable = () => {
               <div className="absolute top-full left-0 mt-2 bg-white border shadow-md rounded-md w-full sm:w-auto">
                 <div
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleOptionSelect("Active")}
+                  onClick={() => handleOptionSelect("all")}
+                >
+                  All
+                </div>
+                <div
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleOptionSelect("active")}
                 >
                   Active
                 </div>
                 <div
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleOptionSelect("Inactive")}
+                  onClick={() => handleOptionSelect("inactive")}
                 >
                   Inactive
                 </div>
@@ -401,14 +405,14 @@ const CaseTable = () => {
                   </div>
                 </td>
               </tr>
-            ) : filteredData.length === 0 ? (
+            ) : cases.length === 0 ? (
               <tr>
                 <td colSpan="7" className="py-4 text-center">
                   No cases found
                 </td>
               </tr>
             ) : (
-              filteredData.map((caseData, index) => {
+              cases.map((caseData, index) => {
                 const caseStatus = caseData.caseStatus || [];
                 const firstHearing =
                   caseStatus.length > 0 ? caseStatus[0][1] : "";
@@ -525,7 +529,7 @@ const CaseTable = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="bg-green-300 text-green-700 shadow-lg px-4 py-2 rounded-md hover:bg-green-500"
+            className="bg-green-300 text-green-700 shadow-lg px-4 py-1 rounded-md hover:bg-green-500"
           >
             Prev
           </button>
@@ -535,7 +539,7 @@ const CaseTable = () => {
               <button
                 key={page}
                 onClick={() => handlePageChange(page + 1)}
-                className={`min-w-9 rounded-md py-2 px-3 text-center text-sm transition-all shadow-sm ${
+                className={`min-w-9 rounded-md py-[5px] px-3 text-center text-sm transition-all shadow-sm ${
                   currentPage === page + 1
                     ? "bg-green-300 text-green-700 border-transparent shadow-md"
                     : "border border-green-300 text-green-700 hover:text-white hover:bg-green-500"
@@ -548,7 +552,7 @@ const CaseTable = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="bg-green-300 text-green-700 shadow-lg px-4 py-2 rounded-md hover:bg-green-500"
+            className="bg-green-300 text-green-700 shadow-lg px-4 py-1 rounded-md hover:bg-green-500"
           >
             Next
           </button>
