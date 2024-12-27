@@ -73,7 +73,7 @@ const Sidebar = () => {
   return (
     <div className="flex w-[200px] h-[100vh] fixed z-50 top-0 left-0">
       <div className="lg:translate-x-0 w-64 bg-[#484444] text-white  lg:relative lg:inset-0 transition-transform duration-300 ease-in-out flex flex-col">
-        <img
+        {/* <img
           src="/cms_logo.png"
           alt="CMS"
           style={{
@@ -83,12 +83,12 @@ const Sidebar = () => {
             marginLeft: "30px",
             marginBottom: "10px",
           }}
-        />
-        {/* <img
+        /> */}
+        <img
           src="/logo cms 1.png"
           alt="CMS Logo"
           className="w-[180px] h-[24px]   mx-auto ml-[8px] mt-8"
-        /> */}
+        />
 
 
         <nav className="mt-6 px-2">
