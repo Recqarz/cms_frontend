@@ -72,8 +72,8 @@ const RegisterVerifyOtp = () => {
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
-      <div className="absolute top-4 left-4">
-        <img src="/sign_logo.png" alt="Company Logo" className="w-[200px]" />
+      <div className="absolute top-8 left-8">
+        <img  src="/logo cms 1.png" alt="Company Logo" className="w-[200px]" />
       </div>
 
       <div
