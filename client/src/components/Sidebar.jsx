@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { isLogin, roleUpdater } from "@/global/action";
+import Logo from "../assets/Images/logo cms 1.png"
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -85,7 +86,7 @@ const Sidebar = () => {
           }}
         /> */}
         <img
-          src="/logo cms 1.png"
+          src={Logo}
           alt="CMS Logo"
           className="w-[180px] h-[24px]   mx-auto ml-[8px] mt-8"
         />

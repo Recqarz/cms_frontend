@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import Nodatafound from "../../assets/Images/Nodata_found.png"
 
 const CaseResearch = () => {
   const [courtType, setCourtType] = useState("");
@@ -119,7 +120,7 @@ const CaseResearch = () => {
                   <td colSpan="7" className="py-10 text-center text-[#6E6893]">
                     <div className="flex flex-col items-center justify-center">
                       <img
-                        src="/Nodata_found.png"
+                        src={Nodatafound}
                         alt="No cases found"
                         className="max-w-xs mx-auto mb-4"
                       />

@@ -3,6 +3,7 @@ import { CiSearch } from "react-icons/ci";
 import { FaFilter, FaDownload, FaCircle } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
+import Nodatafound from "../../assets/Images/Nodata_found.png"
 
 const TrackedCases = () => {
   const [cases, setCases] = useState([]);
@@ -289,13 +290,11 @@ const TrackedCases = () => {
                 >
                   <div className="flex flex-col items-center justify-center">
                     <img
-                      src="/Nodata_found.png"
+                      src={Nodatafound}
                       alt="No cases found"
                       className="max-w-xs mx-auto mb-4"
                     />
-                    <p className="text-gray-500 text-lg font-medium">
-                      No data available to display
-                    </p>
+                   
                   </div>
                 </td>
               </tr>

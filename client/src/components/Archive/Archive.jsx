@@ -15,6 +15,7 @@ import {
 import { MdRestorePage } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import axios from "axios";
+import Nodatafound from "../../assets/Images/Nodata_found.png"
 
 const Archive = () => {
   const navigate = useNavigate();
@@ -383,7 +384,7 @@ const Archive = () => {
                 <td colSpan="7" className="py-4 text-center">
                 <div className="flex justify-center items-center">
         <img
-          src="/Nodata_found.png"
+          src={Nodatafound}
           alt="No cases found"
           className="max-w-xs mx-auto  p-8 "
         />

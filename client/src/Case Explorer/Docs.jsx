@@ -14,6 +14,8 @@ import {
 } from "../components/ui/dialog";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Nodatafound from "../assets/Images/Nodata_found.png"; // Corrected import
+
 
 const Docs = () => {
   const [loading, setLoading] = useState(false);
@@ -220,13 +222,11 @@ const Docs = () => {
                   <td colSpan="5" className="py-10 text-center">
                     <div className="flex flex-col items-center justify-center">
                       <img
-                        src="/Nodata_found.png"
+                        src={Nodatafound}
                         alt="No cases found"
                         className="max-w-xs mx-auto mb-4"
                       />
-                      <p className="text-gray-500 text-lg font-medium">
-                        No data available to display
-                      </p>
+                      
                     </div>
                   </td>
                 </tr>
