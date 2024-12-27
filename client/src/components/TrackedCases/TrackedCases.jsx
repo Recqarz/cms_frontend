@@ -175,7 +175,6 @@ const TrackedCases = () => {
 
           <button
             className="flex px-4 rounded-md py-2 items-center shadow-lg bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white shadow-md transition"
-
             onClick={toggleExportInput}
           >
             <FaDownload className="mr-2" /> Export
@@ -214,73 +213,93 @@ const TrackedCases = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredCases.map((caseItem, index) => (
-              <tr key={index} className="hover:bg-gray-100 transition">
-                {showCheckboxes && (
-                  <td className="py-3 px-6 border-b">
-                    <input
-                      type="checkbox"
-                      checked={selectedCases.includes(index)}
-                      onChange={() => handleCaseSelect(index)}
-                      className="w-full sm:w-1/4 h-full sm:h-5"
-                    />
-                  </td>
-                )}
-                <td className="py-3 px-6 border-b">{caseItem.cnr}</td>
-                <td className="py-3 px-6 border-b">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-6 py-1 text-sm rounded-xl flex items-center ${
-                        caseItem.status === "Completed"
-                          ? "bg-[#F4F2FF] text-[#8B83BA]"
-                          : caseItem.status === "processed"
-                          ? "bg-[#F4F2FF] text-[#8B83BA]" // green
-                          : caseItem.status === "wrong"
-                          ? "bg-red-200 text-red-700" // red
-                          : caseItem.status === "Different_format"
-                          ? "bg-red-200 text-red-700" // red
-                          : caseItem.status === "invalidcnr"
-                          ? "bg-blue-200 text-blue-700" // blue
-                          : caseItem.status === "pending"
-                          ? "bg-yellow-200 text-yellow-700" // yellow
-                          : caseItem.status === "underProgress"
-                          ? "bg-blue-200 text-blue-700" // blue
-                          : caseItem.status === "alreadyprocessed"
-                          ? "bg-pink-200 text-pink-700" // pink
-                          : "bg-gray-200 text-gray-700" // default color
-                      }`}
-                    >
-                      <FaCircle
-                        size={10}
-                        className={
-                          caseItem.status === "Completed"
-                            ? "text-[#8B83BA]"
-                            : caseItem.status === "processed"
-                            ? "text-[#8B83BA]" // green
-                            : caseItem.status === "wrong"
-                            ? "text-red-700" // red
-                            : caseItem.status === "Different_format"
-                            ? "text-red-700" // red
-                            : caseItem.status === "invalidcnr"
-                            ? "text-blue-700" // blue
-                            : caseItem.status === "pending"
-                            ? "text-yellow-700" // yellow
-                            : caseItem.status === "underProgress"
-                            ? "text-blue-700" // blue
-                            : caseItem.status === "alreadyprocessed"
-                            ? "text-pink-700" // pink
-                            : "text-gray-700" // default color
-                        }
+            {filteredCases.length > 0 ? (
+              filteredCases.map((caseItem, index) => (
+                <tr key={index} className="hover:bg-gray-100 transition">
+                  {showCheckboxes && (
+                    <td className="py-3 px-6 border-b">
+                      <input
+                        type="checkbox"
+                        checked={selectedCases.includes(index)}
+                        onChange={() => handleCaseSelect(index)}
+                        className="w-full sm:w-1/4 h-full sm:h-5"
                       />
-                      {caseItem.status}
-                    </span>
+                    </td>
+                  )}
+                  <td className="py-3 px-6 border-b">{caseItem.cnr}</td>
+                  <td className="py-3 px-6 border-b">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-6 py-1 text-sm rounded-xl flex items-center ${
+                          caseItem.status === "Completed"
+                            ? "bg-[#F4F2FF] text-[#8B83BA]"
+                            : caseItem.status === "processed"
+                            ? "bg-[#F4F2FF] text-[#8B83BA]" // green
+                            : caseItem.status === "wrong"
+                            ? "bg-red-200 text-red-700" // red
+                            : caseItem.status === "Different_format"
+                            ? "bg-red-200 text-red-700" // red
+                            : caseItem.status === "invalidcnr"
+                            ? "bg-blue-200 text-blue-700" // blue
+                            : caseItem.status === "pending"
+                            ? "bg-yellow-200 text-yellow-700" // yellow
+                            : caseItem.status === "underProgress"
+                            ? "bg-blue-200 text-blue-700" // blue
+                            : caseItem.status === "alreadyprocessed"
+                            ? "bg-pink-200 text-pink-700" // pink
+                            : "bg-gray-200 text-gray-700" // default color
+                        }`}
+                      >
+                        <FaCircle
+                          size={10}
+                          className={
+                            caseItem.status === "Completed"
+                              ? "text-[#8B83BA]"
+                              : caseItem.status === "processed"
+                              ? "text-[#8B83BA]" // green
+                              : caseItem.status === "wrong"
+                              ? "text-red-700" // red
+                              : caseItem.status === "Different_format"
+                              ? "text-red-700" // red
+                              : caseItem.status === "invalidcnr"
+                              ? "text-blue-700" // blue
+                              : caseItem.status === "pending"
+                              ? "text-yellow-700" // yellow
+                              : caseItem.status === "underProgress"
+                              ? "text-blue-700" // blue
+                              : caseItem.status === "alreadyprocessed"
+                              ? "text-pink-700" // pink
+                              : "text-gray-700" // default color
+                          }
+                        />
+                        {caseItem.status}
+                      </span>
+                    </div>
+                    {caseItem.status === "Completed"
+                      ? ` (Paid on ${caseItem.date})`
+                      : ` (Due on ${caseItem.date})`}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={showCheckboxes ? 3 : 2}
+                  className="py-6 text-center"
+                >
+                  <div className="flex flex-col items-center justify-center">
+                    <img
+                      src="/Nodata_found.png"
+                      alt="No cases found"
+                      className="max-w-xs mx-auto mb-4"
+                    />
+                    <p className="text-gray-500 text-lg font-medium">
+                      No data available to display
+                    </p>
                   </div>
-                  {caseItem.status === "Completed"
-                    ? ` (Paid on ${caseItem.date})`
-                    : ` (Due on ${caseItem.date})`}
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
