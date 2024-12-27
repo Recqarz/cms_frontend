@@ -4,25 +4,35 @@ import { FaDownload } from "react-icons/fa";
 import { MdLockReset } from "react-icons/md";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import Nodatafound from "../../assets/Images/Nodata_found.png"
 
 const CaseResearch = () => {
   const [courtType, setCourtType] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [tableData, setTableData] = useState([]); 
 
   // Reset the filters
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setCourtType(""); // Reset the court type
+    setCourtType("");
   };
 
   return (
     <div className="relative mt-2">
       <div
         className={`shadow-lg rounded-xl p-8 bg-white ${
-          isModalOpen ? "blur-sm" : ""
+          isDialogOpen ? "blur-sm" : ""
         }`}
       >
         <h2 className="text-3xl text-center text-[#6E6893] font-bold mb-8">
@@ -60,8 +70,8 @@ const CaseResearch = () => {
 
           <div className="w-full sm:w-auto">
             <select
-              value={courtType} // Bind courtType state to the value
-              onChange={(e) => setCourtType(e.target.value)} // Update courtType state when the selection changes
+              value={courtType}
+              onChange={(e) => setCourtType(e.target.value)}
               className="w-full sm:w-auto border border-[#8B83BA] bg-[#F4F2FF] text-[#8B83BA] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B83BA]"
             >
               <option value="">Type of Court</option>
@@ -71,7 +81,7 @@ const CaseResearch = () => {
           </div>
 
           <button
-            onClick={handleReset} 
+            onClick={handleReset}
             className="flex items-center gap-2 px-4 py-3 border border-[#8B83BA] bg-[#F4F2FF] text-[#8B83BA] rounded-lg hover:bg-[#8B83BA] hover:text-white transition"
           >
             <MdLockReset size={20} />
@@ -79,7 +89,7 @@ const CaseResearch = () => {
           </button>
 
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsDialogOpen(true)}
             className="px-4 py-3 bg-[#8B83BA] text-white rounded-lg hover:bg-[#5a518c] transition duration-300"
           >
             Keywords
@@ -105,47 +115,71 @@ const CaseResearch = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="bg-white hover:bg-[#f3f2f7]">
-                <td className="py-3 px-4">123456</td>
-                <td className="py-3 px-4">John Doe</td>
-                <td className="py-3 px-4">Jane Smith</td>
-                <td className="py-3 px-4">Supreme Court</td>
-                <td className="py-3 px-4">01-Jan-2023</td>
-                <td className="py-3 px-4">Active</td>
-                <td className="py-3 px-4 text-center">
-                  <button className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition">
-                    Restore
-                  </button>
-                  <button className="bg-red-500 text-white px-3 py-1 ml-2 rounded-lg hover:bg-red-600 transition">
-                    Delete
-                  </button>
-                </td>
-              </tr>
+              {tableData.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-10 text-center text-[#6E6893]">
+                    <div className="flex flex-col items-center justify-center">
+                      <img
+                        src={Nodatafound}
+                        alt="No cases found"
+                        className="max-w-xs mx-auto mb-4"
+                      />
+                      <p className="text-gray-500 text-lg font-medium">
+                        No data available to display
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                tableData.map((row, index) => (
+                  <tr key={index} className="bg-white hover:bg-[#f3f2f7]">
+                    <td className="py-3 px-4">{row.caseNumber}</td>
+                    <td className="py-3 px-4">{row.complainant}</td>
+                    <td className="py-3 px-4">{row.respondent}</td>
+                    <td className="py-3 px-4">{row.court}</td>
+                    <td className="py-3 px-4">{row.dof}</td>
+                    <td className="py-3 px-4">{row.status}</td>
+                    <td className="py-3 px-4 text-center">
+                      <button className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition">
+                        Restore
+                      </button>
+                      <button className="bg-red-500 text-white px-3 py-1 ml-2 rounded-lg hover:bg-red-600 transition">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4 text-[#6E6893]">Keywords</h2>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-[#5a518c]">Keywords</DialogTitle>
+            <DialogDescription>
+              Enter keywords to filter case research.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
             <input
               type="text"
-              className="border border-[#8B83BA] rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#5a518c] mb-4"
+              className="border border-[#8B83BA] rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#5a518c]"
               placeholder="Type keywords here..."
             />
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-[#8B83BA] text-white rounded-lg hover:bg-[#5a518c]"
-              >
-                OK
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <button
+              onClick={() => setIsDialogOpen(false)}
+              className="px-4 py-2 bg-[#8B83BA] text-white rounded-lg hover:bg-[#5a518c]"
+            >
+              OK
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

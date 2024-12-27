@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { loginEmail } from "../global/action";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
+import Logo from "../assets/Images/logo cms 1.png"
 
 const Login = () => {
   const navigate = useNavigate();
@@ -74,8 +75,8 @@ const Login = () => {
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
       {/* Logo */}
-      <div className="absolute top-4 left-4">
-        <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
+      <div className="absolute top-8 left-8">
+        <img  src={Logo} alt="Logo" className="w-[200px]" />
       </div>
 
       {/* Form Container */}

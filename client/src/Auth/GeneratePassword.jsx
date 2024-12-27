@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
+import Logo from "../assets/Images/logo cms 1.png"
 
 
 const GeneratePassword = () => {
@@ -159,10 +160,10 @@ const GeneratePassword = () => {
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
       <div
-        className="absolute top-4 left-4
+        className="absolute top-8 left-8
 "
       >
-        <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
+        <img  src={Logo} alt="Logo" className="w-[200px]" />
       </div>
 
       <div

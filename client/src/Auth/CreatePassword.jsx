@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { formData } from "../global/action";
 import toast from "react-hot-toast";
 import { IoIosEye, IoIosEyeOff } from "react-icons/io";
+import Logo from "../assets/Images/logo cms 1.png"
 
 const CreatePassword = () => {
   const navigate = useNavigate();
@@ -69,10 +70,10 @@ const CreatePassword = () => {
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
       {/* Logo */}
       <div
-        className="absolute top-4 left-4
+        className="absolute top-8 left-8
 "
       >
-        <img src="/sign_logo.png" alt="Illustration" className="w-[200px]" />
+        <img  src={Logo} alt="Illustration" className="w-[200px]" />
       </div>
       {/* Form Container */}
       <div

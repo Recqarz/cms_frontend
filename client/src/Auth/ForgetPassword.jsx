@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { resetPasswordForm } from "../global/action";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Logo from "../assets/Images/logo cms 1.png"
 
 const ForgetPassword = () => {
   const navigate = useNavigate();
@@ -70,8 +71,8 @@ const ForgetPassword = () => {
 
 "
     >
-      <div className="absolute top-4 left-4">
-        <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
+      <div className="absolute top-8 left-8">
+        <img  src={Logo} alt="Logo" className="w-[200px]" />
       </div>
       <div
         className="w-full md:w-4/5 lg:w-3/5 xl:w-2/5 mx-auto overflow-y-auto max-h-[95vh] p-8  rounded "

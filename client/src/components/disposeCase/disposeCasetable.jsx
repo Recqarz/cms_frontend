@@ -16,9 +16,8 @@ import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Pagination from "../pagination/pagination";
-import Nodata from "../../assets/Images/Nodata_found.png"
 
-const CaseTable = () => {
+const DisposedCaseTable = () => {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
   const [filterText, setFilterText] = useState("");
@@ -51,7 +50,7 @@ const CaseTable = () => {
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
-        }/cnr/get-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`,
+        }/cnr/get-disposed-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`,
         {
           method: "GET",
           headers: {
@@ -362,7 +361,7 @@ const CaseTable = () => {
                   }
                 }}
               >
-                NEXT HEARING
+                FINAL HEARING
               </th>
               <th
                 className="py-2 px-4 cursor-pointer"
@@ -414,7 +413,7 @@ const CaseTable = () => {
                 <td colSpan="7" className="py-4 text-center">
                   <div className="flex justify-center items-center">
                     <img
-                      src={Nodata}
+                      src="/Nodata_found.png"
                       alt="No cases found"
                       className="max-w-xs mx-auto  p-8 "
                     />
@@ -426,9 +425,12 @@ const CaseTable = () => {
                 const caseStatus = caseData.caseStatus || [];
                 const caseHistory = caseData.caseHistory || [];
                 const lastHearing =
-                  caseHistory.length > 0
-                    ? caseHistory[caseHistory.length - 1][1]
+                  caseHistory.length > 1
+                    ? caseHistory[caseHistory.length - 2][2]
                     : "";
+                console.log(lastHearing);
+                console.log(caseHistory);
+                console.log(caseData.cnrNumber);
                 const nextHearing =
                   caseStatus.length > 1 ? caseStatus[1][1] : "";
 
@@ -535,4 +537,4 @@ const CaseTable = () => {
   );
 };
 
-export default CaseTable;
+export default DisposedCaseTable;

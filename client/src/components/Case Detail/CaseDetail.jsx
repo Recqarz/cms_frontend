@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 import { toast } from "react-hot-toast";
+import Nodata from "../../assets/Images/Nodata_found.png"
 
 const CaseDetail = () => {
   const [data, setData] = useState(null);
@@ -312,7 +313,7 @@ const CaseDetail = () => {
                       >
                         <div className="flex justify-center items-center">
                           <img
-                            src="/Nodata_found.png"
+                            src={Nodata}
                             alt="No cases history found"
                             className="max-w-xs mx-auto  p-8 "
                           />
