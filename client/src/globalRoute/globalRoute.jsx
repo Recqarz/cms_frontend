@@ -12,6 +12,7 @@ import UserDirectory from "@/components/User Directory/UserDirectory";
 import Archive from "@/components/Archive/Archive";
 import CaseResearch from "@/components/Case Research/CaseResearch";
 import CaseRoute from "@/Case Explorer/CaseRoute";
+import DisposedCaseTable from "@/components/disposeCase/disposeCasetable";
 
 const Allroutes = () => {
   return (
@@ -24,8 +25,8 @@ const Allroutes = () => {
         <Routes>
           <Route path="/tracked-cases" element={<TrackedCases />} />
           <Route path="/case-table" element={<CaseTable />} />
+          <Route path="/disposed-case-table" element={<DisposedCaseTable />} />
           <Route path="/add-case" element={<FilterData />} />
-          {/* <Route path="/add-user" element={<AddUser/>}/> */}
           <Route path="/case-detail/:cnrNumber" element={<CaseDetail />} />
           <Route path="/user-directory" element={<UserDirectory />} />
           <Route path="/case-research" element={<CaseResearch />} />
