@@ -12,18 +12,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import Nodatafound from "../../assets/Images/Nodata_found.png"
 
 const CaseResearch = () => {
   const [courtType, setCourtType] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [tableData, setTableData] = useState([]); 
 
   // Reset the filters
   const handleReset = () => {
     setStartDate(null);
     setEndDate(null);
-    setCourtType(""); // Reset the court type
+    setCourtType("");
   };
 
   return (
@@ -68,8 +70,8 @@ const CaseResearch = () => {
 
           <div className="w-full sm:w-auto">
             <select
-              value={courtType} // Bind courtType state to the value
-              onChange={(e) => setCourtType(e.target.value)} // Update courtType state when the selection changes
+              value={courtType}
+              onChange={(e) => setCourtType(e.target.value)}
               className="w-full sm:w-auto border border-[#8B83BA] bg-[#F4F2FF] text-[#8B83BA] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B83BA]"
             >
               <option value="">Type of Court</option>
@@ -113,22 +115,41 @@ const CaseResearch = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="bg-white hover:bg-[#f3f2f7]">
-                <td className="py-3 px-4">123456</td>
-                <td className="py-3 px-4">John Doe</td>
-                <td className="py-3 px-4">Jane Smith</td>
-                <td className="py-3 px-4">Supreme Court</td>
-                <td className="py-3 px-4">01-Jan-2023</td>
-                <td className="py-3 px-4">Active</td>
-                <td className="py-3 px-4 text-center">
-                  <button className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition">
-                    Restore
-                  </button>
-                  <button className="bg-red-500 text-white px-3 py-1 ml-2 rounded-lg hover:bg-red-600 transition">
-                    Delete
-                  </button>
-                </td>
-              </tr>
+              {tableData.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-10 text-center text-[#6E6893]">
+                    <div className="flex flex-col items-center justify-center">
+                      <img
+                        src={Nodatafound}
+                        alt="No cases found"
+                        className="max-w-xs mx-auto mb-4"
+                      />
+                      <p className="text-gray-500 text-lg font-medium">
+                        No data available to display
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                tableData.map((row, index) => (
+                  <tr key={index} className="bg-white hover:bg-[#f3f2f7]">
+                    <td className="py-3 px-4">{row.caseNumber}</td>
+                    <td className="py-3 px-4">{row.complainant}</td>
+                    <td className="py-3 px-4">{row.respondent}</td>
+                    <td className="py-3 px-4">{row.court}</td>
+                    <td className="py-3 px-4">{row.dof}</td>
+                    <td className="py-3 px-4">{row.status}</td>
+                    <td className="py-3 px-4 text-center">
+                      <button className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition">
+                        Restore
+                      </button>
+                      <button className="bg-red-500 text-white px-3 py-1 ml-2 rounded-lg hover:bg-red-600 transition">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -138,7 +159,7 @@ const CaseResearch = () => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="text-[#5a518c]">Keywords</DialogTitle>
-            <DialogDescription className="text">
+            <DialogDescription>
               Enter keywords to filter case research.
             </DialogDescription>
           </DialogHeader>

@@ -3,6 +3,7 @@ import {Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
+import Logo from "../assets/Images/logo cms 1.png"
 
 const RegisterVerifyOtp = () => {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ const RegisterVerifyOtp = () => {
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
       <div className="absolute top-8 left-8">
-        <img  src="/logo cms 1.png" alt="Company Logo" className="w-[200px]" />
+          <img  src={Logo} alt="Logo" className="w-[200px]" />
       </div>
 
       <div
