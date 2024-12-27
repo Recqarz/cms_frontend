@@ -15,6 +15,7 @@ import { MdAutoDelete } from "react-icons/md";
 import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
 import * as XLSX from "xlsx";
+import Pagination from "../pagination/pagination";
 
 const CaseTable = () => {
   const navigate = useNavigate();
@@ -262,10 +263,10 @@ const CaseTable = () => {
   }, []);
 
   return (
-    <div className="shadow-md rounded-lg p-6  shadow-lg">
+    <div className="rounded-lg p-6  shadow-lg">
       <div>
         <h1 className="text-2xl text-center text-[#8B83BA] mb-5 font-bold">
-          My Councils Case
+        Case Repository
         </h1>
       </div>
       <div className="flex items-center mb-4 flex-wrap gap-4 justify-between">
@@ -353,7 +354,7 @@ const CaseTable = () => {
                 </th>
               )}
               <th className="py-2 px-4">CNR NUMBER</th>
-              <th className="py-2 px-4">FIRST HEARING</th>
+              <th className="py-2 px-4 ">LAST HEARING</th>
               <th className="py-2 px-4">NEXT HEARING</th>
               <th className="py-2 px-4">PETITIONER</th>
               <th className="py-2 px-4">RESPONDENT</th>
@@ -385,8 +386,9 @@ const CaseTable = () => {
             ) : (
               cases.map((caseData, index) => {
                 const caseStatus = caseData.caseStatus || [];
-                const firstHearing =
-                  caseStatus.length > 0 ? caseStatus[0][1] : "";
+                const caseHistory = caseData.caseHistory || [];
+                const lastHearing =
+                caseHistory.length > 0 ? caseHistory[caseHistory.length-1][1] : "";
                 const nextHearing =
                   caseStatus.length > 1 ? caseStatus[1][1] : "";
 
@@ -428,10 +430,10 @@ const CaseTable = () => {
                         />
                       </td>
                     )}
-                    <td className="py-2 px-4">{caseData?.cnrNumber}</td>
-                    <td className="py-2 px-4">{firstHearing}</td>
+                    <td className="py-2 px-4 text-left">{caseData?.cnrNumber}</td>
+                    <td className="py-2 px-4 text-left">{lastHearing}</td>
                     <td className="py-2 px-4">{nextHearing}</td>
-                    <td className="py-2 px-4">
+                    <td >
                       <TooltipProvider>
                         <td className="py-2 px-4">
                           <Tooltip>
@@ -480,61 +482,13 @@ const CaseTable = () => {
           </tbody>
         </table>
       </div>
-      <div className="mt-4 flex flex-col sm:flex-row justify-between items-center">
-        {/* Page Size Selector */}
-        <div className="flex gap-4 items-center mb-4 sm:mb-0">
-          <label className="text-[#8B83BA] font-medium">Page Size:</label>
-          <select
-            value={pageLimit}
-            onChange={(e) => handlePageLimitChange(Number(e.target.value))}
-            className="px-4 py-2 bg-[#F4F2FF] text-[#8B83BA] border border-[#8B83BA] rounded-md focus:ring-2 focus:ring-[#8B83BA]"
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={30}>30</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-
-        <div className="flex items-center justify-center space-x-2">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage <= 1}
-            className="bg-[#F4F2FF] text-[#8B83BA] border border-[#8B83BA] shadow-lg px-4 py-1 rounded-md hover:bg-[#8B83BA] hover:text-white "
-          >
-            Prev
-          </button>
-
-          {totalPages > 0 &&
-            [...Array(totalPages).keys()].map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page + 1)}
-                className={`min-w-9 rounded-md py-[5px] px-3 text-center text-sm transition-all shadow-sm ${
-                  currentPage === page + 1
-                    ? "bg-[#F4F2FF] text-[#8B83BA] border-transparent shadow-md border border-[#8B83BA] "
-                    : "border border-[#8B83BA] text-[#8B83BA] hover:text-white hover:bg-[#8B83BA]"
-                }`}
-              >
-                {page + 1}
-              </button>
-            ))}
-
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages}
-            className="bg-[#F4F2FF] text-[#8B83BA] border border-[#8B83BA] shadow-lg px-4 py-1 rounded-md hover:bg-[#8B83BA] hover:text-white "
-          >
-            Next
-          </button>
-        </div>
-
-        <div className="mt-4 sm:mt-0 text-center sm:text-left sm:ml-4">
-          <span className="text-lg font-medium text-[#8B83BA]">
-            Page {currentPage} of {totalPages > 0 ? totalPages : 1}
-          </span>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        rowsPerPage={pageLimit}
+        onRowsPerPageChange={setPageLimit}
+      />
     </div>
   );
 };
