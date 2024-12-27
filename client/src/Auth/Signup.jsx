@@ -53,8 +53,8 @@ const Signup = () => {
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative ">
       {/* Logo */}
-      <div className="absolute top-4 left-4">
-        <img src="/sign_logo.png" alt="Illustration" className="w-[200px]" />
+      <div className="absolute top-6 left-8">
+        <img  src="/logo cms 1.png" alt="Illustration" className="w-[200px]" />
       </div>
 
       {/* Form Container */}

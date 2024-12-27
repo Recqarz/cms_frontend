@@ -159,10 +159,10 @@ const GeneratePassword = () => {
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center relative">
       <div
-        className="absolute top-4 left-4
+        className="absolute top-8 left-8
 "
       >
-        <img src="/sign_logo.png" alt="Logo" className="w-[200px]" />
+        <img  src="/logo cms 1.png" alt="Logo" className="w-[200px]" />
       </div>
 
       <div
