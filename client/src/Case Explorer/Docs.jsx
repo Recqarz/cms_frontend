@@ -5,6 +5,7 @@ import { CiSearch } from "react-icons/ci";
 import { HiDocumentAdd } from "react-icons/hi";
 import { FaFileUpload } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { IoEyeOutline } from "react-icons/io5";
 import {
   Dialog,
   DialogContent,
@@ -16,26 +17,16 @@ import { MdOutlineFileUpload } from "react-icons/md";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Nodatafound from "../assets/Images/Nodata_found.png"; // Corrected import
 
-
 const Docs = () => {
   const [loading, setLoading] = useState(false);
-  //   const [cnrNumber, setCnrNumber] = useState("");
   const [data, setData] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  //   const [documents, setDocuments] = useState([
-  //     {
-  //       docName: "",
-  //       file: "",
-  //     },
-  //   ]);
-
   const fetchData = () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
       toast.error("Please login again to fetch documents");
       return;
     }
-
     axios
       .get(`${import.meta.env.VITE_API_URL}/document/get-document`, {
         headers: { token },
@@ -72,8 +63,7 @@ const Docs = () => {
       docs.map((doc) => {
         if (doc.id === id) {
           if (field === "file") {
-            // Validate file size (5MB limit)
-            const fileSize = value?.size / 1024 / 1024; // Convert to MB
+            const fileSize = value?.size / 1024 / 1024;
             if (fileSize > 5) {
               return {
                 ...doc,
@@ -139,27 +129,60 @@ const Docs = () => {
         toast.error("CNR Number must be 16 digits long");
         return;
       }
-      const formData = {
-        cnrNumber,
-        documents: documents.map(({ docName, file }) => ({
-          docName,
-          file,
-        })),
-      };
-      console.log("Submitting:", formData);
+      const formdata = new FormData();
+      formdata.append("cnrNumber", cnrNumber);
+      documents.forEach((doc) => {
+        formdata.append("files", doc.file);
+        formdata.append("fileNames", doc.docName);
+      });
+      const token = JSON.parse(localStorage.getItem("cmstoken"));
+      if (!token) {
+        toast.error("Please login again to submit documents");
+        return;
+      }
+      console.log(formdata);
+      setLoading(true);
+      axios
+        .post(
+          `${import.meta.env.VITE_API_URL}/document/add-document`,
+          formdata,
+          {
+            headers: { token },
+          }
+        )
+        .then((response) => {
+          setLoading(false);
+          toast.success("Documents uploaded successfully");
+          fetchData();
+          setIsDialogOpen(false);
+          setDocuments([
+            {
+              id: Date.now(),
+              docName: "",
+              file: null,
+              fileName: "",
+              error: "",
+            },
+          ]);
+          setCnrNumber("");
+        })
+        .catch((error) => {
+          setLoading(false);
+          const errorMsg =
+            error.response?.message ||
+            "Failed to upload documents. Please try again.";
+          toast.error(errorMsg);
+        });
     }
   };
 
   return (
     <div className="relative">
       <div className="shadow-lg rounded-xl p-8 bg-white">
-        {/* Search and Add Document Section */}
         <div className="flex flex-col sm:flex-row justify-between mb-6">
           <div className="relative w-full sm:w-auto mb-4 sm:mb-0">
             <input
               type="text"
-              //   value={cnrNumber}
-              //   onChange={(e) => setCnrNumber(e.target.value)}
               className="border bg-[#F4F2FF] text-[#8B83BA] rounded-md px-4 py-3 w-full sm:w-80 placeholder:text-[#8B83BA] focus:outline-none focus:ring-2 focus:ring-[#F4F2FF] pl-10"
               placeholder="Search Users by Name, Email or Date"
             />
@@ -181,18 +204,13 @@ const Docs = () => {
             <span className="text-lg font-semibold">Add Doc</span>
           </button>
         </div>
-
-        {/* Documents Table */}
         <div className="overflow-x-auto w-full">
           <table className="w-full border rounded-lg">
             <thead className="bg-[#F4F2FF] text-[#6E6893]">
               <tr>
                 <th className="py-3 px-4 text-left">CNR Number</th>
-                <th className="py-3 px-4 text-left">Uploaded By</th>
                 <th className="py-3 px-4 text-left">No. Of Document</th>
-                <th className="py-3 px-4 text-left">
-                  Respondent vs Petitioner
-                </th>
+                <th className="py-3 px-4 text-left">Respondent & Petitioner</th>
                 <th className="py-3 px-4 text-left">Action</th>
               </tr>
             </thead>
@@ -205,15 +223,13 @@ const Docs = () => {
                     key={ele._id || index}
                   >
                     <td className="py-3 px-4">{ele.cnrNumber}</td>
-                    <td className="py-3 px-4">{ele?.date?.split("T")[0]}</td>
+                    <td className="py-3 px-4">{ele.noOfDocument}</td>
                     <td className="py-3 px-4">
-                      <Link
-                        to={ele.docLink}
-                        className="text-blue-600 hover:underline"
-                        target="_blank"
-                      >
-                        View PDF
-                      </Link>
+                      {ele.petitioner?.split(" ")[0]} vs{" "}
+                      {ele.respondent?.split(" ")[0]}{" "}
+                    </td>
+                    <td className="py-3 px-4">
+                      <IoEyeOutline className="text-[#5a518c] text-xl font-semibold cursor-pointer" />
                     </td>
                   </tr>
                 ))
@@ -226,7 +242,6 @@ const Docs = () => {
                         alt="No cases found"
                         className="max-w-xs mx-auto mb-4"
                       />
-                      
                     </div>
                   </td>
                 </tr>
