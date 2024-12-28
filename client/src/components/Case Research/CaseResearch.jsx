@@ -124,9 +124,7 @@ const CaseResearch = () => {
                         alt="No cases found"
                         className="max-w-xs mx-auto mb-4"
                       />
-                      <p className="text-gray-500 text-lg font-medium">
-                        No data available to display
-                      </p>
+                    
                     </div>
                   </td>
                 </tr>
