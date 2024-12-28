@@ -16,6 +16,7 @@ import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Pagination from "../pagination/pagination";
+import Nodata from "../../assets/Images/Nodata_found.png";
 
 const DisposedCaseTable = () => {
   const navigate = useNavigate();
@@ -422,7 +423,7 @@ const DisposedCaseTable = () => {
                 <td colSpan="7" className="py-4 text-center">
                   <div className="flex justify-center items-center">
                     <img
-                      src="/Nodata_found.png"
+                      src={Nodata}
                       alt="No cases found"
                       className="max-w-xs mx-auto  p-8 "
                     />

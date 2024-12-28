@@ -256,34 +256,43 @@ const TrackedCases = () => {
                             : "bg-gray-200 text-gray-700" // default color
                         }`}
                       >
-                        <FaCircle
-                          size={10}
-                          className={
-                            caseItem.status === "Completed"
-                              ? "text-[#8B83BA]"
-                              : caseItem.status === "processed"
-                              ? "text-[#8B83BA]" // green
-                              : caseItem.status === "wrong"
-                              ? "text-red-700" // red
-                              : caseItem.status === "Different_format"
-                              ? "text-red-700" // red
-                              : caseItem.status === "invalidcnr"
-                              ? "text-blue-700" // blue
-                              : caseItem.status === "pending"
-                              ? "text-yellow-700" // yellow
-                              : caseItem.status === "underProgress"
-                              ? "text-blue-700" // blue
-                              : caseItem.status === "alreadyprocessed"
-                              ? "text-pink-700" // pink
-                              : "text-gray-700" // default color
-                          }
-                        />
-                        {caseItem.status}
+                       <div className="flex items-center   ">
+                          <FaCircle
+                            style={{
+                              marginRight: "4px",
+                              marginTop: "5px",
+                            }}
+                            size={10}
+                            className={
+                              caseItem.status === "Completed"
+                                ? "text-[#8B83BA]"
+                                : caseItem.status === "processed"
+                                ? "text-[#8B83BA]"
+                                : caseItem.status === "wrong"
+                                ? "text-red-700"
+                                : caseItem.status === "Different_format"
+                                ? "text-red-700"
+                                : caseItem.status === "invalidcnr"
+                                ? "text-blue-700"
+                                : caseItem.status === "pending"
+                                ? "text-yellow-700"
+                                : caseItem.status === "underProgress"
+                                ? "text-blue-700"
+                                : caseItem.status === "alreadyprocessed"
+                                ? "text-pink-700"
+                                : "text-gray-700"
+                            }
+                          />
+                          <span>{caseItem.status}</span>
+                        </div>
                       </span>
                     </div>
-                    {caseItem.status === "Completed"
-                      ? ` (Paid on ${caseItem.date})`
-                      : ` (Due on ${caseItem.date})`}
+                    <span className="text-sm text-gray-700">
+                      {caseItem.status === "Completed"
+                        ? ` (Paid on ${caseItem.date})`
+                        : ` (Due on ${caseItem.date})`}
+                    </span>
+
                   </td>
                 </tr>
               ))
