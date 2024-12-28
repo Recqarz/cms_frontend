@@ -5,6 +5,7 @@ import { CiSearch } from "react-icons/ci";
 import { HiDocumentAdd } from "react-icons/hi";
 import { FaFileUpload } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { FaSpinner } from "react-icons/fa6";
 import { IoEyeOutline } from "react-icons/io5";
 import {
   Dialog,
@@ -172,9 +173,20 @@ const Docs = () => {
         .catch((error) => {
           setLoading(false);
           const errorMsg =
-            error.response?.message ||
+            error.response?.data?.message ||
             "Failed to upload documents. Please try again.";
           toast.error(errorMsg);
+          setIsDialogOpen(false);
+          setCnrNumber("");
+          setDocuments([
+            {
+              id: Date.now(),
+              docName: "",
+              file: null,
+              fileName: "",
+              error: "",
+            },
+          ]);
         });
     }
   };
@@ -198,9 +210,8 @@ const Docs = () => {
           <button
             onClick={() => setIsDialogOpen(true)}
             type="button"
-            disabled={loading}
-            className={`flex items-center justify-center px-6 py-3 bg-[#8B83BA] text-white rounded-lg shadow-md cursor-pointer ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-[#5a518c]"
+            className={`flex items-center justify-center px-6 py-3 bg-[#5a518c] text-white rounded-lg shadow-md cursor-pointer ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-[#7b6cd2]"
             } transition duration-300 ease-in-out`}
           >
             <HiDocumentAdd className="mr-2 text-xl" />
@@ -371,9 +382,10 @@ const Docs = () => {
             </button>
             <button
               onClick={handleSubmit}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+              disabled={loading}
+              className={`px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors`}
             >
-              Submit
+              {loading ? <FaSpinner className="animate-spin" /> : "Submit"}
             </button>
           </DialogFooter>
         </DialogContent>
