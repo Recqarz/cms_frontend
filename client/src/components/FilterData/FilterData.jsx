@@ -15,6 +15,7 @@ import { Label } from "../ui/label";
 import toast from "react-hot-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FaFileUpload } from "react-icons/fa";
+import { FaSpinner } from "react-icons/fa6";
 import { Input } from "../ui/input";
 
 const FilterData = () => {
@@ -27,6 +28,7 @@ const FilterData = () => {
   const [file, setFile] = useState(null);
   const [isSingle, setIsSingle] = useState(true);
   const [isSecOpen, setIsSecOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [nusers, setNusers] = useState([
     { name: "", email: "", mobile: "", dayBeforeNotification: "" },
   ]);
@@ -69,7 +71,7 @@ const FilterData = () => {
 
   function handleAddCnr() {
     let token = JSON.parse(localStorage.getItem("cmstoken"));
-    if (!selectUser) {
+    if (!selectUser || Object.keys(selectUser).length === 0) {
       toast.error("Please select a user");
       return;
     }
@@ -78,6 +80,7 @@ const FilterData = () => {
       return;
     }
     if (isSingle) {
+      setLoading(true);
       const newusers = nusers
         .filter((ele) => ele.email || ele.phone)
         .map((ele) => ({
@@ -112,11 +115,14 @@ const FilterData = () => {
           ]);
           setIsSecOpen(false);
           fetchData();
+          setLoading(false);
         })
         .catch((error) => {
           toast.error(error?.response?.data?.message || "Something went wrong");
+          setLoading(false);
         });
     } else {
+      setLoading(true);
       const formData = new FormData();
       formData.append("externalUserId", selectUser._id);
       formData.append("externalUserName", selectUser.name);
@@ -133,14 +139,20 @@ const FilterData = () => {
           setIsOpen(false);
           setIsSingle(true);
           setFile(null);
+          setIsSecOpen(false);
         })
         .catch((error) => {
           toast.error(error?.response?.data?.message || "Something went wrong");
+          setLoading(false);
         });
     }
   }
 
   function handleAddCnrtype() {
+    if (!selectUser || Object.keys(selectUser).length === 0) {
+      toast.error("Please select a user");
+      return;
+    }
     if (isSingle) {
       setIsSecOpen(true);
     } else {
@@ -256,7 +268,9 @@ const FilterData = () => {
             <button
               type="submit"
               onClick={handleFileUpload}
-              className="flex w-full items-center justify-center p-4 bg-[#8B83BA] text-white rounded-lg shadow-md cursor-pointer hover:bg-[#5a518c] transition duration-300 ease-in-out transform hover:scale-105"
+              className={`flex w-full items-center justify-center p-4  text-white rounded-lg shadow-md cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 ${
+                file ? "bg-[#5a518c]" : "bg-[#8B83BA]"
+              }`}
             >
               <FiUpload className="mr-2 text-xl" />
               <span className="text-lg font-semibold">Upload</span>
@@ -327,7 +341,7 @@ const FilterData = () => {
                   setIsSingle(true);
                   handleAddClick();
                 }}
-                className="mt-2 sm:mt-0 sm:ml-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
+                className={`mt-2 sm:mt-0 sm:ml-2 p-3 text-white rounded-lg w-full sm:w-auto ${searchQuery.length!==16 ? "bg-blue-400" : "bg-blue-600"}`}
               >
                 Add CNR Number
               </button>
@@ -497,8 +511,13 @@ const FilterData = () => {
               </Button>
             </div>
 
-            <Button onClick={handleAddCnr} type="submit" size="sm">
-              Submit
+            <Button
+              onClick={handleAddCnr}
+              type="submit"
+              size="sm"
+              disabled={loading}
+            >
+              {loading ? <FaSpinner className="animate-spin" /> : "Submit"}
             </Button>
           </div>
         </DialogContent>
