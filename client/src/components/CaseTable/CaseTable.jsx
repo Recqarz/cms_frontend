@@ -16,7 +16,7 @@ import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Pagination from "../pagination/pagination";
-import Nodata from "../../assets/Images/Nodata_found.png"
+import Nodata from "../../assets/Images/Nodata_found.png";
 
 const CaseTable = () => {
   const navigate = useNavigate();
@@ -43,7 +43,6 @@ const CaseTable = () => {
 
     if (!token) {
       console.error("No token found");
-      setError("Unauthorized access. Please login again.");
       return;
     }
     setLoading(true);
@@ -63,9 +62,10 @@ const CaseTable = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          setError("Unauthorized access. Please login again.");
+          toast.error("Unauthorized access. Please login again.");
         } else {
-          setError(`Error: ${response.statusText}`);
+          setCases([]);
+          toast.error("Something went wrong");
         }
         return;
       }
@@ -77,22 +77,31 @@ const CaseTable = () => {
         setTotalPages(responseData.pageSize);
       } else {
         console.error("Unexpected API response format", responseData);
-        setError("Failed to load cases. Invalid response format.");
       }
     } catch (error) {
       console.error("Error fetching cases:", error.message);
-      setError("An error occurred while fetching cases.");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterText]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+    }
+  }, [totalPages, currentPage]);
+
   useEffect(() => {
     fetchCases();
   }, [currentPage, pageLimit, filterText, nextHearing, petitioner, respondent]);
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
-    setSelectedCases(selectAll ? [] : filteredData.map((_, index) => index));
+    setSelectedCases(selectAll ? [] : cases.map((_, index) => index));
   };
 
   const handleCaseSelect = (index) => {
@@ -141,8 +150,8 @@ const CaseTable = () => {
 
   const handleExport = () => {
     const exportData = selectedCases.length
-      ? selectedCases.map((index) => filteredData[index])
-      : filteredData;
+      ? selectedCases.map((index) => cases[index])
+      : cases;
 
     const excelData = [];
 
@@ -477,14 +486,14 @@ const CaseTable = () => {
                     <td className="py-2 px-4">{nextHearing}</td>
                     <td>
                       <TooltipProvider>
-                        <td className="py-2 px-4">
+                        <div className="py-2 px-4">
                           <Tooltip>
                             <TooltipTrigger>
                               <span>{truncatedPetitioner}</span>
                             </TooltipTrigger>
                             <TooltipContent>{petitioner}</TooltipContent>
                           </Tooltip>
-                        </td>
+                        </div>
                       </TooltipProvider>
                     </td>
                     <TooltipProvider>

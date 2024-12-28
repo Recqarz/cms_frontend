@@ -3,29 +3,11 @@ import { CiSearch } from "react-icons/ci";
 import { FaFilter, FaDownload, FaCircle } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
-import Nodatafound from "../../assets/Images/Nodata_found.png"
+import Nodatafound from "../../assets/Images/Nodata_found.png";
+import Pagination from "../pagination/pagination";
 
 const TrackedCases = () => {
   const [cases, setCases] = useState([]);
-
-  function fetchData() {
-    let token = JSON.parse(localStorage.getItem("cmstoken"));
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/cnr/get-unsaved-cnr`, {
-        headers: { token: token },
-      })
-      .then((response) => {
-        setCases(response.data.data);
-      })
-      .catch((error) => {
-        toast.error("Failed to fetch data");
-      });
-  }
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const [selectedCases, setSelectedCases] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [showExportInput, setShowExportInput] = useState(false);
@@ -34,6 +16,47 @@ const TrackedCases = () => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageLimit, setPageLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+
+  function fetchData() {
+    let token = JSON.parse(localStorage.getItem("cmstoken"));
+    axios
+      .get(
+        `${
+          import.meta.env.VITE_API_URL
+        }/cnr/get-unsaved-cnr?searchQuery=${searchQuery}&currentPage=${currentPage}&pageLimit=${pageLimit}&selectedFilter=${selectedFilter}`,
+        {
+          headers: { token: token },
+        }
+      )
+      .then((response) => {
+        setCases(response.data.data);
+        setTotalPages(response.data.pageSize);
+      })
+      .catch((error) => {
+        setCases([]);
+        setTotalPages(0);
+        const errorMessage =
+          error.response?.data?.message || "An unexpected error occurred.";
+        toast.error(errorMessage);
+      });
+  }
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedFilter]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+    }
+  }, [totalPages, currentPage]);
+
+  useEffect(() => {
+    fetchData();
+  }, [searchQuery, currentPage, pageLimit, selectedFilter]);
 
   const handleCaseSelect = (index) => {
     setSelectedCases((prevSelected) =>
@@ -45,7 +68,7 @@ const TrackedCases = () => {
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
-    setSelectedCases(selectAll ? [] : cases.map((_, index) => index));
+    setSelectedCases(!selectAll ? cases.map((_, index) => index) : []);
   };
 
   const toggleDropdown = () => {
@@ -82,22 +105,6 @@ const TrackedCases = () => {
     setIsExportDisabled(selectedCases.length === 0);
   }, [selectedCases]);
 
-  const filteredCases = cases
-    .filter((caseItem) => {
-      if (selectedFilter === "All") return true;
-      return caseItem.status
-        .toLowerCase()
-        .includes(selectedFilter.toLowerCase());
-    })
-    .filter((caseItem) => {
-      const query = searchQuery.toLowerCase();
-      return (
-        caseItem.cnr.toLowerCase().includes(query) ||
-        caseItem.status.toLowerCase().includes(query) ||
-        caseItem.date.toLowerCase().includes(query)
-      );
-    });
-
   const handleExport = () => {
     if (selectedCases.length === 0) return;
 
@@ -113,9 +120,7 @@ const TrackedCases = () => {
     link.href = URL.createObjectURL(blob);
     link.download = "tracked_cases.csv";
     link.click();
-
-    toast.success("Export successful!"); // Display success message
-
+    toast.success("Export successful!");
     setShowExportInput(false);
     setShowCheckboxes(false);
   };
@@ -175,7 +180,7 @@ const TrackedCases = () => {
           </div>
 
           <button
-            className="flex px-4 rounded-md py-2 items-center shadow-lg bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white shadow-md transition"
+            className="flex px-4 rounded-md py-2 items-center shadow-lg bg-[#F4F2FF] text-[#8B83BA] hover:bg-[#8B83BA] hover:text-white transition"
             onClick={toggleExportInput}
           >
             <FaDownload className="mr-2" /> Export
@@ -186,7 +191,7 @@ const TrackedCases = () => {
       {showExportInput && (
         <div className="mb-4">
           <button
-            className="bg-[#F4F2FF] text-[#8B83BA] px-4 py-2 shadow-lg rounded-lg w-full sm:w-auto hover:bg-[#8B83BA] hover:text-white shadow-md transition cursor-pointer"
+            className="bg-[#F4F2FF] text-[#8B83BA] px-4 py-2 shadow-lg rounded-lg w-full sm:w-auto hover:bg-[#8B83BA] hover:text-white transition cursor-pointer"
             onClick={handleExport}
             disabled={isExportDisabled}
           >
@@ -214,8 +219,8 @@ const TrackedCases = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredCases.length > 0 ? (
-              filteredCases.map((caseItem, index) => (
+            {cases.length > 0 ? (
+              cases.map((caseItem, index) => (
                 <tr key={index} className="hover:bg-gray-100 transition">
                   {showCheckboxes && (
                     <td className="py-3 px-6 border-b">
@@ -294,7 +299,6 @@ const TrackedCases = () => {
                       alt="No cases found"
                       className="max-w-xs mx-auto mb-4"
                     />
-                   
                   </div>
                 </td>
               </tr>
@@ -302,6 +306,13 @@ const TrackedCases = () => {
           </tbody>
         </table>
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        rowsPerPage={pageLimit}
+        onRowsPerPageChange={setPageLimit}
+      />
     </div>
   );
 };

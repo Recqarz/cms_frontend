@@ -64,12 +64,12 @@ const Docs = () => {
         if (doc.id === id) {
           if (field === "file") {
             const fileSize = value?.size / 1024 / 1024;
-            if (fileSize > 5) {
+            if (fileSize > 50) {
               return {
                 ...doc,
                 [field]: null,
                 fileName: "",
-                error: "File size should not exceed 5MB",
+                error: "File size should not exceed 50MB",
               };
             }
             return {
@@ -147,7 +147,10 @@ const Docs = () => {
           `${import.meta.env.VITE_API_URL}/document/add-document`,
           formdata,
           {
-            headers: { token },
+            headers: {
+              token,
+              "Content-Type": "multipart/form-data",
+            },
           }
         )
         .then((response) => {
