@@ -86,12 +86,21 @@ const DisposedCaseTable = () => {
     }
   };
   useEffect(() => {
+    setCurrentPage(1);
+  }, [filterText]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages > 0 ? totalPages : 1);
+    }
+  }, [totalPages, currentPage]);
+  useEffect(() => {
     fetchCases();
   }, [currentPage, pageLimit, filterText, nextHearing, petitioner, respondent]);
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
-    setSelectedCases(selectAll ? [] : filteredData.map((_, index) => index));
+    setSelectedCases(selectAll ? [] : cases.map((_, index) => index));
   };
 
   const handleCaseSelect = (index) => {
@@ -140,8 +149,8 @@ const DisposedCaseTable = () => {
 
   const handleExport = () => {
     const exportData = selectedCases.length
-      ? selectedCases.map((index) => filteredData[index])
-      : filteredData;
+      ? selectedCases.map((index) => cases[index])
+      : cases;
 
     const excelData = [];
 
@@ -258,7 +267,7 @@ const DisposedCaseTable = () => {
     <div className="rounded-lg p-6  shadow-lg">
       <div>
         <h1 className="text-2xl text-center text-[#8B83BA] mb-5 font-bold">
-          Case Repository
+          Disposed Cases
         </h1>
       </div>
       <div className="flex items-center mb-4 flex-wrap gap-4 justify-between">
@@ -428,9 +437,6 @@ const DisposedCaseTable = () => {
                   caseHistory.length > 1
                     ? caseHistory[caseHistory.length - 2][2]
                     : "";
-                console.log(lastHearing);
-                console.log(caseHistory);
-                console.log(caseData.cnrNumber);
                 const nextHearing =
                   caseStatus.length > 1 ? caseStatus[1][1] : "";
 
@@ -479,14 +485,14 @@ const DisposedCaseTable = () => {
                     <td className="py-2 px-4">{nextHearing}</td>
                     <td>
                       <TooltipProvider>
-                        <td className="py-2 px-4">
+                        <div className="py-2 px-4">
                           <Tooltip>
                             <TooltipTrigger>
                               <span>{truncatedPetitioner}</span>
                             </TooltipTrigger>
                             <TooltipContent>{petitioner}</TooltipContent>
                           </Tooltip>
-                        </td>
+                        </div>
                       </TooltipProvider>
                     </td>
                     <TooltipProvider>

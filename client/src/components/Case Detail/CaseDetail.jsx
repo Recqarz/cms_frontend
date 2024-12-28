@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 import { toast } from "react-hot-toast";
-import Nodata from "../../assets/Images/Nodata_found.png"
+import Nodata from "../../assets/Images/Nodata_found.png";
 
 const CaseDetail = () => {
   const [data, setData] = useState(null);
@@ -12,8 +12,36 @@ const CaseDetail = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedpdf, setSelectedPdfs] = useState([]);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
+  const [documents, setDocuments] = useState({});
 
   const { cnrNumber } = useParams();
+
+  const fetchDocuments = async () => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Unauthorized, please login again");
+      return;
+    }
+    axios
+      .get(
+        `${
+          import.meta.env.VITE_API_URL
+        }/document/get-document-of-single-cnr/${cnrNumber}`,
+        {
+          headers: { token: token },
+        }
+      )
+      .then((response) => {
+        setDocuments(response.data.data);
+      })
+      .catch((err) => {
+        toast.error(err.response?.data?.message || "Failed to fetch documents");
+      });
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [cnrNumber]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -413,6 +441,68 @@ const CaseDetail = () => {
                         colSpan="3"
                       >
                         No interim orders available
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full p-4">
+          <div className="bg-white rounded-lg p-6 shadow">
+            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
+              Documents
+            </h2>
+
+            <div className="overflow-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-[#F4F2FF] text-[#8B83BA]">
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                      Doc Name
+                    </th>
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                      Uploaded by
+                    </th>
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                      Doc Link
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {documents?.documents?.length > 0 ? (
+                    documents.documents.map((doc, index) => (
+                      <tr
+                        key={index}
+                        className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                      >
+                        <td className="border border-[#F4F2FF] px-2 py-1">
+                          {doc.name || "-"}
+                        </td>
+                        <td className="border border-[#F4F2FF] px-2 py-1">
+                          {doc.uploadedBy || "-"}
+                        </td>
+                        <td className="border border-[#F4F2FF] px-2 py-1">
+                          <Link
+                            to={doc.url} // Ensure you're referencing the correct field for the document's URL
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Document
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        className="border border-[#F4F2FF] px-2 py-1"
+                        colSpan="3"
+                      >
+                        No Document available
                       </td>
                     </tr>
                   )}
