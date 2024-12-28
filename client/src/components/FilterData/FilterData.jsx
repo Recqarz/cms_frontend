@@ -341,7 +341,9 @@ const FilterData = () => {
                   setIsSingle(true);
                   handleAddClick();
                 }}
-                className={`mt-2 sm:mt-0 sm:ml-2 p-3 text-white rounded-lg w-full sm:w-auto ${searchQuery.length!==16 ? "bg-blue-400" : "bg-blue-600"}`}
+                className={`mt-2 sm:mt-0 sm:ml-2 p-3 text-white rounded-lg w-full sm:w-auto ${
+                  searchQuery.length !== 16 ? "bg-blue-400" : "bg-blue-600"
+                }`}
               >
                 Add CNR Number
               </button>
@@ -386,8 +388,9 @@ const FilterData = () => {
                   handleAddCnrtype();
                 }}
                 type="submit"
+                disabled={loading}
               >
-                Add
+                {loading ? <FaSpinner className="animate-spin" /> : "Add"}
               </Button>
             ) : null}
           </DialogFooter>
