@@ -5,7 +5,6 @@ import { Routes, Route } from "react-router-dom";
 import TrackedCases from "../components/TrackedCases/TrackedCases.jsx";
 import CaseTable from "../components/CaseTable/CaseTable.jsx";
 import FilterData from "../components/FilterData/FilterData.jsx";
-import AddUser from "../components/Add User/AddUser.jsx";
 import CaseDetail from "../components/Case Detail/CaseDetail.jsx";
 import SettingPages from "../components/SettingPages.jsx";
 import UserDirectory from "@/components/User Directory/UserDirectory";
