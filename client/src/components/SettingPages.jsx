@@ -6,7 +6,7 @@ import { MdToggleOn, MdToggleOff } from "react-icons/md";
 const SettingPages = () => {
   const contentData = [
     { label: "Email notifications", field: "emailSms" },
-    { label: "SMS notifications", field: "moblieSms" },
+    { label: "SMS notifications", field: "mobileSms" },
     { label: "WhatsApp notifications", field: "whatsAppSms" },
     { label: "Day Before notifications", field: "oneDayBeforenotification" },
     { label: "4 Day Before notifications", field: "fourDayBeforenotification" },
@@ -45,7 +45,7 @@ const SettingPages = () => {
         setContentDatas(data);
         setToggles({
           emailSms: data.emailSms || false,
-          moblieSms: data.moblieSms || false,
+          mobileSms: data.mobileSms || false,
           whatsAppSms: data.whatsAppSms || false,
           oneDayBeforenotification: data.oneDayBeforenotification || false,
           fourDayBeforenotification: data.fourDayBeforenotification || false,
