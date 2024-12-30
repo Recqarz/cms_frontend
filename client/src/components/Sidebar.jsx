@@ -199,6 +199,14 @@ const Sidebar = () => {
 
             <li
               className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200"
+              onClick={() => navigate("/calendar")}
+            >
+              <RiArchiveFill className="mr-3" />
+              <span>Calendar</span>
+            </li>
+
+            <li
+              className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200"
               onClick={() => navigate("/setting")}
             >
               <IoIosSettings className="mr-3" />
