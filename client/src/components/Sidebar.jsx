@@ -19,7 +19,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { isLogin, roleUpdater } from "@/global/action";
-import Logo from "../assets/Images/logo cms 1.png"
+import Logo from "../assets/Images/logo cms 1.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -91,7 +91,6 @@ const Sidebar = () => {
           className="w-[180px] h-[24px]   mx-auto ml-[8px] mt-8"
         />
 
-
         <nav className="mt-6 px-2">
           <ul className="space-y-2">
             <li className="flex items-center cursor-pointer px-[12px] py-[8px] hover:bg-[#716868] rounded-lg  transition duration-200">
@@ -150,7 +149,7 @@ const Sidebar = () => {
                     className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
                     onClick={() => navigate("/case-route")}
                   >
-                     Management
+                    Management
                   </li>
                 </ul>
               )}
@@ -209,7 +208,7 @@ const Sidebar = () => {
               className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200"
               onClick={() => navigate("/setting")}
             >
-              <IoIosSettings className="mr-3" />
+              <IoIosSettings className="mr-3  w-[20px] h-[20px]" />
               <span>Setting</span>
             </li>
           </ul>
@@ -227,33 +226,41 @@ const Sidebar = () => {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>
-              Add New {role == "advocate" ? "Client" : "Advocate"}
-            </DialogTitle>
-            <DialogDescription></DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                className="col-span-3"
-                value={name}
-                onInput={(e) => setName(e.target.value)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleAddnewUser} type="submit">
-              Save changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+  <DialogContent className="sm:max-w-[425px]">
+    <DialogHeader>
+      <DialogTitle className="text-[#6E6893]">
+        Add New {role === "advocate" ? "Client" : "Advocate"}
+      </DialogTitle>
+      <DialogDescription></DialogDescription>
+    </DialogHeader>
+    <div className="grid gap-4 py-4">
+      <div className="grid grid-cols-4 items-center gap-4">
+        <Label
+          htmlFor="name"
+          className="text-right text-gray-600 font-bold"
+        >
+          Name
+        </Label>
+        <Input
+          id="name"
+          className="col-span-3 w-full px-4 py-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5a518c] "
+          value={name}
+          onInput={(e) => setName(e.target.value)}
+        />
+      </div>
+    </div>
+    <DialogFooter>
+      <Button
+        onClick={handleAddnewUser}
+        type="submit"
+        className="bg-[#8B83BA] text-white rounded-lg hover:bg-[#5a518c]"
+      >
+        Save changes
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
     </div>
   );
 };
