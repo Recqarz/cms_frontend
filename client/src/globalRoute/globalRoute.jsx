@@ -12,6 +12,7 @@ import Archive from "@/components/Archive/Archive";
 import CaseResearch from "@/components/Case Research/CaseResearch";
 import CaseRoute from "@/Case Explorer/CaseRoute";
 import DisposedCaseTable from "@/components/disposeCase/disposeCasetable";
+import Calendar from "@/components/calendar/calendar";
 
 const Allroutes = () => {
   return (
@@ -32,7 +33,7 @@ const Allroutes = () => {
           <Route path="/case-route" element={<CaseRoute />} />
 
           <Route path="/archive" element={<Archive />} />
-
+          <Route path="/calendar" element={<Calendar />} />
           <Route path="/setting" element={<SettingPages />} />
         </Routes>
       </div>
