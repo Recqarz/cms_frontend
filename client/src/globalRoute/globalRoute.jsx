@@ -13,6 +13,9 @@ import CaseResearch from "@/components/Case Research/CaseResearch";
 import CaseRoute from "@/Case Explorer/CaseRoute";
 import DisposedCaseTable from "@/components/disposeCase/disposeCasetable";
 import Calendar from "@/components/calendar/calendar";
+import CaseRepository from "../Case Explorer/SubCases/CaseRepository"
+import DisposedRepository from "../Case Explorer/SubCases/DisposedRepository"
+import Management from "@/Case Explorer/SubCases/Management";
 
 const Allroutes = () => {
   return (
@@ -31,6 +34,13 @@ const Allroutes = () => {
           <Route path="/user-directory" element={<UserDirectory />} />
           <Route path="/case-research" element={<CaseResearch />} />
           <Route path="/case-route" element={<CaseRoute />} />
+
+
+          <Route path="/sub-case-repository" element={<CaseRepository />} />
+          <Route path="/sub-case-disposed" element={<DisposedRepository />} />
+          <Route path="/sub-case-management" element={<Management />} />
+
+
 
           <Route path="/archive" element={<Archive />} />
           <Route path="/calendar" element={<Calendar />} />

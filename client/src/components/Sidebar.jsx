@@ -20,6 +20,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { isLogin, roleUpdater } from "@/global/action";
 import Logo from "../assets/Images/logo cms 1.png";
+import { IoIosApps } from "react-icons/io";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -154,6 +155,45 @@ const Sidebar = () => {
                 </ul>
               )}
             </li>
+
+                       <li>
+  <div
+    className="flex items-center justify-between px-[12px] py-[8px] text-[#2422208F] hover:bg-[#F4F2FF] transition duration-200 cursor-pointer rounded-lg"
+    onClick={() => toggleSection("Sub-Cases")}
+  >
+    <div className="flex items-center">
+      <IoIosApps className="mr-3" />
+      <span>Sub-Cases</span>
+    </div>
+    {openSection === "Sub-Cases" ? (
+      <IoIosArrowUp />
+    ) : (
+      <IoIosArrowDown />
+    )}
+  </div>
+  {openSection === "Sub-Cases" && (
+    <ul className="pl-8 space-y-1 rounded-lg">
+      <li
+        className="py-1 hover:text-gray-300 text-[#2422208F] hover:bg-[#F4F2FF] cursor-pointer px-4 rounded-md"
+        onClick={() => navigate("/sub-case-repository")}
+      >
+        Case Repository
+      </li>
+      <li
+        className="py-1 hover:text-gray-300 text-[#2422208F] hover:bg-[#F4F2FF] cursor-pointer px-4 rounded-md"
+        onClick={() => navigate("/sub-case-disposed")}
+      >
+        Disposed Cases
+      </li>
+      <li
+        className="py-1 hover:text-gray-300 text-[#2422208F] hover:bg-[#F4F2FF] cursor-pointer px-4 rounded-md"
+        onClick={() => navigate("/sub-case-management")}
+      >
+        Management
+      </li>
+    </ul>
+  )}
+</li>
 
             <li>
               <div
