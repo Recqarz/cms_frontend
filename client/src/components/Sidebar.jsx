@@ -156,44 +156,44 @@ const Sidebar = () => {
               )}
             </li>
 
-                       <li>
-  <div
-    className="flex items-center justify-between px-[12px] py-[8px] text-[#2422208F] hover:bg-[#F4F2FF] transition duration-200 cursor-pointer rounded-lg"
-    onClick={() => toggleSection("Sub-Cases")}
-  >
-    <div className="flex items-center">
-      <IoIosApps className="mr-3" />
-      <span>Sub-Cases</span>
-    </div>
-    {openSection === "Sub-Cases" ? (
-      <IoIosArrowUp />
-    ) : (
-      <IoIosArrowDown />
-    )}
-  </div>
-  {openSection === "Sub-Cases" && (
-    <ul className="pl-8 space-y-1 rounded-lg">
-      <li
-        className="py-1 hover:text-gray-300 text-[#2422208F] hover:bg-[#F4F2FF] cursor-pointer px-4 rounded-md"
-        onClick={() => navigate("/sub-case-repository")}
-      >
-        Case Repository
-      </li>
-      <li
-        className="py-1 hover:text-gray-300 text-[#2422208F] hover:bg-[#F4F2FF] cursor-pointer px-4 rounded-md"
-        onClick={() => navigate("/sub-case-disposed")}
-      >
-        Disposed Cases
-      </li>
-      <li
-        className="py-1 hover:text-gray-300 text-[#2422208F] hover:bg-[#F4F2FF] cursor-pointer px-4 rounded-md"
-        onClick={() => navigate("/sub-case-management")}
-      >
-        Management
-      </li>
-    </ul>
-  )}
-</li>
+            <li>
+              <div
+                className="flex items-center justify-between px-[12px] py-[8px] hover:bg-[#716868] transition duration-200 cursor-pointer rounded-lg"
+                onClick={() => toggleSection("Sub-Cases")}
+              >
+                <div className="flex items-center">
+                  <IoIosApps className="mr-3" />
+                  <span>Sub-Cases</span>
+                </div>
+                {openSection === "Sub-Cases" ? (
+                  <IoIosArrowUp />
+                ) : (
+                  <IoIosArrowDown />
+                )}
+              </div>
+              {openSection === "Sub-Cases" && (
+                <ul className="pl-8 space-y-1 rounded-lg">
+                  <li
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
+                    onClick={() => navigate("/sub-case-repository")}
+                  >
+                    Case Repository
+                  </li>
+                  <li
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
+                    onClick={() => navigate("/sub-case-disposed")}
+                  >
+                    Disposed Cases
+                  </li>
+                  <li
+                    className="py-1 hover:text-gray-300 hover:bg-[#716868] cursor-pointer px-4 rounded-md"
+                    onClick={() => navigate("/sub-case-management")}
+                  >
+                    Management
+                  </li>
+                </ul>
+              )}
+            </li>
 
             <li>
               <div
@@ -266,41 +266,40 @@ const Sidebar = () => {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-  <DialogContent className="sm:max-w-[425px]">
-    <DialogHeader>
-      <DialogTitle className="text-[#6E6893]">
-        Add New {role === "advocate" ? "Client" : "Advocate"}
-      </DialogTitle>
-      <DialogDescription></DialogDescription>
-    </DialogHeader>
-    <div className="grid gap-4 py-4">
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label
-          htmlFor="name"
-          className="text-right text-gray-600 font-bold"
-        >
-          Name
-        </Label>
-        <Input
-          id="name"
-          className="col-span-3 w-full px-4 py-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5a518c] "
-          value={name}
-          onInput={(e) => setName(e.target.value)}
-        />
-      </div>
-    </div>
-    <DialogFooter>
-      <Button
-        onClick={handleAddnewUser}
-        type="submit"
-        className="bg-[#8B83BA] text-white rounded-lg hover:bg-[#5a518c]"
-      >
-        Save changes
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-[#6E6893]">
+              Add New {role === "advocate" ? "Client" : "Advocate"}
+            </DialogTitle>
+            <DialogDescription></DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label
+                htmlFor="name"
+                className="text-right text-gray-600 font-bold"
+              >
+                Name
+              </Label>
+              <Input
+                id="name"
+                className="col-span-3 w-full px-4 py-2  rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5a518c] "
+                value={name}
+                onInput={(e) => setName(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleAddnewUser}
+              type="submit"
+              className="bg-[#8B83BA] text-white rounded-lg hover:bg-[#5a518c]"
+            >
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
