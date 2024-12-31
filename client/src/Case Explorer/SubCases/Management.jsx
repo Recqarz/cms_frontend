@@ -6,9 +6,6 @@ import { HiDocumentAdd } from "react-icons/hi";
 
 import { FaSpinner } from "react-icons/fa6";
 import { IoEyeOutline } from "react-icons/io5";
-import { MdOutlineStreetview } from "react-icons/md";
-import { TbHttpDelete } from "react-icons/tb";
-import { ImDownload2 } from "react-icons/im";
 import {
   Dialog,
   DialogContent,
@@ -18,27 +15,22 @@ import {
 } from "../.././components/ui/dialog";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import Nodatafound from "../../assets/Images/Nodata_found.png"; // Corrected import
-import { IoTrashOutline } from "react-icons/io5";
-import { IoDownloadOutline } from "react-icons/io5";
+import Nodatafound from "../../assets/Images/Nodata_found.png";
 
 const Management = () => {
-  const [isDocViewDialogOpen, setIsDocViewDialogOpen] = useState(false);
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
-  const [selectedCase, setSelectedCase] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [cnrNumber, setCnrNumber] = useState("");
-  const [documents, setDocuments] = useState([
-    {
-      id: Date.now(),
-      docName: "",
-      file: null,
-      fileName: "",
-      error: "",
-    },
-  ]);
+  // const [documents, setDocuments] = useState([
+  //   {
+  //     id: Date.now(),
+  //     docName: "",
+  //     file: null,
+  //     fileName: "",
+  //     error: "",
+  //   },
+  // ]);
   const fetchData = () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
@@ -46,7 +38,7 @@ const Management = () => {
       return;
     }
     axios
-      .get(`${import.meta.env.VITE_API_URL}/document/get-document`, {
+      .get(`${import.meta.env.VITE_API_URL}/document/get-sub-document`, {
         headers: { token },
       })
       .then((response) => {
@@ -67,137 +59,137 @@ const Management = () => {
 
  
 
-  const handleChange = (id, field, value) => {
-    setDocuments((docs) =>
-      docs.map((doc) => {
-        if (doc.id === id) {
-          if (field === "file") {
-            const fileSize = value?.size / 1024 / 1024;
-            if (fileSize > 50) {
-              return {
-                ...doc,
-                [field]: null,
-                fileName: "",
-                error: "File size should not exceed 50MB",
-              };
-            }
-            return {
-              ...doc,
-              [field]: value,
-              fileName: value?.name || "",
-              error: "",
-            };
-          }
-          return { ...doc, [field]: value, error: "" };
-        }
-        return doc;
-      })
-    );
-  };
+  // const handleChange = (id, field, value) => {
+  //   setDocuments((docs) =>
+  //     docs.map((doc) => {
+  //       if (doc.id === id) {
+  //         if (field === "file") {
+  //           const fileSize = value?.size / 1024 / 1024;
+  //           if (fileSize > 50) {
+  //             return {
+  //               ...doc,
+  //               [field]: null,
+  //               fileName: "",
+  //               error: "File size should not exceed 50MB",
+  //             };
+  //           }
+  //           return {
+  //             ...doc,
+  //             [field]: value,
+  //             fileName: value?.name || "",
+  //             error: "",
+  //           };
+  //         }
+  //         return { ...doc, [field]: value, error: "" };
+  //       }
+  //       return doc;
+  //     })
+  //   );
+  // };
 
-  const handleAddFields = () => {
-    setDocuments((docs) => [
-      ...docs,
-      {
-        id: Date.now(),
-        docName: "",
-        file: null,
-        fileName: "",
-        error: "",
-      },
-    ]);
-  };
+  // const handleAddFields = () => {
+  //   setDocuments((docs) => [
+  //     ...docs,
+  //     {
+  //       id: Date.now(),
+  //       docName: "",
+  //       file: null,
+  //       fileName: "",
+  //       error: "",
+  //     },
+  //   ]);
+  // };
 
-  const handleRemoveFields = (id) => {
-    setDocuments((docs) => docs.filter((doc) => doc.id !== id));
-  };
+  // const handleRemoveFields = (id) => {
+  //   setDocuments((docs) => docs.filter((doc) => doc.id !== id));
+  // };
 
-  const validateForm = () => {
-    let isValid = true;
-    if (!cnrNumber.trim()) {
-      return false;
-    }
+  // const validateForm = () => {
+  //   let isValid = true;
+  //   if (!cnrNumber.trim()) {
+  //     return false;
+  //   }
 
-    setDocuments((docs) =>
-      docs.map((doc) => {
-        const error =
-          !doc.docName.trim() || !doc.file
-            ? "Both document name and file are required"
-            : "";
-        if (error) isValid = false;
-        return { ...doc, error };
-      })
-    );
+  //   setDocuments((docs) =>
+  //     docs.map((doc) => {
+  //       const error =
+  //         !doc.docName.trim() || !doc.file
+  //           ? "Both document name and file are required"
+  //           : "";
+  //       if (error) isValid = false;
+  //       return { ...doc, error };
+  //     })
+  //   );
 
-    return isValid;
-  };
+  //   return isValid;
+  // };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      if (cnrNumber.length !== 16) {
-        toast.error("CNR Number must be 16 digits long");
-        return;
-      }
-      const formdata = new FormData();
-      formdata.append("cnrNumber", cnrNumber);
-      documents.forEach((doc) => {
-        formdata.append("files", doc.file);
-        formdata.append("fileNames", doc.docName);
-      });
-      const token = JSON.parse(localStorage.getItem("cmstoken"));
-      if (!token) {
-        toast.error("Please login again to submit documents");
-        return;
-      }
-      console.log(formdata);
-      setLoading(true);
-      axios
-        .post(
-          `${import.meta.env.VITE_API_URL}/document/add-document`,
-          formdata,
-          {
-            headers: {
-              token,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        )
-        .then((response) => {
-          setLoading(false);
-          toast.success("Documents uploaded successfully");
-          fetchData();
-          setIsDialogOpen(false);
-          setDocuments([
-            {
-              id: Date.now(),
-              docName: "",
-              file: null,
-              fileName: "",
-              error: "",
-            },
-          ]);
-          setCnrNumber("");
-        })
-        .catch((error) => {
-          setLoading(false);
-          const errorMsg =
-            error.response?.data?.message ||
-            "Failed to upload documents. Please try again.";
-          toast.error(errorMsg);
-          setIsDialogOpen(false);
-          setCnrNumber("");
-          setDocuments([
-            {
-              id: Date.now(),
-              docName: "",
-              file: null,
-              fileName: "",
-              error: "",
-            },
-          ]);
-        });
-    }
-  };
+  // const handleSubmit = () => {
+  //   if (validateForm()) {
+  //     if (cnrNumber.length !== 16) {
+  //       toast.error("CNR Number must be 16 digits long");
+  //       return;
+  //     }
+  //     const formdata = new FormData();
+  //     formdata.append("cnrNumber", cnrNumber);
+  //     documents.forEach((doc) => {
+  //       formdata.append("files", doc.file);
+  //       formdata.append("fileNames", doc.docName);
+  //     });
+  //     const token = JSON.parse(localStorage.getItem("cmstoken"));
+  //     if (!token) {
+  //       toast.error("Please login again to submit documents");
+  //       return;
+  //     }
+  //     console.log(formdata);
+  //     setLoading(true);
+  //     axios
+  //       .post(
+  //         `${import.meta.env.VITE_API_URL}/document/add-document`,
+  //         formdata,
+  //         {
+  //           headers: {
+  //             token,
+  //             "Content-Type": "multipart/form-data",
+  //           },
+  //         }
+  //       )
+  //       .then((response) => {
+  //         setLoading(false);
+  //         toast.success("Documents uploaded successfully");
+  //         fetchData();
+  //         setIsDialogOpen(false);
+  //         setDocuments([
+  //           {
+  //             id: Date.now(),
+  //             docName: "",
+  //             file: null,
+  //             fileName: "",
+  //             error: "",
+  //           },
+  //         ]);
+  //         setCnrNumber("");
+  //       })
+  //       .catch((error) => {
+  //         setLoading(false);
+  //         const errorMsg =
+  //           error.response?.data?.message ||
+  //           "Failed to upload documents. Please try again.";
+  //         toast.error(errorMsg);
+  //         setIsDialogOpen(false);
+  //         setCnrNumber("");
+  //         setDocuments([
+  //           {
+  //             id: Date.now(),
+  //             docName: "",
+  //             file: null,
+  //             fileName: "",
+  //             error: "",
+  //           },
+  //         ]);
+  //       });
+  //   }
+  // };
 
   return (
     <div className="relative">
@@ -215,7 +207,7 @@ const Management = () => {
             />
           </div>
 
-          <button
+          {/* <button
             onClick={() => setIsDialogOpen(true)}
             type="button"
             className={`flex items-center justify-center px-6 py-3 bg-[#5a518c] text-white rounded-lg shadow-md cursor-pointer ${
@@ -224,7 +216,7 @@ const Management = () => {
           >
             <HiDocumentAdd className="mr-2 text-xl" />
             <span className="text-lg font-semibold">Add Doc</span>
-          </button>
+          </button> */}
         </div>
         <div className="overflow-x-auto w-full">
           <table className="w-full border rounded-lg">
@@ -274,7 +266,7 @@ const Management = () => {
       </div>
 
       {/* */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto scrollbar-hide">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-purple-900">
@@ -397,7 +389,7 @@ const Management = () => {
             </button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

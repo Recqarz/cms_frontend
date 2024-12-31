@@ -16,6 +16,7 @@ import Calendar from "@/components/calendar/calendar";
 import CaseRepository from "../Case Explorer/SubCases/CaseRepository"
 import DisposedRepository from "../Case Explorer/SubCases/DisposedRepository"
 import Management from "@/Case Explorer/SubCases/Management";
+import SubCaseDetail from "@/Case Explorer/SubCases/subcaseDetails";
 
 const Allroutes = () => {
   return (
@@ -33,13 +34,13 @@ const Allroutes = () => {
           <Route path="/case-detail/:cnrNumber" element={<CaseDetail />} />
           <Route path="/user-directory" element={<UserDirectory />} />
           <Route path="/case-research" element={<CaseResearch />} />
-          <Route path="/case-route" element={<CaseRoute />} />
+          <Route path="/case-route/*" element={<CaseRoute />} />
 
 
           <Route path="/sub-case-repository" element={<CaseRepository />} />
           <Route path="/sub-case-disposed" element={<DisposedRepository />} />
           <Route path="/sub-case-management" element={<Management />} />
-
+          <Route path="/sub-case-detail/:cnrNumber" element={<SubCaseDetail />} />
 
 
           <Route path="/archive" element={<Archive />} />
