@@ -21,6 +21,7 @@ import { useDispatch } from "react-redux";
 import { isLogin, roleUpdater } from "@/global/action";
 import Logo from "../assets/Images/logo cms 1.png";
 import { IoIosApps } from "react-icons/io";
+import { SlCalender } from "react-icons/sl";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -240,7 +241,7 @@ const Sidebar = () => {
               className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200"
               onClick={() => navigate("/calendar")}
             >
-              <RiArchiveFill className="mr-3" />
+              <SlCalender className="mr-3" />
               <span>Calendar</span>
             </li>
 
