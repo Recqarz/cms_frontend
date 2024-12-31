@@ -82,7 +82,7 @@ const FilterData = () => {
     if (isSingle) {
       setLoading(true);
       const newusers = nusers
-        .filter((ele) => ele.email || ele.phone)
+        .filter((ele) => ele.email && ele.phone && ele.name)
         .map((ele) => ({
           name: ele?.name,
           email: ele?.email,
