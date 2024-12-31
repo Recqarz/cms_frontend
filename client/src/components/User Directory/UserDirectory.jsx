@@ -16,7 +16,6 @@ const UserDirectory = () => {
       })
       .then((res) => {
         setUsers(res.data.data);
-        console.log(res.data.data);
       })
       .catch((error) => {
         toast.error("Error fetching data");
@@ -105,7 +104,7 @@ const UserDirectory = () => {
                   </td>
 
                   <td className="border border-[#F4F2FF] px-2 py-1 text-center">
-                    <td className=" px-2 py-1 text-center">
+                    <p className=" px-2 py-1 text-center">
                       <MdDelete
                         onClick={() =>
                           handleDeleteUser(user._id, user.noOfAssigncases)
@@ -116,7 +115,7 @@ const UserDirectory = () => {
                             : "text-red-200"
                         }`}
                       />
-                    </td>
+                    </p>
                   </td>
                 </tr>
               ))}
