@@ -77,9 +77,11 @@ const DisposedCaseTable = () => {
         setTotalPages(responseData.pageSize);
       } else {
         console.error("Unexpected API response format", responseData);
+        setCases([])
         setError("Failed to load cases. Invalid response format.");
       }
     } catch (error) {
+      setCases([])
       console.error("Error fetching cases:", error.message);
       setError("An error occurred while fetching cases.");
     } finally {

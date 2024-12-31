@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import "tailwindcss/tailwind.css";
-
+ 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [caseData, setCaseData] = useState([]);
-  const [selectedCase, setSelectedCase] = useState(null);
+  const [selectedCases, setSelectedCases] = useState([]);
   const today = dayjs();
-
+ 
   useEffect(() => {
     fetchCases();
   }, []);
-
+ 
   const fetchCases = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
-
+ 
     if (!token) {
       console.error("No token found");
       return;
@@ -30,7 +30,7 @@ const Calendar = () => {
           },
         }
       );
-
+ 
       if (!response.ok) {
         if (response.status === 401) {
           console.error("Unauthorized access. Please login again.");
@@ -40,38 +40,38 @@ const Calendar = () => {
         }
         return;
       }
-
+ 
       const responseData = await response.json();
       setCaseData(responseData.data || []);
     } catch (error) {
       console.error("Error fetching cases:", error.message);
     }
   };
-
+ 
   const startOfMonth = currentDate.startOf("month");
   const endOfMonth = currentDate.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = endOfMonth.date();
-
+ 
   const handlePrevMonth = () =>
     setCurrentDate(currentDate.subtract(1, "month"));
   const handleNextMonth = () => setCurrentDate(currentDate.add(1, "month"));
-
+ 
   const generateCalendar = () => {
     const calendar = [];
     const totalDays = startDay + daysInMonth;
     const rows = Math.ceil(totalDays / 7);
-
+ 
     let dayCounter = 1 - startDay;
-
+ 
     const cleanDate = (dateString) => {
       const cleanString = dateString.replace(/(\d+)(st|nd|rd|th)/, "$1");
       return dayjs(cleanString, "DD MMMM YYYY");
     };
-
+ 
     for (let i = 0; i < rows; i++) {
       const row = [];
-
+ 
       for (let j = 0; j < 7; j++) {
         if (dayCounter < 1 || dayCounter > daysInMonth) {
           row.push(
@@ -83,11 +83,12 @@ const Calendar = () => {
         } else {
           const currentDay = currentDate.date(dayCounter);
           const isToday = currentDay.isSame(today, "day");
-
-          const caseForDay = caseData.find((caseItem) =>
-            cleanDate(caseItem.caseStatus[1][1]).isSame(currentDay, "day")
-          );
-
+ 
+          const casesForDay = caseData.filter((caseItem) => {
+            const caseDate = cleanDate(caseItem.caseStatus?.[1]?.[1]); // Use optional chaining
+            return caseDate && caseDate.isSame(currentDay, "day");
+          });
+ 
           row.push(
             <td
               key={`day-${i}-${j}`}
@@ -98,14 +99,19 @@ const Calendar = () => {
               }`}
             >
               <div className="text-xs sm:text-sm font-medium">{dayCounter}</div>
-              {caseForDay && (
-                <div
-                  className="text-xs font-medium mt-1 truncate cursor-pointer"
-                  onClick={() => setSelectedCase(caseForDay)}
-                >
-                  <span className="inline-block bg-blue-100 text-blue-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded-full shadow">
-                    {caseForDay.cnrNumber}
-                  </span>
+              {casesForDay.length > 0 && (
+                <div className="mt-1 space-y-1">
+                  {casesForDay.map((caseItem, index) => (
+                    <div
+                      key={`case-${i}-${j}-${index}`}
+                      className="text-xs font-medium truncate cursor-pointer"
+                      onClick={() => setSelectedCases([caseItem])}
+                    >
+                      <span className="inline-block bg-blue-100 text-blue-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded-full shadow">
+                        {caseItem.cnrNumber}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </td>
@@ -113,13 +119,13 @@ const Calendar = () => {
         }
         dayCounter++;
       }
-
+ 
       calendar.push(<tr key={`row-${i}`}>{row}</tr>);
     }
-
+ 
     return calendar;
   };
-
+ 
   return (
     <div className="p-4 sm:p-6 bg-white rounded-2xl shadow-lg max-w-full mt-4">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
@@ -156,32 +162,39 @@ const Calendar = () => {
           <tbody>{generateCalendar()}</tbody>
         </table>
       </div>
-
-      {selectedCase && (
+ 
+      {selectedCases.length > 0 && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full sm:w-3/4 md:w-1/2 lg:w-1/3">
             <h2 className="text-lg sm:text-xl font-bold text-gray-700 mb-4">
-              Case Details - {selectedCase.cnrNumber}
+              Case Details
             </h2>
-            <div className="mb-2">
-              <strong>Case Type:</strong>{" "}
-              {selectedCase.caseDetails["Case Type"]}
-            </div>
-            <div className="mb-2">
-              <strong>Filing Date:</strong>{" "}
-              {selectedCase.caseDetails["Filing Date"]}
-            </div>
-            <div className="mb-2">
-              <strong>Registration Date:</strong>{" "}
-              {selectedCase.caseDetails["Registration Date:"]}
-            </div>
-            <div>
-              <strong>Next Hearing Date:</strong>{" "}
-              {selectedCase.caseStatus[1][1]}
-            </div>
+            {selectedCases.map((caseItem, index) => (
+              <div key={`selected-case-${index}`} className="mb-4">
+                <div className="mb-2">
+                  <strong>CNR Number:</strong> {caseItem.cnrNumber}
+                </div>
+                <div className="mb-2">
+                  <strong>Case Type:</strong>{" "}
+                  {caseItem.caseDetails["Case Type"]}
+                </div>
+                <div className="mb-2">
+                  <strong>Filing Date:</strong>{" "}
+                  {caseItem.caseDetails["Filing Date"]}
+                </div>
+                <div className="mb-2">
+                  <strong>Registration Date:</strong>{" "}
+                  {caseItem.caseDetails["Registration Date:"]}
+                </div>
+                <div>
+                  <strong>Next Hearing Date:</strong>{" "}
+                  {caseItem.caseStatus[1][1]}
+                </div>
+              </div>
+            ))}
             <button
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              onClick={() => setSelectedCase(null)}
+              onClick={() => setSelectedCases([])}
             >
               Close
             </button>
@@ -191,5 +204,5 @@ const Calendar = () => {
     </div>
   );
 };
-
+ 
 export default Calendar;

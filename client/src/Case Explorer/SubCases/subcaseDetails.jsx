@@ -5,7 +5,7 @@ import { PDFDocument } from "pdf-lib";
 import { toast } from "react-hot-toast";
 import Nodata from "../../assets/Images/Nodata_found.png";
 
-const CaseDetail = () => {
+const SubCaseDetail = () => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showCheckboxes, setShowCheckboxes] = useState(false);
@@ -13,7 +13,7 @@ const CaseDetail = () => {
   const [selectedpdf, setSelectedPdfs] = useState([]);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [documents, setDocuments] = useState({});
-  const [jointUsers, setJointUsers] = useState([]);
+
   const { cnrNumber } = useParams();
 
   const fetchDocuments = async () => {
@@ -26,7 +26,7 @@ const CaseDetail = () => {
       .get(
         `${
           import.meta.env.VITE_API_URL
-        }/document/get-document-of-single-cnr/${cnrNumber}`,
+        }/document/get-document-of-single-sub-cnr/${cnrNumber}`,
         {
           headers: { token: token },
         }
@@ -35,7 +35,7 @@ const CaseDetail = () => {
         setDocuments(response.data.data);
       })
       .catch((err) => {
-        setDocuments({});
+        setDocuments({})
         console.log(err.response?.data?.message || "Failed to fetch documents");
       });
   };
@@ -46,21 +46,12 @@ const CaseDetail = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = JSON.parse(localStorage.getItem("cmstoken"));
-      if (!token) {
-        toast.error("Unauthorized, please login again");
-        return;
-      }
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/cnr/get-singlecnr/${cnrNumber}`,
-          {
-            headers: { token: token },
-          }
+          `${import.meta.env.VITE_API_URL}/cnr/get-singlesubcnr/${cnrNumber}`
         );
         setData(response.data.data);
-        setJointUsers(response.data.jointUsers);
       } catch (err) {
         toast.error(
           err.response?.data?.message || "Failed to fetch case details"
@@ -111,7 +102,7 @@ const CaseDetail = () => {
     {
       label: "Case Stage",
       value:
-        data?.caseStatus?.find((item) => item[0] === "Case Stage")?.[1] || "-",
+        data?.caseStatus?.find((item) => item[0] === "Case Status")?.[1] || "-",
     },
     {
       label: "Next Hearing Date",
@@ -521,64 +512,9 @@ const CaseDetail = () => {
             </div>
           </div>
         </div>
-
-        <div className="w-full p-4">
-          <div className="bg-white rounded-lg p-6 shadow">
-            <h2 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
-              Sub Users
-            </h2>
-
-            <div className="overflow-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="bg-[#F4F2FF] text-[#8B83BA]">
-                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
-                      Name
-                    </th>
-                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
-                      Email
-                    </th>
-                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
-                      Mobile
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {jointUsers?.length > 0 ? (
-                    jointUsers.map((doc, index) => (
-                      <tr
-                        key={index}
-                        className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
-                      >
-                        <td className="border border-[#F4F2FF] px-2 py-1">
-                          {doc?.name || "-"}
-                        </td>
-                        <td className="border border-[#F4F2FF] px-2 py-1">
-                          {doc?.email || "-"}
-                        </td>
-                        <td className="border border-[#F4F2FF] px-2 py-1">
-                          {doc?.mobile || "-"}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        className="border border-[#F4F2FF] px-2 py-1"
-                        colSpan="3"
-                      >
-                        No Sub Users available
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 };
 
-export default CaseDetail;
+export default SubCaseDetail;

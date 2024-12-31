@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MdAutoDelete } from "react-icons/md";
+// import { MdAutoDelete } from "react-icons/md";
 import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -53,7 +53,7 @@ const CaseRepository = () => {
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
-        }/cnr/get-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`,
+        }/cnr/get-sub-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`,
         {
           method: "GET",
           headers: {
@@ -68,7 +68,6 @@ const CaseRepository = () => {
           toast.error("Unauthorized access. Please login again.");
         } else {
           setCases([]);
-          toast.error("Something went wrong");
         }
         return;
       }
@@ -130,26 +129,26 @@ const CaseRepository = () => {
   // ----------------------------
   // cnr archive
 
-  const handleCnrDelete = (cnrNumber) => {
-    const token = JSON.parse(localStorage.getItem("cmstoken"));
-    if (!token) {
-      toast.error("Unauthorized access. Please login again.");
-      return;
-    }
-    axios
-      .delete(`${import.meta.env.VITE_API_URL}/cnr/delte-cnr/${cnrNumber}`, {
-        headers: {
-          token: token,
-        },
-      })
-      .then((response) => {
-        toast.success("Case deleted successfully.");
-        fetchCases();
-      })
-      .catch((error) => {
-        toast.error("Failed to delete case. Please try again later.");
-      });
-  };
+  // const handleCnrDelete = (cnrNumber) => {
+  //   const token = JSON.parse(localStorage.getItem("cmstoken"));
+  //   if (!token) {
+  //     toast.error("Unauthorized access. Please login again.");
+  //     return;
+  //   }
+  //   axios
+  //     .delete(`${import.meta.env.VITE_API_URL}/cnr/delte-cnr/${cnrNumber}`, {
+  //       headers: {
+  //         token: token,
+  //       },
+  //     })
+  //     .then((response) => {
+  //       toast.success("Case deleted successfully.");
+  //       fetchCases();
+  //     })
+  //     .catch((error) => {
+  //       toast.error("Failed to delete case. Please try again later.");
+  //     });
+  // };
 
   const handleExport = () => {
     const exportData = selectedCases.length
@@ -515,19 +514,19 @@ const CaseRepository = () => {
                         className="bg-[#F4F2FF] text-[#8B83BA]  px-4 py-2 rounded-md hover:bg-[#8B83BA] hover:text-white flex items-center gap-2 ml-2"
                         onClick={() => {
                           dispatch(detailPageData(caseData));
-                          navigate(`/case-detail/${caseData.cnrNumber}`);
+                          navigate(`/sub-case-detail/${caseData.cnrNumber}`);
                         }}
                       >
                         <BiSolidMessageRoundedDetail />
                         <span> Details</span>
                       </button>
-                      <button
+                      {/* <button
                         className=" bg-red-200 text-red-500 px-4 py-2 rounded-md hover:bg-red-400 hover:text-white flex items-center gap-2 ml-2"
                         onClick={() => handleCnrDelete(caseData?.cnrNumber)}
                       >
                         <MdAutoDelete />
                         <span>Delete</span>
-                      </button>
+                      </button> */}
                     </td>
                   </tr>
                 );

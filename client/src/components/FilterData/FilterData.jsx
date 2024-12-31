@@ -199,7 +199,6 @@ const FilterData = () => {
       })
       .then((res) => {
         setUsers(res.data.data);
-        console.log(res.data.data);
       })
       .catch((error) => {
         toast.error("Error fetching data");
