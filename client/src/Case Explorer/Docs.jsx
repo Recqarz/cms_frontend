@@ -9,6 +9,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -19,13 +20,12 @@ import { ImDownload2 } from "react-icons/im";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Nodatafound from "../assets/Images/Nodata_found.png";
-import { IoTrashOutline } from "react-icons/io5";
-import { IoDownloadOutline } from "react-icons/io5";
-
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 const Docs = () => {
   const [isDocViewDialogOpen, setIsDocViewDialogOpen] = useState(false);
-  const [isChildDialogOpen, setIsChildDialogOpen] = useState(false);
+  const [link, setbLink] = useState(null);
 
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
@@ -33,6 +33,7 @@ const Docs = () => {
   const [data, setData] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [cnrNumber, setCnrNumber] = useState("");
+  const [pdfLink, setLink] = useState("");
   const [documents, setDocuments] = useState([
     {
       id: Date.now(),
@@ -63,12 +64,42 @@ const Docs = () => {
         toast.error(errorMsg);
       });
   };
+  const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
+
+  const fetchAndPreparePdf = async () => {
+    try {
+      const response = await fetch(pdfLink);
+      if (!response.ok) {
+        throw new Error("Failed to fetch the document");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPdfBlobUrl(url);
+    } catch (error) {
+      console.error("Error fetching the document:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isDocViewDialogOpen && pdfLink) {
+      fetchAndPreparePdf();
+    } else {
+      if (pdfBlobUrl) {
+        URL.revokeObjectURL(pdfBlobUrl); // Clean up object URL
+        setPdfBlobUrl(null);
+      }
+    }
+  }, [isDocViewDialogOpen, pdfLink]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
- 
+  const handleViewDocument = (docUrl) => {
+    console.log("Document URL:", docUrl);
+    setbLink(docUrl);
+    setIsDocViewDialogOpen(true);
+  };
 
   const handleChange = (id, field, value) => {
     setDocuments((docs) =>
@@ -152,7 +183,7 @@ const Docs = () => {
         toast.error("Please login again to submit documents");
         return;
       }
-      console.log(formdata);
+      // console.log("url link",formdata);
       setLoading(true);
       axios
         .post(
@@ -165,7 +196,7 @@ const Docs = () => {
             },
           }
         )
-        .then(async(response) => {
+        .then(async (response) => {
           console.log("API Response:", response.data);
           setLoading(false);
           toast.success("Documents uploaded successfully");
@@ -206,10 +237,7 @@ const Docs = () => {
   const handleEyeIconClick = (caseData) => {
     setSelectedCase(caseData);
     setIsDetailDialogOpen(true);
-  };
-
-  const handleOpenDocDialog = () => {
-    setIsDocViewDialogOpen(true);
+    console.log(caseData);
   };
 
   const handleCloseDocDialog = () => {
@@ -243,6 +271,7 @@ const Docs = () => {
             <span className="text-lg font-semibold">Add Doc</span>
           </button>
         </div>
+
         <div className="overflow-x-auto w-full">
           <table className="w-full border rounded-lg">
             <thead className="bg-[#F4F2FF] text-[#6E6893]">
@@ -265,13 +294,13 @@ const Docs = () => {
                     <td className="py-3 px-4">{ele.noOfDocument}</td>
                     <td className="py-3 px-4">
                       {ele.petitioner?.split(" ")[0]} vs{" "}
-                      {ele.respondent?.split(" ")[0]}{" "}
+                      {ele.respondent?.split(" ")[0]}
                     </td>
                     <td className="py-3 px-4">
-                      <IoEyeOutline 
-                       onClick={() => handleEyeIconClick(ele)} // Pass the case data here
-                      
-                      className="text-[#5a518c] text-xl font-semibold cursor-pointer" />
+                      <IoEyeOutline
+                        onClick={() => handleEyeIconClick(ele)}
+                        className="text-[#5a518c] text-xl font-semibold cursor-pointer"
+                      />
                     </td>
                   </tr>
                 ))
@@ -293,7 +322,7 @@ const Docs = () => {
         </div>
       </div>
 
-      {/* */}
+      {/* Add Document Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto scrollbar-hide">
           <DialogHeader>
@@ -419,16 +448,15 @@ const Docs = () => {
         </DialogContent>
       </Dialog>
 
-       {/* eye view */}
-
-       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+      {/* eye icon */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
         <DialogContent className="max-w-[60%] mx-auto max-h-[100vh] overflow-y-auto scrollbar-hide">
           <DialogHeader>
             <DialogTitle className="text-[24px] font-semibold text-purple-900">
-              <h1>CNR NUMBER: {selectedCase?.cnrNumber || "N/A"}</h1>
+              CNR NUMBER: {selectedCase?.cnrNumber || "N/A"}
             </DialogTitle>
           </DialogHeader>
-
+          <DialogDescription></DialogDescription>
           <div className="space-y-6 p-4">
             {selectedCase ? (
               <>
@@ -461,8 +489,12 @@ const Docs = () => {
                                   className={`text-[#6E6893] text-xl cursor-pointer hover:text-[#6E6893] ${
                                     isPDF ? "block" : "hidden"
                                   }`}
-                                  // onClick={handleOpenDocDialog}
-                                  onClick={() => setIsDocViewDialogOpen(true)}
+                                  onClick={() => {
+                                    const url =
+                                      selectedCase?.documents[index]?.url;
+                                    console.log(url); // This will log the URL to the console
+                                    handleViewDocument(url); // S3 URL passed here
+                                  }}
                                 />
 
                                 {isPDF ? (
@@ -594,7 +626,7 @@ const Docs = () => {
           <DialogFooter className="flex justify-end space-x-4 p-4">
             <button
               onClick={() => setIsDetailDialogOpen(false)}
-              className="px-6 py-4 text-sm font-medium bg-[#8B83BA] text-white rounded-lg hover:bg-[#5a518c]"
+              className="px-6 py-4 text-sm font-medium  text-gray-600 rounded-lg hover:bg-gray-100"
             >
               Close
             </button>
@@ -608,9 +640,44 @@ const Docs = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Doc View */}
-
-      
+      {/* Document View Dialog */}
+      <Dialog open={isDocViewDialogOpen} onOpenChange={setIsDocViewDialogOpen}>
+        <DialogContent className="max-w-[50%] mx-auto max-h-[100vh] overflow-hidden scrollbar-hide">
+          <DialogHeader>
+            <DialogTitle className="text-[24px] font-semibold text-purple-900 flex item-center">
+              View Your Uploaded Document Here
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            <div className="w-[600px] h-[600px] mx-auto">
+              {link ? (
+                <Worker
+                  workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}
+                >
+                  <Viewer
+                    fileUrl={link}
+                    renderMode="canvas"
+                    scale={2.0}
+                    style={{ overflow: "hidden" }} // Hide content overflow within the viewer
+                  />
+                </Worker>
+              ) : (
+                <DialogDescription className="text-lg font-medium text-gray-700">
+                  Loading document...
+                </DialogDescription>
+              )}
+            </div>
+          </DialogDescription>
+          <DialogFooter>
+            <button
+              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors "
+              onClick={() => setIsDocViewDialogOpen(false)}
+            >
+              Close
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

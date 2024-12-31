@@ -9,6 +9,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    module: {}, // Add this
+  },
   server: {
     port: 3001,
     host:'0.0.0.0',
