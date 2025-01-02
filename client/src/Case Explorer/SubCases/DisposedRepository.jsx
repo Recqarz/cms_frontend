@@ -11,15 +11,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-// import { MdAutoDelete } from "react-icons/md";
 import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import Pagination from "../../components/pagination/pagination";
 import Nodata from "../../assets/Images/Nodata_found.png";
 
-
-const  DisposedRepository= () => {
+const DisposedRepository = () => {
   const navigate = useNavigate();
   const [cases, setCases] = useState([]);
   const [filterText, setFilterText] = useState("");
@@ -44,11 +42,13 @@ const  DisposedRepository= () => {
 
     if (!token) {
       console.error("No token found");
-      setError("Unauthorized access. Please login again.");
       return;
     }
     setLoading(true);
     try {
+      console.log(`${
+          import.meta.env.VITE_API_URL
+        }/cnr/get-disposed-sub-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`)
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
@@ -64,9 +64,10 @@ const  DisposedRepository= () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          setError("Unauthorized access. Please login again.");
+          toast.error("Session expired. Please log in again.");
+          navigate("/login");
         } else {
-          setError(`Error: ${response.statusText}`);
+          toast.error("Failed to fetch cases. Please try again later.");
         }
         return;
       }
@@ -78,11 +79,9 @@ const  DisposedRepository= () => {
         setTotalPages(responseData.pageSize);
       } else {
         console.error("Unexpected API response format", responseData);
-        setError("Failed to load cases. Invalid response format.");
       }
     } catch (error) {
       console.error("Error fetching cases:", error.message);
-      setError("An error occurred while fetching cases.");
     } finally {
       setLoading(false);
     }
@@ -155,7 +154,6 @@ const  DisposedRepository= () => {
       : cases;
 
     const excelData = [];
-
     let maxInterimOrderLength = 0;
 
     exportData.forEach((caseData) => {
@@ -163,7 +161,17 @@ const  DisposedRepository= () => {
       const caseStatus = caseData.caseStatus || [];
       const caseHistory = caseData.caseHistory || [];
       const interimOrders = caseData.intrimOrders || [];
-      const maxRows = Math.max(caseHistory.length, interimOrders.length);
+      const petitionerAndAdvocate = caseData.petitionerAndAdvocate || [];
+      const respondentAndAdvocate = caseData.respondentAndAdvocate || [];
+
+      const maxRows = Math.max(
+        caseHistory.length,
+        interimOrders.length,
+        petitionerAndAdvocate.length,
+        respondentAndAdvocate.length
+      );
+
+      // Add the first row combining all fields
       excelData.push({
         "CNR Number":
           caseDetails["CNR Number"] || caseDetails.cnrNumber || "N/A",
@@ -182,55 +190,89 @@ const  DisposedRepository= () => {
               status[0] === "Next Hearing Date" || status[0] === "Decision Date"
           )?.[1] || "N/A",
         "Case Stage":
-          caseStatus.find((status) => status[0] === "Case Status")?.[1] ||
-          "N/A",
+          caseStatus.find((status) => status[0] === "Case Stage")?.[1] || "N/A",
         "Court Number and Judge":
           caseStatus.find(
             (status) => status[0] === "Court Number and Judge"
           )?.[1] || "N/A",
+        "Petitioner and Advocate": petitionerAndAdvocate.join("\n") || "N/A",
+        "Respondent and Advocate": respondentAndAdvocate.join("\n") || "N/A",
+        "Case History": caseHistory[0]
+          ? `${caseHistory[0][0] || "N/A"} - ${caseHistory[0][1] || "N/A"} - ${
+              caseHistory[0][2] || "N/A"
+            } - ${caseHistory[0][3] || "N/A"}`
+          : "N/A",
+        "Interim Orders": interimOrders[0]?.s3_url
+          ? {
+              t: "s",
+              v: interimOrders[0].s3_url,
+              l: { Target: interimOrders[0].s3_url, Tooltip: "Click to open" },
+            }
+          : "N/A",
+      });
+
+      // Add additional rows for remaining entries in "Case History" and "Interim Orders"
+      for (let i = 1; i < maxRows; i++) {
+        const interimOrder = interimOrders[i]?.s3_url || "";
+        const interimOrderHyperlink = interimOrder
+          ? {
+              t: "s",
+              v: interimOrder,
+              l: { Target: interimOrder, Tooltip: "Click to open" },
+            }
+          : "";
+
+        const caseHistoryEntry = caseHistory[i]
+          ? `${caseHistory[i][0] || "N/A"} - ${caseHistory[i][1] || "N/A"} - ${
+              caseHistory[i][2] || "N/A"
+            } - ${caseHistory[i][3] || "N/A"}`
+          : "";
+
+        // Add row only if there's meaningful data
+        if (
+          interimOrderHyperlink ||
+          caseHistoryEntry ||
+          petitionerAndAdvocate[i] ||
+          respondentAndAdvocate[i]
+        ) {
+          excelData.push({
+            "CNR Number": "",
+            "Case Type": "",
+            "Filing Number": "",
+            "Filing Date": "",
+            "Registration Number": "",
+            "Registration Date": "",
+            "First Hearing Date": "",
+            "Next Hearing Date": "",
+            "Case Stage": "",
+            "Court Number and Judge": "",
+            "Petitioner and Advocate": petitionerAndAdvocate[i] || "",
+            "Respondent and Advocate": respondentAndAdvocate[i] || "",
+            "Case History": caseHistoryEntry,
+            "Interim Orders": interimOrderHyperlink,
+          });
+        }
+      }
+
+      // Add a blank row (gap) after each case
+      excelData.push({
+        "CNR Number": "",
+        "Case Type": "",
+        "Filing Number": "",
+        "Filing Date": "",
+        "Registration Number": "",
+        "Registration Date": "",
+        "First Hearing Date": "",
+        "Next Hearing Date": "",
+        "Case Stage": "",
+        "Court Number and Judge": "",
+        "Petitioner and Advocate": "",
+        "Respondent and Advocate": "",
         "Case History": "",
         "Interim Orders": "",
       });
-      for (let i = 0; i < maxRows; i++) {
-        const interimOrder = interimOrders[i]
-          ? interimOrders[i].s3_url
-            ? interimOrders[i].s3_url
-            : "No URL"
-          : "";
-        maxInterimOrderLength = Math.max(
-          maxInterimOrderLength,
-          interimOrder.length
-        );
-        const interimOrderHyperlink =
-          interimOrder && interimOrder !== "No URL"
-            ? {
-                t: "s",
-                v: interimOrder,
-                l: { Target: interimOrder, Tooltip: "Click to open" },
-              }
-            : interimOrder;
-
-        excelData.push({
-          "CNR Number": "",
-          "Case Type": "",
-          "Filing Number": "",
-          "Filing Date": "",
-          "Registration Number": "",
-          "Registration Date": "",
-          "First Hearing Date": "",
-          "Next Hearing Date": "",
-          "Case Stage": "",
-          "Court Number and Judge": "",
-          "Case History": caseHistory[i]
-            ? `${caseHistory[i][0] || "N/A"} - ${
-                caseHistory[i][1] || "N/A"
-              } - ${caseHistory[i][2] || "N/A"} - ${caseHistory[i][3] || "N/A"}`
-            : "",
-          "Interim Orders": interimOrderHyperlink,
-        });
-      }
-      excelData.push({});
     });
+
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const columnWidths = Object.keys(excelData[0]).map((key) => {
       if (key === "Interim Orders") {
@@ -546,5 +588,3 @@ const  DisposedRepository= () => {
 };
 
 export default DisposedRepository;
-
-
