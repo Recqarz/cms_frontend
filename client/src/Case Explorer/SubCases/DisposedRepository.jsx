@@ -16,6 +16,17 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import Pagination from "../../components/pagination/pagination";
 import Nodata from "../../assets/Images/Nodata_found.png";
+import { MdLibraryAdd, MdOutlineFileUpload } from "react-icons/md";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FaSpinner } from "react-icons/fa6";
 
 const DisposedRepository = () => {
   const navigate = useNavigate();
@@ -46,9 +57,11 @@ const DisposedRepository = () => {
     }
     setLoading(true);
     try {
-      console.log(`${
+      console.log(
+        `${
           import.meta.env.VITE_API_URL
-        }/cnr/get-disposed-sub-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`)
+        }/cnr/get-disposed-sub-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`
+      );
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
@@ -123,30 +136,6 @@ const DisposedRepository = () => {
     setShowExportConfirm((prev) => !prev);
     setShowCheckboxes(!showExportConfirm);
   };
-
-  // ----------------------------
-  // cnr archive
-
-  // const handleCnrDelete = (cnrNumber) => {
-  //   const token = JSON.parse(localStorage.getItem("cmstoken"));
-  //   if (!token) {
-  //     toast.error("Unauthorized access. Please login again.");
-  //     return;
-  //   }
-  //   axios
-  //     .delete(`${import.meta.env.VITE_API_URL}/cnr/delte-cnr/${cnrNumber}`, {
-  //       headers: {
-  //         token: token,
-  //       },
-  //     })
-  //     .then((response) => {
-  //       toast.success("Case deleted successfully.");
-  //       fetchCases();
-  //     })
-  //     .catch((error) => {
-  //       toast.error("Failed to delete case. Please try again later.");
-  //     });
-  // };
 
   const handleExport = () => {
     const exportData = selectedCases.length
@@ -307,11 +296,157 @@ const DisposedRepository = () => {
     };
   }, []);
 
+  //----------------------
+
+  // const [cnrNumber, setCnrNumber] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [documents, setDocuments] = useState([
+    {
+      id: Date.now(),
+      docName: "",
+      file: null,
+      fileName: "",
+      error: "",
+    },
+  ]);
+  const [selectedCase, setSelectedCase] = useState(null);
+
+  const handleChange = (id, field, value) => {
+    setDocuments((docs) =>
+      docs.map((doc) => {
+        if (doc.id === id) {
+          if (field === "file") {
+            const fileSize = value?.size / 1024 / 1024;
+            if (fileSize > 50) {
+              return {
+                ...doc,
+                [field]: null,
+                fileName: "",
+                error: "File size should not exceed 50MB",
+              };
+            }
+            return {
+              ...doc,
+              [field]: value,
+              fileName: value?.name || "",
+              error: "",
+            };
+          }
+          return { ...doc, [field]: value, error: "" };
+        }
+        return doc;
+      })
+    );
+  };
+  const handleAddFields = () => {
+    setDocuments((docs) => [
+      ...docs,
+      {
+        id: Date.now(),
+        docName: "",
+        file: null,
+        fileName: "",
+        error: "",
+      },
+    ]);
+  };
+
+  const handleRemoveFields = (id) => {
+    setDocuments((docs) => docs.filter((doc) => doc.id !== id));
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    if (!selectedCase?.cnrNumber.trim()) {
+      return false;
+    }
+
+    setDocuments((docs) =>
+      docs.map((doc) => {
+        const error =
+          !doc.docName.trim() || !doc.file
+            ? "Both document name and file are required"
+            : "";
+        if (error) isValid = false;
+        return { ...doc, error };
+      })
+    );
+
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
+      if (selectedCase?.cnrNumber.length !== 16) {
+        toast.error("CNR Number must be 16 digits long");
+        return;
+      }
+      const formdata = new FormData();
+      formdata.append("cnrNumber", selectedCase?.cnrNumber);
+      formdata.append("mainUserId", selectedCase?.mainUserId);
+      documents.forEach((doc) => {
+        formdata.append("files", doc.file);
+        formdata.append("fileNames", doc.docName);
+      });
+      const token = JSON.parse(localStorage.getItem("cmstoken"));
+      if (!token) {
+        toast.error("Please login again to submit documents");
+        return;
+      }
+      setLoading(true);
+      axios
+        .post(
+          `${import.meta.env.VITE_API_URL}/document/add-sub-document`,
+          formdata,
+          {
+            headers: {
+              token,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then(async (response) => {
+          setLoading(false);
+          toast.success("Documents uploaded successfully");
+          fetchCases();
+          setIsDialogOpen(false);
+          setDocuments([
+            {
+              id: Date.now(),
+              docName: "",
+              file: null,
+              fileName: "",
+              error: "",
+            },
+          ]);
+          setSelectedCase(null);
+        })
+        .catch((error) => {
+          setLoading(false);
+          const errorMsg =
+            error.response?.data?.message ||
+            "Failed to upload documents. Please try again.";
+          toast.error(errorMsg);
+          setIsDialogOpen(false);
+          setSelectedCase(null);
+          setDocuments([
+            {
+              id: Date.now(),
+              docName: "",
+              file: null,
+              fileName: "",
+              error: "",
+            },
+          ]);
+        });
+    }
+  };
+
   return (
     <div className="rounded-lg p-6  shadow-lg">
       <div>
         <h1 className="text-2xl text-center text-[#8B83BA] mb-5 font-bold">
-          Disposed Cases
+          Sub Disposed Cases
         </h1>
       </div>
       <div className="flex items-center mb-4 flex-wrap gap-4 justify-between">
@@ -348,18 +483,6 @@ const DisposedRepository = () => {
                 >
                   All
                 </div>
-                {/* <div
-                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleOptionSelect("active")}
-                >
-                  Active
-                </div>
-                <div
-                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleOptionSelect("inactive")}
-                >
-                  Inactive
-                </div> */}
               </div>
             )}
           </div>
@@ -398,6 +521,7 @@ const DisposedRepository = () => {
                   />
                 </th>
               )}
+              <th className="py-2 px-4">Added By</th>
               <th className="py-2 px-4">CNR NUMBER</th>
               <th className="py-2 px-4">LAST HEARING</th>
               <th
@@ -484,7 +608,7 @@ const DisposedRepository = () => {
                 const nextHearing =
                   caseStatus.length > 1 ? caseStatus[1][1] : "";
 
-                const truncateText = (text, maxLength = 40) => {
+                const truncateText = (text, maxLength = 30) => {
                   if (text.length > maxLength) {
                     return text.substring(0, maxLength) + "...";
                   }
@@ -522,6 +646,22 @@ const DisposedRepository = () => {
                         />
                       </td>
                     )}
+                    <td className="py-2 px-4 text-left">
+                      <TooltipProvider>
+                        <div>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <span>
+                                {caseData?.mainUserName?.slice(0, 12)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {caseData?.mainUserName}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TooltipProvider>
+                    </td>
                     <td className="py-2 px-4 text-left">
                       {caseData?.cnrNumber}
                     </td>
@@ -561,13 +701,16 @@ const DisposedRepository = () => {
                         <BiSolidMessageRoundedDetail />
                         <span> Details</span>
                       </button>
-                      {/* <button
-                        className=" bg-red-200 text-red-500 px-4 py-2 rounded-md hover:bg-red-400 hover:text-white flex items-center gap-2 ml-2"
-                        onClick={() => handleCnrDelete(caseData?.cnrNumber)}
+                      <button
+                        onClick={() => {
+                          setSelectedCase(caseData);
+                          setIsDialogOpen(true);
+                        }}
+                        className="bg-[#F4F2FF] text-[#8B83BA]  px-2 py-2 rounded-md hover:bg-[#8B83BA] hover:text-white flex items-center gap-2 ml-2"
                       >
-                        <MdAutoDelete />
-                        <span>Delete</span>
-                      </button> */}
+                        <MdLibraryAdd />
+                        <span>AddDoc</span>
+                      </button>
                     </td>
                   </tr>
                 );
@@ -576,6 +719,117 @@ const DisposedRepository = () => {
           </tbody>
         </table>
       </div>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto scrollbar-hide">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-purple-900">
+              Add Documents
+            </DialogTitle>
+          </DialogHeader>
+          <DialogDescription></DialogDescription>
+          <div className="space-y-6 p-4">
+            {documents.map((doc) => (
+              <div
+                key={doc.id}
+                className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50 space-y-4"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
+                      Document Name
+                    </label>
+                    <input
+                      type="text"
+                      value={doc.docName}
+                      onChange={(e) =>
+                        handleChange(doc.id, "docName", e.target.value)
+                      }
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none shadow-sm"
+                      placeholder="Enter Document Name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
+                      Upload File
+                    </label>
+                    <div className="relative">
+                      <label className="flex items-center justify-center w-full p-3 border-2 border-dashed rounded-lg cursor-pointer hover:border-purple-500 transition-colors bg-white shadow-sm">
+                        <input
+                          type="file"
+                          onChange={(e) =>
+                            handleChange(doc.id, "file", e.target.files[0])
+                          }
+                          className="hidden"
+                          accept=".pdf,.doc,.docx"
+                        />
+                        <div className="flex items-center space-x-2 text-gray-500">
+                          <MdOutlineFileUpload className="text-2xl" />
+                          <span className="text-sm truncate w-32">
+                            {doc.fileName || "Choose file"}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {doc.error && (
+                  <Alert variant="destructive">
+                    <AlertDescription className="text-sm text-red-600">
+                      {doc.error}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {documents.length > 1 && (
+                  <button
+                    onClick={() => handleRemoveFields(doc.id)}
+                    className="text-sm text-red-500 hover:text-red-700 font-medium"
+                  >
+                    Remove Document
+                  </button>
+                )}
+              </div>
+            ))}
+
+            <button
+              onClick={handleAddFields}
+              className="w-full py-3 border-2 border-dashed rounded-lg text-purple-600 hover:border-purple-500 hover:bg-purple-50 transition-colors"
+            >
+              + Add Another Document
+            </button>
+          </div>
+
+          <DialogFooter className="flex justify-end space-x-4 p-4">
+            <button
+              onClick={() => {
+                setIsDialogOpen(false);
+                setCnrNumber("");
+                setDocuments([
+                  {
+                    id: Date.now(),
+                    docName: "",
+                    file: null,
+                    fileName: "",
+                    error: "",
+                  },
+                ]);
+              }}
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className={`px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors`}
+            >
+              {loading ? <FaSpinner className="animate-spin" /> : "Submit"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

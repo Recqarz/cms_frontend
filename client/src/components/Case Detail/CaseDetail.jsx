@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 import { toast } from "react-hot-toast";
 import Nodata from "../../assets/Images/Nodata_found.png";
+import { getDetailsFromCNR } from "../stateDistrict/stateDistricthash";
 
 const CaseDetail = () => {
   const [data, setData] = useState(null);
@@ -87,6 +88,7 @@ const CaseDetail = () => {
       value: data?.caseDetails?.["Registration Number"] || "-",
     },
     { label: "CNR Number", value: data?.caseDetails?.["CNR Number"] || "-" },
+    { label: "State", value: (data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).state : "-") },
   ];
 
   const caseDetailsColumn2 = [
@@ -121,6 +123,8 @@ const CaseDetail = () => {
             item[0] === "Decision Date" || item[0] === "Next Hearing Date"
         )?.[1] || "-",
     },
+    { label: "District", value: (data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).district : "-") },
+    { label: "Court", value: (data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).court : "-") },
   ];
 
   const processPartyData = (partyData, partyType) =>

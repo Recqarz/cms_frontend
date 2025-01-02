@@ -54,11 +54,6 @@ const Docs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageLimit, setPageLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
-  // currentPage={currentPage}
-  // totalPages={totalPages}
-  // onPageChange={setCurrentPage}
-  // rowsPerPage={pageLimit}
-  // onRowsPerPageChange={setPageLimit}
   const fetchData = () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
@@ -86,10 +81,6 @@ const Docs = () => {
         toast.error(errorMsg);
       });
   };
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -760,7 +751,7 @@ const Docs = () => {
                           </Alert>
                         )}
 
-                        {documents.length > 1 && (
+                        {addDocuments.length > 1 && (
                           <button
                             //---------
                             onClick={() => handleRemoveAddFields(doc.id)}
