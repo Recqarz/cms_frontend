@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import "tailwindcss/tailwind.css";
- 
+
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [caseData, setCaseData] = useState([]);
   const [selectedCases, setSelectedCases] = useState([]);
   const today = dayjs();
- 
+
   useEffect(() => {
     fetchCases();
   }, []);
- 
+
   const fetchCases = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
- 
     if (!token) {
       console.error("No token found");
       return;
     }
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/cnr/get-cnr?pageLimit=${1000000}`,
+        `${import.meta.env.VITE_API_URL}/cnr/get-cnr?pageLimit=1000000`,
         {
           method: "GET",
           headers: {
@@ -30,7 +29,7 @@ const Calendar = () => {
           },
         }
       );
- 
+
       if (!response.ok) {
         if (response.status === 401) {
           console.error("Unauthorized access. Please login again.");
@@ -40,38 +39,40 @@ const Calendar = () => {
         }
         return;
       }
- 
+
       const responseData = await response.json();
+      //   console.log('API Response Data:', responseData.data); // Log API data to debug production issues
       setCaseData(responseData.data || []);
     } catch (error) {
       console.error("Error fetching cases:", error.message);
     }
   };
- 
+
   const startOfMonth = currentDate.startOf("month");
   const endOfMonth = currentDate.endOf("month");
   const startDay = startOfMonth.day();
   const daysInMonth = endOfMonth.date();
- 
+
   const handlePrevMonth = () =>
     setCurrentDate(currentDate.subtract(1, "month"));
   const handleNextMonth = () => setCurrentDate(currentDate.add(1, "month"));
- 
+
   const generateCalendar = () => {
     const calendar = [];
     const totalDays = startDay + daysInMonth;
     const rows = Math.ceil(totalDays / 7);
- 
+
     let dayCounter = 1 - startDay;
- 
+
     const cleanDate = (dateString) => {
+      if (!dateString || typeof dateString !== "string") return null;
       const cleanString = dateString.replace(/(\d+)(st|nd|rd|th)/, "$1");
       return dayjs(cleanString, "DD MMMM YYYY");
     };
- 
+
     for (let i = 0; i < rows; i++) {
       const row = [];
- 
+
       for (let j = 0; j < 7; j++) {
         if (dayCounter < 1 || dayCounter > daysInMonth) {
           row.push(
@@ -83,12 +84,12 @@ const Calendar = () => {
         } else {
           const currentDay = currentDate.date(dayCounter);
           const isToday = currentDay.isSame(today, "day");
- 
+
           const casesForDay = caseData.filter((caseItem) => {
-            const caseDate = cleanDate(caseItem.caseStatus?.[1]?.[1]); // Use optional chaining
+            const caseDate = cleanDate(caseItem?.caseStatus?.[1]?.[1]);
             return caseDate && caseDate.isSame(currentDay, "day");
           });
- 
+
           row.push(
             <td
               key={`day-${i}-${j}`}
@@ -108,7 +109,7 @@ const Calendar = () => {
                       onClick={() => setSelectedCases([caseItem])}
                     >
                       <span className="inline-block bg-blue-100 text-blue-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded-full shadow">
-                        {caseItem.cnrNumber}
+                        {caseItem?.cnrNumber}
                       </span>
                     </div>
                   ))}
@@ -119,13 +120,13 @@ const Calendar = () => {
         }
         dayCounter++;
       }
- 
+
       calendar.push(<tr key={`row-${i}`}>{row}</tr>);
     }
- 
+
     return calendar;
   };
- 
+
   return (
     <div className="p-4 sm:p-6 bg-white rounded-2xl shadow-lg max-w-full mt-4">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
@@ -162,7 +163,7 @@ const Calendar = () => {
           <tbody>{generateCalendar()}</tbody>
         </table>
       </div>
- 
+
       {selectedCases.length > 0 && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full sm:w-3/4 md:w-1/2 lg:w-1/3">
@@ -172,23 +173,23 @@ const Calendar = () => {
             {selectedCases.map((caseItem, index) => (
               <div key={`selected-case-${index}`} className="mb-4">
                 <div className="mb-2">
-                  <strong>CNR Number:</strong> {caseItem.cnrNumber}
+                  <strong>CNR Number:</strong> {caseItem?.cnrNumber || "N/A"}
                 </div>
                 <div className="mb-2">
                   <strong>Case Type:</strong>{" "}
-                  {caseItem.caseDetails["Case Type"]}
+                  {caseItem?.caseDetails["Case Type"] || "Unknown"}
                 </div>
                 <div className="mb-2">
                   <strong>Filing Date:</strong>{" "}
-                  {caseItem.caseDetails["Filing Date"]}
+                  {caseItem?.caseDetails["Filing Date"] || "N/A"}
                 </div>
                 <div className="mb-2">
                   <strong>Registration Date:</strong>{" "}
-                  {caseItem.caseDetails["Registration Date:"]}
+                  {caseItem?.caseDetails["Registration Date"] || "N/A"}
                 </div>
                 <div>
                   <strong>Next Hearing Date:</strong>{" "}
-                  {caseItem.caseStatus[1][1]}
+                  {caseItem?.caseStatus[1][1] || "N/A"}
                 </div>
               </div>
             ))}
@@ -204,5 +205,5 @@ const Calendar = () => {
     </div>
   );
 };
- 
+
 export default Calendar;

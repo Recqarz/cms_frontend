@@ -58,8 +58,18 @@ const FilterData = () => {
   };
 
   function fetchData() {
+    let token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Please login again to add CNR");
+      return;
+    }
     axios
-      .get(`${import.meta.env.VITE_API_URL}/cnr/get-singlecnr/${searchQuery}`)
+      .get(`${import.meta.env.VITE_API_URL}/cnr/get-singlecnr/${searchQuery}`,
+        {
+          headers: {
+            token: token,
+          },
+        })
       .then((res) => {
         setData([res.data.data]);
       })
