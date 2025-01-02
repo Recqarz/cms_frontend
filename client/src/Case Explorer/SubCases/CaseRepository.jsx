@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { CiSearch } from "react-icons/ci";
 import { FaFilter, FaDownload } from "react-icons/fa";
@@ -14,7 +11,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-// import { MdAutoDelete } from "react-icons/md";
 import { BiSolidMessageRoundedDetail } from "react-icons/bi";
 import axios from "axios";
 import * as XLSX from "xlsx";
@@ -126,37 +122,12 @@ const CaseRepository = () => {
     setShowCheckboxes(!showExportConfirm);
   };
 
-  // ----------------------------
-  // cnr archive
-
-  // const handleCnrDelete = (cnrNumber) => {
-  //   const token = JSON.parse(localStorage.getItem("cmstoken"));
-  //   if (!token) {
-  //     toast.error("Unauthorized access. Please login again.");
-  //     return;
-  //   }
-  //   axios
-  //     .delete(`${import.meta.env.VITE_API_URL}/cnr/delte-cnr/${cnrNumber}`, {
-  //       headers: {
-  //         token: token,
-  //       },
-  //     })
-  //     .then((response) => {
-  //       toast.success("Case deleted successfully.");
-  //       fetchCases();
-  //     })
-  //     .catch((error) => {
-  //       toast.error("Failed to delete case. Please try again later.");
-  //     });
-  // };
-
   const handleExport = () => {
     const exportData = selectedCases.length
       ? selectedCases.map((index) => cases[index])
       : cases;
 
     const excelData = [];
-
     let maxInterimOrderLength = 0;
 
     exportData.forEach((caseData) => {
@@ -164,7 +135,15 @@ const CaseRepository = () => {
       const caseStatus = caseData.caseStatus || [];
       const caseHistory = caseData.caseHistory || [];
       const interimOrders = caseData.intrimOrders || [];
-      const maxRows = Math.max(caseHistory.length, interimOrders.length);
+      const petitionerAndAdvocate = caseData.petitionerAndAdvocate || [];
+      const respondentAndAdvocate = caseData.respondentAndAdvocate || [];
+
+      const maxRows = Math.max(
+        caseHistory.length,
+        interimOrders.length,
+        petitionerAndAdvocate.length,
+        respondentAndAdvocate.length
+      );
       excelData.push({
         "CNR Number":
           caseDetails["CNR Number"] || caseDetails.cnrNumber || "N/A",
@@ -183,55 +162,83 @@ const CaseRepository = () => {
               status[0] === "Next Hearing Date" || status[0] === "Decision Date"
           )?.[1] || "N/A",
         "Case Stage":
-          caseStatus.find((status) => status[0] === "Case Status")?.[1] ||
-          "N/A",
+          caseStatus.find((status) => status[0] === "Case Stage")?.[1] || "N/A",
         "Court Number and Judge":
           caseStatus.find(
             (status) => status[0] === "Court Number and Judge"
           )?.[1] || "N/A",
+        "Petitioner and Advocate": petitionerAndAdvocate.join("\n") || "N/A",
+        "Respondent and Advocate": respondentAndAdvocate.join("\n") || "N/A",
+        "Case History": caseHistory[0]
+          ? `${caseHistory[0][0] || "N/A"} - ${caseHistory[0][1] || "N/A"} - ${
+              caseHistory[0][2] || "N/A"
+            } - ${caseHistory[0][3] || "N/A"}`
+          : "N/A",
+        "Interim Orders": interimOrders[0]?.s3_url
+          ? {
+              t: "s",
+              v: interimOrders[0].s3_url,
+              l: { Target: interimOrders[0].s3_url, Tooltip: "Click to open" },
+            }
+          : "N/A",
+      });
+      for (let i = 1; i < maxRows; i++) {
+        const interimOrder = interimOrders[i]?.s3_url || "";
+        const interimOrderHyperlink = interimOrder
+          ? {
+              t: "s",
+              v: interimOrder,
+              l: { Target: interimOrder, Tooltip: "Click to open" },
+            }
+          : "";
+
+        const caseHistoryEntry = caseHistory[i]
+          ? `${caseHistory[i][0] || "N/A"} - ${caseHistory[i][1] || "N/A"} - ${
+              caseHistory[i][2] || "N/A"
+            } - ${caseHistory[i][3] || "N/A"}`
+          : "";
+        if (
+          interimOrderHyperlink ||
+          caseHistoryEntry ||
+          petitionerAndAdvocate[i] ||
+          respondentAndAdvocate[i]
+        ) {
+          excelData.push({
+            "CNR Number": "",
+            "Case Type": "",
+            "Filing Number": "",
+            "Filing Date": "",
+            "Registration Number": "",
+            "Registration Date": "",
+            "First Hearing Date": "",
+            "Next Hearing Date": "",
+            "Case Stage": "",
+            "Court Number and Judge": "",
+            "Petitioner and Advocate": petitionerAndAdvocate[i] || "",
+            "Respondent and Advocate": respondentAndAdvocate[i] || "",
+            "Case History": caseHistoryEntry,
+            "Interim Orders": interimOrderHyperlink,
+          });
+        }
+      }
+      excelData.push({
+        "CNR Number": "",
+        "Case Type": "",
+        "Filing Number": "",
+        "Filing Date": "",
+        "Registration Number": "",
+        "Registration Date": "",
+        "First Hearing Date": "",
+        "Next Hearing Date": "",
+        "Case Stage": "",
+        "Court Number and Judge": "",
+        "Petitioner and Advocate": "",
+        "Respondent and Advocate": "",
         "Case History": "",
         "Interim Orders": "",
       });
-      for (let i = 0; i < maxRows; i++) {
-        const interimOrder = interimOrders[i]
-          ? interimOrders[i].s3_url
-            ? interimOrders[i].s3_url
-            : "No URL"
-          : "";
-        maxInterimOrderLength = Math.max(
-          maxInterimOrderLength,
-          interimOrder.length
-        );
-        const interimOrderHyperlink =
-          interimOrder && interimOrder !== "No URL"
-            ? {
-                t: "s",
-                v: interimOrder,
-                l: { Target: interimOrder, Tooltip: "Click to open" },
-              }
-            : interimOrder;
-
-        excelData.push({
-          "CNR Number": "",
-          "Case Type": "",
-          "Filing Number": "",
-          "Filing Date": "",
-          "Registration Number": "",
-          "Registration Date": "",
-          "First Hearing Date": "",
-          "Next Hearing Date": "",
-          "Case Stage": "",
-          "Court Number and Judge": "",
-          "Case History": caseHistory[i]
-            ? `${caseHistory[i][0] || "N/A"} - ${
-                caseHistory[i][1] || "N/A"
-              } - ${caseHistory[i][2] || "N/A"} - ${caseHistory[i][3] || "N/A"}`
-            : "",
-          "Interim Orders": interimOrderHyperlink,
-        });
-      }
-      excelData.push({});
     });
+
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const columnWidths = Object.keys(excelData[0]).map((key) => {
       if (key === "Interim Orders") {
@@ -520,13 +527,6 @@ const CaseRepository = () => {
                         <BiSolidMessageRoundedDetail />
                         <span> Details</span>
                       </button>
-                      {/* <button
-                        className=" bg-red-200 text-red-500 px-4 py-2 rounded-md hover:bg-red-400 hover:text-white flex items-center gap-2 ml-2"
-                        onClick={() => handleCnrDelete(caseData?.cnrNumber)}
-                      >
-                        <MdAutoDelete />
-                        <span>Delete</span>
-                      </button> */}
                     </td>
                   </tr>
                 );
@@ -547,5 +547,3 @@ const CaseRepository = () => {
 };
 
 export default CaseRepository;
-
-
