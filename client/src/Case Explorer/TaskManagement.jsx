@@ -22,7 +22,13 @@ const TaskManagement = () => {
     description: "",
     date: "",
     priority: "",
+    status: "",
   });
+
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleHover = () => setIsExpanded(true);
+  const handleMouseLeave = () => setIsExpanded(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
@@ -44,7 +50,13 @@ const TaskManagement = () => {
       await handleAddTask();
     }
     setIsDialogOpen(false);
-    setNewTask({ title: "", description: "", date: "", priority: "" });
+    setNewTask({
+      title: "",
+      description: "",
+      date: "",
+      priority: "",
+      status: "",
+    });
     setIsEditing(false);
     setEditingTaskId(null);
   };
@@ -121,6 +133,7 @@ const TaskManagement = () => {
       description: newTask.description,
       dueDate: dueDateTimestamp,
       priority: newTask.priority,
+      status: newTask.status,
     };
 
     try {
@@ -139,11 +152,18 @@ const TaskManagement = () => {
       );
 
       toast.success("Task added successfully!");
+      toast.success("Task added successfully!");
 
       // Fetch tasks after adding
       await fetchTasks();
 
-      setNewTask({ title: "", description: "", date: "", priority: "" });
+      setNewTask({
+        title: "",
+        description: "",
+        date: "",
+        priority: "",
+        status: "",
+      });
       setIsDialogOpen(false);
     } catch (error) {
       console.error(
@@ -195,7 +215,7 @@ const TaskManagement = () => {
         <div className="flex justify-end mb-6">
           <button
             onClick={() => setIsDialogOpen(true)}
-            className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-md hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-700 transition duration-300"
+            className="flex items-center px-6 py-3 bg-gradient-to-r from-[#5a518c] to-[#7b6cd2]   text-white rounded-lg shadow-md hover:bg-gradient-to-r hover:from-[#3d3f73] hover:to-[#6e5ecc] transition duration-300"
           >
             <HiDocumentAdd className="mr-2 text-xl" />
             <span className="text-lg font-semibold">Add Task</span>
@@ -206,27 +226,27 @@ const TaskManagement = () => {
           {["low", "medium", "high"].map((priority) => (
             <div
               key={priority}
-              className={`rounded-xl p-6 shadow-md ${
+              className={`rounded-xl p-6 shadow-md hover:shadow-md ${
                 priority === "low"
-                  ? "bg-green-100"
+                  ? "bg-green-50"
                   : priority === "medium"
-                  ? "bg-yellow-100"
-                  : "bg-red-100"
-              } transition-all duration-500 ease-in-out hover:scale-105`}
+                  ? "bg-yellow-50"
+                  : "bg-red-50"
+              } transition-transform duration-500 ease-in-out `}
             >
               <h3
                 className={`font-bold text-xl mb-4 capitalize transition-all duration-300 ease-in-out ${
                   priority === "low"
                     ? "text-green-700"
                     : priority === "medium"
-                    ? "text-yellow-700"
+                    ? "text-yellow-800"
                     : "text-red-700"
                 }`}
               >
                 {priority} Priority
               </h3>
 
-              <ul className="space-y-4 rounded-lg p-2 bg-gray-50 shadow-md">
+              <ul className="space-y-4 rounded-lg p-2  ">
                 {(priority === "low"
                   ? lowTasks
                   : priority === "medium"
@@ -241,45 +261,59 @@ const TaskManagement = () => {
                   ).map((task) => (
                     <li
                       key={task._id}
-                      className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition-all duration-300 ease-in-out"
+                      className="p-4 bg-white rounded-xl shadow-md hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-l-4 border-l-[#7b6cd2] hover:border-l-blue-700 "
+                      style={{
+                        boxShadow: "rgba(0, 0, 0, 0.4) 0px 30px 90px",
+                      }}
                     >
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start ">
                         <div>
-                          <strong className="text-[22px] font-semibold block">
+                          <strong className="text-xl font-bold block text-gray-600">
                             {task.title}
                           </strong>
-                          <div className="relative group w-[300px]">
-                            {/* Truncated description */}
-                            <p className="text-lg text-white/90 mt-1 line-clamp-2 truncate w-full group-hover:line-clamp-none group-hover:h-auto group-hover:overflow-visible group-hover:whitespace-normal group-hover:bg-white/90 group-hover:text-black group-hover:p-2 group-hover:shadow-lg transition-all duration-300 ease-in-out">
-                              {task.description}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-2 mt-3">
-                            <span className="text-md text-white/80 bg-white/20 px-2 py-1 rounded-full">
+
+                          <p
+                            className="text-sm text-gray-600 mt-2"
+                            onMouseEnter={handleHover}
+                            onMouseLeave={handleMouseLeave}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <span>
+                              {isExpanded
+                                ? task.description
+                                : task.description?.slice(0, 20)}
+                            </span>
+                          </p>
+
+                          <div className="flex items-center space-x-3 mt-2">
+                            <span className="text-sm text-blue-600 ">
                               Due: {new Date(task.dueDate).toLocaleDateString()}
                             </span>
                           </div>
+                          <span className="text-sm text-gray-600 font-bold">
+                            {task.status || "N/A"}
+                          </span>
                         </div>
 
-                        <div className="flex justify-end items-center space-x-2">
+                        <div className="flex space-x-2">
                           <button
                             onClick={() => openEditDialog(task)}
-                            className="rounded text-white transition duration-200 ease-in-out hover:p-2 hover:rounded-full hover:bg-yellow-500 hover:text-black hover:shadow-lg"
+                            className="rounded-full p-2  text-gray-800 hover:bg-yellow-200 hover:text-gray-800 transition-all duration-200"
                           >
-                            <FaRegEdit className="h-6 w-6" />
+                            <FaRegEdit className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleDeleteTask(task._id)}
-                            className="rounded text-white transition duration-200 ease-in-out hover:p-2 hover:rounded-full hover:bg-red-500 hover:shadow-lg"
+                            className="rounded-full p-2  text-red-500 hover:bg-red-600 hover:text-white transition-all duration-200"
                           >
-                            <MdDeleteForever className="h-6 w-6" />
+                            <MdDeleteForever className="h-5 w-5" />
                           </button>
                         </div>
                       </div>
                     </li>
                   ))
                 ) : (
-                  <p className="flex justify-center items-center text-[#6E6893] text-lg font-bold">
+                  <p className="flex justify-center items-center text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-600 font-bold text-xl   p-4  transition-all duration-300">
                     No tasks available
                   </p>
                 )}
@@ -290,13 +324,13 @@ const TaskManagement = () => {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto bg-white rounded-xl shadow-lg p-6">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-lg p-6  scrollbar-hide">
           <DialogHeader>
             <DialogTitle className="text-[24px] font-semibold text-purple-900">
               {isEditing ? "Edit Task" : "Add Task"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-6 p-4">
+          <div className="space-y-3 p-4">
             <div>
               <label
                 htmlFor="task-title"
@@ -376,7 +410,7 @@ const TaskManagement = () => {
                 htmlFor="task-progress"
                 className="block text-sm font-medium mb-2"
               >
-                Progress
+                Status
               </label>
               <select
                 id="task-progress"
