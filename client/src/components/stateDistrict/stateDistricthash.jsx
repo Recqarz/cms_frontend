@@ -44,11 +44,6 @@ const cnrMapping = {
     district: "East Central",
     court: "Karkardooma Courts Complex",
   },
-  DLWC: {
-    state: "Delhi",
-    district: "West",
-    court: "Tis Hazari Courts Complex",
-  },
   DLS: { state: "Delhi", district: "South", court: "Saket Courts Complex" },
   DLN: { state: "Delhi", district: "North", court: "Rohini Courts Complex" },
   DLE: {
@@ -66,6 +61,111 @@ const cnrMapping = {
     district: "Shahdara",
     court: "Karkardooma Courts Complex",
   },
+  HRAMA: {
+    state: "Haryana",
+    district: "Ambala",
+    court: "District Court, Ambala",
+  },
+  HRBH: {
+    state: "Haryana",
+    district: "Bhiwani",
+    court: "District Court, Bhiwani",
+  },
+  HRFB: {
+    state: "Haryana",
+    district: "Faridabad",
+    court: "District Court, Faridabad",
+  },
+  HRFTA: {
+    state: "Haryana",
+    district: "Fatehabad",
+    court: "District Court, Fatehabad",
+  },
+  HRGR: {
+    state: "Haryana",
+    district: "Gurugram",
+    court: "District Court, Gurugram",
+  },
+  HRHSA: {
+    state: "Haryana",
+    district: "Hisar",
+    court: "District Court, Hisar",
+  },
+  HRJRA: {
+    state: "Haryana",
+    district: "Jhajjar",
+    court: "District Court, Jhajjar",
+  },
+  HRJNA: {
+    state: "Haryana",
+    district: "Jind",
+    court: "District Court, Jind",
+  },
+  HRKH: {
+    state: "Haryana",
+    district: "Kaithal",
+    court: "District Court, Kaithal",
+  },
+  HRKRA: {
+    state: "Haryana",
+    district: "Karnal",
+    court: "District Court, Karnal",
+  },
+  HRKU: {
+    state: "Haryana",
+    district: "Kurukshetra",
+    court: "District Court, Kurukshetra",
+  },
+  HRNRA: {
+    state: "Haryana",
+    district: "Narnaul",
+    court: "District Court, Narnaul",
+  },
+  HRNU: {
+    state: "Haryana",
+    district: "Nuh",
+    court: "District Court, Nuh",
+  },
+  HRPLA: {
+    state: "Haryana",
+    district: "Palwal",
+    court: "District Court, Palwal",
+  },
+  HRPK: {
+    state: "Haryana",
+    district: "Panchkula",
+    court: "District Court, Panchkula",
+  },
+  HRPPA: {
+    state: "Haryana",
+    district: "Panipat",
+    court: "District Court, Panipat",
+  },
+  HRREA: {
+    state: "Haryana",
+    district: "Rewari",
+    court: "District Court, Rewari",
+  },
+  HRRHA: {
+    state: "Haryana",
+    district: "Rohtak",
+    court: "District Court, Rohtak",
+  },
+  HRSI: {
+    state: "Haryana",
+    district: "Sirsa",
+    court: "District Court, Sirsa",
+  },
+  HRSOB: {
+    state: "Haryana",
+    district: "Sonepat",
+    court: "District Court, Sonepat",
+  },
+  HRYN: {
+    state: "Haryana",
+    district: "Yamunanagar",
+    court: "District Court, Yamunanagar",
+  },
 };
 
 export function getDetailsFromCNR(cnr) {
@@ -76,9 +176,12 @@ export function getDetailsFromCNR(cnr) {
       court: "NA",
     };
   }
+  const prefix5 = cnr.slice(0, 5);
   const prefix4 = cnr.slice(0, 4);
   const prefix3 = cnr.slice(0, 3);
-  if (cnrMapping[prefix4]) {
+  if (cnrMapping[prefix5]) {
+    return cnrMapping[prefix5];
+  }else if (cnrMapping[prefix4]) {
     return cnrMapping[prefix4];
   } else if (cnrMapping[prefix3]) {
     return cnrMapping[prefix3];
