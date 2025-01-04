@@ -36,14 +36,14 @@ const Sidebar = () => {
     setOpenSection(openSection === section ? null : section);
   };
 
-  function handleLogout() {
-    localStorage.removeItem("cmstoken");
-    localStorage.removeItem("cmsrole");
-    localStorage.removeItem("cmsusername");
-    dispatch(isLogin(false));
-    dispatch(roleUpdater(""));
-    navigate("/");
-  }
+  // function handleLogout() {
+  //   localStorage.removeItem("cmstoken");
+  //   localStorage.removeItem("cmsrole");
+  //   localStorage.removeItem("cmsusername");
+  //   dispatch(isLogin(false));
+  //   dispatch(roleUpdater(""));
+  //   navigate("/");
+  // }
 
   function handleAddUser() {
     setIsOpen(true);
@@ -153,6 +153,7 @@ const Sidebar = () => {
                   >
                     Management
                   </li>
+                 
                 </ul>
               )}
             </li>
@@ -245,24 +246,28 @@ const Sidebar = () => {
               <span>Calendar</span>
             </li>
 
-            <li
+            {/* <li
               className="flex items-center px-[12px] cursor-pointer py-[8px] hover:bg-[#716868] rounded-lg transition duration-200"
               onClick={() => navigate("/setting")}
             >
               <IoIosSettings className="mr-3  w-[20px] h-[20px]" />
               <span>Setting</span>
-            </li>
+            </li> */}
           </ul>
         </nav>
         <div className="absolute bottom-2 left-0 w-full text-center border-t border-gray-300 cursor-pointer">
           <div className="px-4 mt-2">
             <button
-              onClick={handleLogout}
+              onClick={() => navigate("/setting")}
               className="w-full py-2 bg-[#484444] px-4 hover:bg-[#716868] transition duration-200 rounded-lg"
             >
-              Logout
+             {/* <IoIosSettings className="mr-3  w-[20px] h-[20px]" /> */}
+             {/* <span>Setting</span> */}
+             Setting
             </button>
           </div>
+
+
         </div>
       </div>
 
