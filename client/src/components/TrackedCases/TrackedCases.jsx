@@ -19,6 +19,7 @@ const TrackedCases = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageLimit, setPageLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+  const [allCases, setAllCases] = useState([]);
 
   function fetchData() {
     let token = JSON.parse(localStorage.getItem("cmstoken"));
@@ -44,6 +45,28 @@ const TrackedCases = () => {
       });
   }
 
+  function fetchAllData() {
+    let token = JSON.parse(localStorage.getItem("cmstoken"));
+    axios
+      .get(
+        `${
+          import.meta.env.VITE_API_URL
+        }/cnr/get-unsaved-cnr?searchQuery=${searchQuery}&currentPage=1&pageLimit=100000000&selectedFilter=${selectedFilter}`,
+        {
+          headers: { token: token },
+        }
+      )
+      .then((response) => {
+        setAllCases(response.data.data);
+      })
+      .catch((error) => {
+        setAllCases([]);
+        const errorMessage =
+          error.response?.data?.message || "An unexpected error occurred.";
+        console.log(errorMessage);
+      });
+  }
+
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedFilter]);
@@ -57,6 +80,10 @@ const TrackedCases = () => {
   useEffect(() => {
     fetchData();
   }, [searchQuery, currentPage, pageLimit, selectedFilter]);
+
+  useEffect(() => {
+    fetchAllData();
+  }, [searchQuery, selectedFilter]);
 
   const handleCaseSelect = (index) => {
     setSelectedCases((prevSelected) =>
@@ -108,7 +135,7 @@ const TrackedCases = () => {
   const handleExport = () => {
     if (selectedCases.length === 0) return;
 
-    const selectedData = selectedCases.map((index) => cases[index]);
+    const selectedData = selectAll ? allCases : selectedCases.map((index) => cases[index]);
     const csvData = [
       ["CNR NUMBER", "STATUS", "DATE"],
       ...selectedData.map((item) => [item.cnr, item.status, item.date]),
@@ -256,7 +283,7 @@ const TrackedCases = () => {
                             : "bg-gray-200 text-gray-700" // default color
                         }`}
                       >
-                       <div className="flex items-center   ">
+                        <div className="flex items-center   ">
                           <FaCircle
                             style={{
                               marginRight: "4px",
@@ -292,7 +319,6 @@ const TrackedCases = () => {
                         ? ` (Paid on ${caseItem.date})`
                         : ` (Due on ${caseItem.date})`}
                     </span>
-
                   </td>
                 </tr>
               ))
