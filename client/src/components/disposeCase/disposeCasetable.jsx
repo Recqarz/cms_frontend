@@ -35,6 +35,7 @@ const DisposedCaseTable = () => {
   const [nextHearing, setNextHearing] = useState(0);
   const [petitioner, setPetitioner] = useState(0);
   const [respondent, setRespondent] = useState(0);
+  const [allCases, setAllCases] = useState([]);
   let dispatch = useDispatch();
   const filterDropdownRef = useRef(null);
 
@@ -43,7 +44,6 @@ const DisposedCaseTable = () => {
 
     if (!token) {
       console.error("No token found");
-      setError("Unauthorized access. Please login again.");
       return;
     }
     setLoading(true);
@@ -63,9 +63,9 @@ const DisposedCaseTable = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          setError("Unauthorized access. Please login again.");
+          toast.error("Please login again");
         } else {
-          setError(`Error: ${response.statusText}`);
+          toast.error("Failed to load cases. Please try again later.");
         }
         return;
       }
@@ -77,15 +77,57 @@ const DisposedCaseTable = () => {
         setTotalPages(responseData.pageSize);
       } else {
         console.error("Unexpected API response format", responseData);
-        setCases([])
-        setError("Failed to load cases. Invalid response format.");
+        setCases([]);
       }
     } catch (error) {
-      setCases([])
+      setCases([]);
       console.error("Error fetching cases:", error.message);
-      setError("An error occurred while fetching cases.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllCases = async () => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+
+    if (!token) {
+      toast.error("Please login again");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/cnr/get-disposed-cnr?pageNo=1&pageLimit=100000000&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            token: token,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Please login again");
+        } else {
+          toast.error("Failed to load cases. Please try again later.");
+        }
+        return;
+      }
+
+      const responseData = await response.json();
+
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setAllCases(responseData.data);
+      } else {
+        console.error("Unexpected API response format", responseData);
+        setAllCases([]);
+      }
+    } catch (error) {
+      setAllCases([]);
+      console.error("Error fetching cases:", error.message);
     }
   };
   useEffect(() => {
@@ -100,6 +142,10 @@ const DisposedCaseTable = () => {
   useEffect(() => {
     fetchCases();
   }, [currentPage, pageLimit, filterText, nextHearing, petitioner, respondent]);
+
+  useEffect(() => {
+    fetchAllCases();
+  }, [filterText, nextHearing, petitioner, respondent]);
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
@@ -151,13 +197,15 @@ const DisposedCaseTable = () => {
   };
 
   const handleExport = () => {
-    const exportData = selectedCases.length
+    const exportData = selectAll
+      ? allCases
+      : selectedCases.length
       ? selectedCases.map((index) => cases[index])
       : cases;
- 
+
     const excelData = [];
     let maxInterimOrderLength = 0;
- 
+
     exportData.forEach((caseData) => {
       const caseDetails = caseData.caseDetails || {};
       const caseStatus = caseData.caseStatus || [];
@@ -165,25 +213,27 @@ const DisposedCaseTable = () => {
       const interimOrders = caseData.intrimOrders || [];
       const petitionerAndAdvocate = caseData.petitionerAndAdvocate || [];
       const respondentAndAdvocate = caseData.respondentAndAdvocate || [];
- 
+
       const maxRows = Math.max(
         caseHistory.length,
         interimOrders.length,
         petitionerAndAdvocate.length,
         respondentAndAdvocate.length
       );
- 
+
       // Add the first row combining all fields
       excelData.push({
-        "CNR Number": caseDetails["CNR Number"] || caseDetails.cnrNumber || "N/A",
+        "CNR Number":
+          caseDetails["CNR Number"] || caseDetails.cnrNumber || "N/A",
         "Case Type": caseDetails["Case Type"] || "N/A",
         "Filing Number": caseDetails["Filing Number"] || "N/A",
         "Filing Date": caseDetails["Filing Date"] || "N/A",
         "Registration Number": caseDetails["Registration Number"] || "N/A",
         "Registration Date": caseDetails["Registration Date:"] || "N/A",
         "First Hearing Date":
-          caseStatus.find((status) => status[0] === "First Hearing Date")?.[1] ||
-          "N/A",
+          caseStatus.find(
+            (status) => status[0] === "First Hearing Date"
+          )?.[1] || "N/A",
         "Next Hearing Date":
           caseStatus.find(
             (status) =>
@@ -192,12 +242,11 @@ const DisposedCaseTable = () => {
         "Case Stage":
           caseStatus.find((status) => status[0] === "Case Stage")?.[1] || "N/A",
         "Court Number and Judge":
-          caseStatus.find((status) => status[0] === "Court Number and Judge")
-            ?.[1] || "N/A",
-        "Petitioner and Advocate":
-          petitionerAndAdvocate.join("\n") || "N/A",
-        "Respondent and Advocate":
-          respondentAndAdvocate.join("\n") || "N/A",
+          caseStatus.find(
+            (status) => status[0] === "Court Number and Judge"
+          )?.[1] || "N/A",
+        "Petitioner and Advocate": petitionerAndAdvocate.join("\n") || "N/A",
+        "Respondent and Advocate": respondentAndAdvocate.join("\n") || "N/A",
         "Case History": caseHistory[0]
           ? `${caseHistory[0][0] || "N/A"} - ${caseHistory[0][1] || "N/A"} - ${
               caseHistory[0][2] || "N/A"
@@ -211,25 +260,24 @@ const DisposedCaseTable = () => {
             }
           : "N/A",
       });
- 
+
       // Add additional rows for remaining entries in "Case History" and "Interim Orders"
       for (let i = 1; i < maxRows; i++) {
         const interimOrder = interimOrders[i]?.s3_url || "";
-        const interimOrderHyperlink =
-          interimOrder
-            ? {
-                t: "s",
-                v: interimOrder,
-                l: { Target: interimOrder, Tooltip: "Click to open" },
-              }
-            : "";
- 
+        const interimOrderHyperlink = interimOrder
+          ? {
+              t: "s",
+              v: interimOrder,
+              l: { Target: interimOrder, Tooltip: "Click to open" },
+            }
+          : "";
+
         const caseHistoryEntry = caseHistory[i]
           ? `${caseHistory[i][0] || "N/A"} - ${caseHistory[i][1] || "N/A"} - ${
               caseHistory[i][2] || "N/A"
             } - ${caseHistory[i][3] || "N/A"}`
           : "";
- 
+
         // Add row only if there's meaningful data
         if (
           interimOrderHyperlink ||
@@ -255,7 +303,7 @@ const DisposedCaseTable = () => {
           });
         }
       }
- 
+
       // Add a blank row (gap) after each case
       excelData.push({
         "CNR Number": "",
@@ -274,7 +322,7 @@ const DisposedCaseTable = () => {
         "Interim Orders": "",
       });
     });
- 
+
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const columnWidths = Object.keys(excelData[0]).map((key) => {
       if (key === "Interim Orders") {
@@ -283,11 +331,11 @@ const DisposedCaseTable = () => {
       return { wch: Math.max(key.length, 30) };
     });
     worksheet["!cols"] = columnWidths;
- 
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Cases");
     XLSX.writeFile(workbook, "exported_cases.xlsx");
- 
+
     toast.success("Export successful!");
     setShowExportConfirm(false);
     setShowCheckboxes(false);

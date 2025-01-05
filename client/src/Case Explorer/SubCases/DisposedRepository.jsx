@@ -45,6 +45,7 @@ const DisposedRepository = () => {
   const [nextHearing, setNextHearing] = useState(0);
   const [petitioner, setPetitioner] = useState(0);
   const [respondent, setRespondent] = useState(0);
+  const [allCases, setAllCases] = useState([]);
   let dispatch = useDispatch();
   const filterDropdownRef = useRef(null);
 
@@ -57,11 +58,6 @@ const DisposedRepository = () => {
     }
     setLoading(true);
     try {
-      console.log(
-        `${
-          import.meta.env.VITE_API_URL
-        }/cnr/get-disposed-sub-cnr?pageNo=${currentPage}&pageLimit=${pageLimit}&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`
-      );
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
@@ -99,6 +95,49 @@ const DisposedRepository = () => {
       setLoading(false);
     }
   };
+
+  const fetchAllCases = async () => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/cnr/get-disposed-sub-cnr?pageNo=1&pageLimit=100000000&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            token: token,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Session expired. Please log in again.");
+          navigate("/login");
+        } else {
+          toast.error("Failed to fetch cases. Please try again later.");
+        }
+        return;
+      }
+
+      const responseData = await response.json();
+
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setAllCases(responseData.data);
+      } else {
+        console.error("Unexpected API response format", responseData);
+      }
+    } catch (error) {
+      console.error("Error fetching cases:", error.message);
+    }
+  };
   useEffect(() => {
     setCurrentPage(1);
   }, [filterText]);
@@ -111,6 +150,10 @@ const DisposedRepository = () => {
   useEffect(() => {
     fetchCases();
   }, [currentPage, pageLimit, filterText, nextHearing, petitioner, respondent]);
+
+  useEffect(() => {
+    fetchAllCases();
+  }, [filterText, nextHearing, petitioner, respondent]);
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
@@ -138,7 +181,9 @@ const DisposedRepository = () => {
   };
 
   const handleExport = () => {
-    const exportData = selectedCases.length
+    const exportData = selectAll
+      ? allCases
+      : selectedCases.length
       ? selectedCases.map((index) => cases[index])
       : cases;
 
