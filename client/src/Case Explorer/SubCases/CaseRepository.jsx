@@ -17,7 +17,14 @@ import * as XLSX from "xlsx";
 import Pagination from "../../components/pagination/pagination";
 import Nodata from "../../assets/Images/Nodata_found.png";
 import { MdLibraryAdd, MdOutlineFileUpload } from "react-icons/md";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FaSpinner } from "react-icons/fa6";
 
@@ -38,6 +45,7 @@ const CaseRepository = () => {
   const [nextHearing, setNextHearing] = useState(0);
   const [petitioner, setPetitioner] = useState(0);
   const [respondent, setRespondent] = useState(0);
+  const [allCases, setAllCases] = useState([]);
   let dispatch = useDispatch();
   const filterDropdownRef = useRef(null);
 
@@ -87,6 +95,48 @@ const CaseRepository = () => {
     }
   };
 
+  const fetchAllCases = async () => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/cnr/get-sub-cnr?pageNo=1&pageLimit=100000000&filterText=${filterText}&nextHearing=${nextHearing}&petitioner=${petitioner}&respondent=${respondent}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            token: token,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Unauthorized access. Please login again.");
+        } else {
+          setAllCases([]);
+        }
+        return;
+      }
+
+      const responseData = await response.json();
+
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setAllCases(responseData.data);
+      } else {
+        console.error("Unexpected API response format", responseData);
+      }
+    } catch (error) {
+      console.error("Error fetching cases:", error.message);
+    }
+  };
+
   useEffect(() => {
     setCurrentPage(1);
   }, [filterText]);
@@ -100,6 +150,10 @@ const CaseRepository = () => {
   useEffect(() => {
     fetchCases();
   }, [currentPage, pageLimit, filterText, nextHearing, petitioner, respondent]);
+
+  useEffect(() => {
+    fetchAllCases();
+  }, [filterText, nextHearing, petitioner, respondent]);
 
   const handleSelectAll = () => {
     setSelectAll(!selectAll);
@@ -127,7 +181,9 @@ const CaseRepository = () => {
   };
 
   const handleExport = () => {
-    const exportData = selectedCases.length
+    const exportData = selectAll
+      ? allCases
+      : selectedCases.length
       ? selectedCases.map((index) => cases[index])
       : cases;
 
@@ -400,7 +456,7 @@ const CaseRepository = () => {
               error: "",
             },
           ]);
-          setSelectedCase(null)
+          setSelectedCase(null);
         })
         .catch((error) => {
           setLoading(false);
@@ -409,7 +465,7 @@ const CaseRepository = () => {
             "Failed to upload documents. Please try again.";
           toast.error(errorMsg);
           setIsDialogOpen(false);
-          setSelectedCase(null)
+          setSelectedCase(null);
           setDocuments([
             {
               id: Date.now(),
@@ -683,11 +739,12 @@ const CaseRepository = () => {
                         <span> Details</span>
                       </button>
                       <button
-                      onClick={()=>{
-                        setSelectedCase(caseData)
-                        setIsDialogOpen(true)
-                      }}
-                      className="bg-[#F4F2FF] text-[#8B83BA]  px-2 py-2 rounded-md hover:bg-[#8B83BA] hover:text-white flex items-center gap-2 ml-2">
+                        onClick={() => {
+                          setSelectedCase(caseData);
+                          setIsDialogOpen(true);
+                        }}
+                        className="bg-[#F4F2FF] text-[#8B83BA]  px-2 py-2 rounded-md hover:bg-[#8B83BA] hover:text-white flex items-center gap-2 ml-2"
+                      >
                         <MdLibraryAdd />
                         <span>AddDoc</span>
                       </button>
@@ -706,7 +763,7 @@ const CaseRepository = () => {
         rowsPerPage={pageLimit}
         onRowsPerPageChange={setPageLimit}
       />
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto scrollbar-hide">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-purple-900">
