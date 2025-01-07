@@ -1,54 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaDownload } from "react-icons/fa";
 import { MdLockReset } from "react-icons/md";
-import { MdOutlinePreview } from "react-icons/md";
-import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
-import Pagination from "@/components/pagination/pagination";
-
 import Nodatafound from "../../assets/Images/Nodata_found.png";
+import axios from "axios";
+import Pagination from "../pagination/pagination";
 
-const CaseResearch = () => {
+const State = () => {
   const [courtType, setCourtType] = useState("");
   const [state, setState] = useState("");
-  const [district, setDistrict] = useState("");
-  const [tableData, setTableData] = useState([]); 
   const [query, setQuery] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedValue, setSelectedValue] = useState("");
-  const [currentPage, setCurrentPage] = useState(1); 
-  const [stateData, setStateData] = useState([]); 
-  const [districtData, setDistrictData] = useState([]);
-  const [pageLimit, setPageLimit] = useState(10); 
-  const totalPages = Math.ceil(tableData.length / pageLimit); 
+  const [stateData, setStateData] = useState([]);
+  const [dummyData, setDummyData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageLimit, setPageLimit] = useState(10);
+  const [tableData, setTableData] = useState([]); // Replace `data` with `tableData`
 
+  const totalPages = Math.ceil(tableData.length / pageLimit);
   const dropdownRef = useRef(null);
 
-  // Dummy data for dropdown
-  const [dummyData, setDummyData] = useState([]);
-
-  async function fetchKeyword() {
-    const token = localStorage.getItem("cmstoken")
-      ? JSON.parse(localStorage.getItem("cmstoken"))
-      : "";
-    if (token) {
-      axios
-        .get(`${import.meta.env.VITE_API_URL}/keyword/get-keyword`, {
-          headers: {
-            token: token,
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          setDummyData(response.data.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }
-
-  const fetchStateAndDistrict = async () => {
+  // Fetch states
+  const fetchStateData = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
       console.error("Token not found");
@@ -68,51 +41,49 @@ const CaseResearch = () => {
       );
 
       if (!response.ok) {
-        console.error("Error fetching data:", response.statusText);
+        console.error("Error fetching states:", response.statusText);
         return;
       }
 
       const responseData = await response.json();
 
-      // Ensure `data` exists and is an array
       if (responseData.success && Array.isArray(responseData.data)) {
-        // console.log("Fetched Data:", responseData.data); 
-        setStateData(responseData.data); 
+        setStateData(responseData.data);
       } else {
         console.error("Unexpected data format for states:", responseData);
       }
     } catch (error) {
-      console.error("Error fetching state and district:", error);
+      console.error("Error fetching state data:", error);
+    }
+  };
+
+  // Fetch keywords
+  const fetchKeyword = async () => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) return;
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/keyword/get-keyword`,
+        {
+          headers: {
+            token: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setDummyData(response.data.data);
+    } catch (err) {
+      console.error("Error fetching keywords:", err);
     }
   };
 
   useEffect(() => {
+    fetchStateData();
     fetchKeyword();
-    fetchStateAndDistrict();
   }, []);
 
-  const handleStateChange = (selectedState) => {
-    setState(selectedState);
-
-    const selectedStateData = stateData.find(
-      (stateItem) => stateItem.state === selectedState
-    );
-
-    if (selectedStateData && Array.isArray(selectedStateData.district)) {
-      setDistrictData(selectedStateData.district);
-    } else {
-      setDistrictData([]); // Reset districtData if no districts found
-    }
-
-    setDistrict(""); // Reset the district selection
-  };
-
-  // Filter dropdown options based on query
-  const filteredData = dummyData.filter((item) =>
-    item?.keyword.toLowerCase().includes(query.toLowerCase())
-  );
-
-  // Handle selection in the dropdown
+  // Handle selection in dropdown
   const handleSelect = (value) => {
     setSelectedValue(value);
     setQuery(value);
@@ -124,25 +95,18 @@ const CaseResearch = () => {
     setCourtType("");
     setQuery("");
     setState("");
-    setDistrict("");
   };
 
-  const handlesave = () => {
-    if (!state || !district || !courtType || !selectedValue) {
+  const handleSave = () => {
+    if (!state || !courtType || !selectedValue) {
       alert("Please fill in all fields before saving.");
       return;
     }
+
     const selectedData = {
       state,
-      district,
       courtType,
       keyword: selectedValue,
-      // dataRange: {
-      //   startDate,
-      //   endDate,
-      // },
-
-      // paginatedData,
     };
     console.log("Selected Data:", selectedData);
   };
@@ -160,7 +124,10 @@ const CaseResearch = () => {
     };
   }, []);
 
-  // Paginate table data
+  // Filter dropdown options based on query
+  const filteredData = dummyData.filter((item) =>
+    item?.keyword.toLowerCase().includes(query.toLowerCase())
+  );
   const paginatedData = tableData.slice(
     (currentPage - 1) * pageLimit,
     currentPage * pageLimit
@@ -168,35 +135,17 @@ const CaseResearch = () => {
 
   return (
     <div className="relative mt-2">
-      {/* <h2 className="text-3xl text-center text-[#6E6893] font-bold mb-8">
-        All Case Research
-      </h2> */}
       <div className="flex flex-wrap justify-between items-center mb-3 p-3 bg-[#F4F2FF] shadow-lg border border-[#8B83BA]">
         <div className="w-full sm:w-[200px]">
           <select
             value={state}
-            onChange={(e) => handleStateChange(e.target.value)}
+            onChange={(e) => setState(e.target.value)}
             className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA]"
           >
             <option value="">Select State</option>
             {stateData.map((stateItem) => (
               <option key={stateItem._id} value={stateItem.state}>
                 {stateItem.state}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="w-full sm:w-[200px]">
-          <select
-            value={district}
-            onChange={(e) => setDistrict(e.target.value)}
-            className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA]"
-          >
-            <option value="">Select District</option>
-            {districtData.map((districtName, index) => (
-              <option key={index} value={districtName}>
-                {districtName}
               </option>
             ))}
           </select>
@@ -243,9 +192,9 @@ const CaseResearch = () => {
 
         <div className="w-full sm:w-[150px]">
           <button
-            onClick={handlesave}
-            disabled={!state || !district || !courtType || !selectedValue}
-            className="w-full px-4 py-3 bg-[#8B83BA] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-[#5a518c]"
+            onClick={handleSave}
+            disabled={!state || !courtType || !selectedValue}
+            className="w-full px-4 py-3 bg-[#8B83BA] text-white  rounded-lg flex items-center justify-center gap-2 hover:bg-[#5a518c]"
           >
             <FaDownload size={16} />
             Save
@@ -317,4 +266,4 @@ const CaseResearch = () => {
   );
 };
 
-export default CaseResearch;
+export default State;

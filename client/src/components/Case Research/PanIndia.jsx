@@ -1,32 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaDownload } from "react-icons/fa";
 import { MdLockReset } from "react-icons/md";
-import { MdOutlinePreview } from "react-icons/md";
-import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
-import Pagination from "@/components/pagination/pagination";
 
 import Nodatafound from "../../assets/Images/Nodata_found.png";
 
-const CaseResearch = () => {
+import Pagination from "../pagination/pagination";
+
+const PanIndia = () => {
   const [courtType, setCourtType] = useState("");
-  const [state, setState] = useState("");
-  const [district, setDistrict] = useState("");
-  const [tableData, setTableData] = useState([]); 
   const [query, setQuery] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedValue, setSelectedValue] = useState("");
-  const [currentPage, setCurrentPage] = useState(1); 
-  const [stateData, setStateData] = useState([]); 
-  const [districtData, setDistrictData] = useState([]);
-  const [pageLimit, setPageLimit] = useState(10); 
-  const totalPages = Math.ceil(tableData.length / pageLimit); 
+  const [dummyData, setDummyData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageLimit, setPageLimit] = useState(10);
+  const [tableData, setTableData] = useState([]);
+
+  const totalPages = Math.ceil(tableData.length / pageLimit);
 
   const dropdownRef = useRef(null);
 
-  // Dummy data for dropdown
-  const [dummyData, setDummyData] = useState([]);
-
+  // Fetch keywords
   async function fetchKeyword() {
     const token = localStorage.getItem("cmstoken")
       ? JSON.parse(localStorage.getItem("cmstoken"))
@@ -39,115 +34,43 @@ const CaseResearch = () => {
             "Content-Type": "application/json",
           },
         })
-        .then((response) => {
-          setDummyData(response.data.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        .then((response) => setDummyData(response.data.data))
+        .catch((err) => console.log(err));
     }
   }
 
-  const fetchStateAndDistrict = async () => {
-    const token = JSON.parse(localStorage.getItem("cmstoken"));
-    if (!token) {
-      console.error("Token not found");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/state/get-state`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            token: token,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        console.error("Error fetching data:", response.statusText);
-        return;
-      }
-
-      const responseData = await response.json();
-
-      // Ensure `data` exists and is an array
-      if (responseData.success && Array.isArray(responseData.data)) {
-        // console.log("Fetched Data:", responseData.data); 
-        setStateData(responseData.data); 
-      } else {
-        console.error("Unexpected data format for states:", responseData);
-      }
-    } catch (error) {
-      console.error("Error fetching state and district:", error);
-    }
-  };
-
   useEffect(() => {
     fetchKeyword();
-    fetchStateAndDistrict();
   }, []);
 
-  const handleStateChange = (selectedState) => {
-    setState(selectedState);
-
-    const selectedStateData = stateData.find(
-      (stateItem) => stateItem.state === selectedState
-    );
-
-    if (selectedStateData && Array.isArray(selectedStateData.district)) {
-      setDistrictData(selectedStateData.district);
-    } else {
-      setDistrictData([]); // Reset districtData if no districts found
-    }
-
-    setDistrict(""); // Reset the district selection
-  };
-
-  // Filter dropdown options based on query
   const filteredData = dummyData.filter((item) =>
     item?.keyword.toLowerCase().includes(query.toLowerCase())
   );
 
-  // Handle selection in the dropdown
   const handleSelect = (value) => {
     setSelectedValue(value);
     setQuery(value);
     setDropdownVisible(false);
   };
 
-  // Reset filters
   const handleReset = () => {
     setCourtType("");
     setQuery("");
-    setState("");
-    setDistrict("");
+    setSelectedValue("");
   };
 
-  const handlesave = () => {
-    if (!state || !district || !courtType || !selectedValue) {
+  const handleSave = () => {
+    if (!courtType || !selectedValue) {
       alert("Please fill in all fields before saving.");
       return;
     }
     const selectedData = {
-      state,
-      district,
       courtType,
       keyword: selectedValue,
-      // dataRange: {
-      //   startDate,
-      //   endDate,
-      // },
-
-      // paginatedData,
     };
     console.log("Selected Data:", selectedData);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -160,53 +83,19 @@ const CaseResearch = () => {
     };
   }, []);
 
-  // Paginate table data
   const paginatedData = tableData.slice(
     (currentPage - 1) * pageLimit,
     currentPage * pageLimit
   );
 
   return (
-    <div className="relative mt-2">
-      {/* <h2 className="text-3xl text-center text-[#6E6893] font-bold mb-8">
-        All Case Research
-      </h2> */}
-      <div className="flex flex-wrap justify-between items-center mb-3 p-3 bg-[#F4F2FF] shadow-lg border border-[#8B83BA]">
-        <div className="w-full sm:w-[200px]">
-          <select
-            value={state}
-            onChange={(e) => handleStateChange(e.target.value)}
-            className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA]"
-          >
-            <option value="">Select State</option>
-            {stateData.map((stateItem) => (
-              <option key={stateItem._id} value={stateItem.state}>
-                {stateItem.state}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="w-full sm:w-[200px]">
-          <select
-            value={district}
-            onChange={(e) => setDistrict(e.target.value)}
-            className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA]"
-          >
-            <option value="">Select District</option>
-            {districtData.map((districtName, index) => (
-              <option key={index} value={districtName}>
-                {districtName}
-              </option>
-            ))}
-          </select>
-        </div>
-
+    <div className="p-4">
+      <div className="flex flex-wrap gap-4 justify-between items-center mb-4 p-3 bg-[#F4F2FF] shadow-lg border border-[#8B83BA] rounded-lg">
         <div className="w-full sm:w-[200px]">
           <select
             value={courtType}
             onChange={(e) => setCourtType(e.target.value)}
-            className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA]"
+            className="w-full border border-gray-300 bg-white text-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA] focus:outline-none transition duration-200"
           >
             <option value="">Type of Court</option>
             <option value="supreme">Supreme Court</option>
@@ -224,15 +113,16 @@ const CaseResearch = () => {
               setDropdownVisible(true);
             }}
             onFocus={() => setDropdownVisible(true)}
-            className="w-full px-4 py-3 border bg-white text-[#8B83BA] rounded-lg focus:ring-2 focus:ring-[#8B83BA]"
+            className="w-full px-4 py-3 border border-gray-300 bg-white text-gray-700 rounded-lg focus:ring-2 focus:ring-[#8B83BA] focus:outline-none transition duration-200"
           />
+
           {dropdownVisible && filteredData.length > 0 && (
-            <ul className="absolute z-10 left-0 right-0 mt-1 bg-white border rounded-lg shadow-md max-h-40 overflow-y-auto scrollbar-hide">
+            <ul className="absolute z-10 left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto scrollbar-hide">
               {filteredData.map((item) => (
                 <li
                   key={item._id}
                   onClick={() => handleSelect(item?.keyword)}
-                  className="px-4 py-2 cursor-pointer hover:bg-[#8B83BA] hover:text-white"
+                  className="px-4 py-2 cursor-pointer text-gray-700 hover:bg-[#8B83BA] hover:text-white transition duration-200"
                 >
                   {item?.keyword}
                 </li>
@@ -243,9 +133,9 @@ const CaseResearch = () => {
 
         <div className="w-full sm:w-[150px]">
           <button
-            onClick={handlesave}
-            disabled={!state || !district || !courtType || !selectedValue}
-            className="w-full px-4 py-3 bg-[#8B83BA] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-[#5a518c]"
+            onClick={handleSave}
+            disabled={!courtType || !selectedValue}
+            className="w-full px-4 py-3 bg-[#8B83BA] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-[#5a518c] focus:ring-2 focus:ring-[#8B83BA] focus:outline-none transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FaDownload size={16} />
             Save
@@ -255,7 +145,7 @@ const CaseResearch = () => {
         <div className="w-full sm:w-[150px]">
           <button
             onClick={handleReset}
-            className="w-full px-4 py-3 bg-[#8B83BA] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-[#5a518c]"
+            className="w-full px-4 py-3 bg-[#8B83BA] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-[#5a518c] focus:ring-2 focus:ring-[#8B83BA] focus:outline-none transition duration-200"
           >
             <MdLockReset size={20} />
             Reset
@@ -263,7 +153,7 @@ const CaseResearch = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto w-full">
+      <div className="overflow-x-auto">
         <table className="w-full border rounded-lg">
           <thead className="bg-[#F4F2FF] text-[#6E6893]">
             <tr>
@@ -317,4 +207,4 @@ const CaseResearch = () => {
   );
 };
 
-export default CaseResearch;
+export default PanIndia;

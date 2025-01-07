@@ -1,26 +1,20 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import CaseResearch from "./CaseResearch";
 import ResearchNav from "./ResearchNav";
-
-const Placeholder = ({ name }) => (
-  <div className="p-8">
-    <h1>{name} Page</h1>
-  </div>
-);
+import PanIndia from "./PanIndia";
+import State from "./State";
+import CaseResearch from "./CaseResearch";
 
 const ResearchRoute = () => {
   return (
     <div>
       <ResearchNav />
+
       <Routes>
         <Route path="/" element={<CaseResearch />} />
-        {/* <Route path="/" element={} /> */}
-        {/* <Route path="/details" element={<Placeholder name="Details" />} />
-        <Route path="/hearing" element={<Placeholder name="Hearing" />} />
-        
-        <Route path="/tickets" element={<Placeholder name="Tickets" />} /> */}
-       
+        <Route path="pan-india" element={<PanIndia />} />
+        <Route path="state" element={<State />} />
+        <Route path="research" element={<CaseResearch />} />
       </Routes>
     </div>
   );
