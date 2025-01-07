@@ -17,6 +17,7 @@ import DisposedRepository from "../Case Explorer/SubCases/DisposedRepository";
 import Management from "@/Case Explorer/SubCases/Management";
 import SubCaseDetail from "@/Case Explorer/SubCases/subcaseDetails";
 import ResearchRoute from "@/components/Case Research/ResearchRoute";
+import CaseRoute from "@/Case Explorer/CaseRoute";
 
 const Allroutes = () => {
   return (

@@ -217,8 +217,8 @@ const State = () => {
           <thead className="bg-[#F4F2FF] text-[#6E6893]">
             <tr>
               <th className="py-3 px-4 text-left">CNR Number</th>
-              <th className="py-3 px-4 text-left">No. Of Document</th>
-              <th className="py-3 px-4 text-left">Respondent & Petitioner</th>
+              <th className="py-3 px-4 text-left">Petitioner</th>
+              <th className="py-3 px-4 text-left">Respondent</th>
               <th className="py-3 px-4 text-left">Action</th>
             </tr>
           </thead>
