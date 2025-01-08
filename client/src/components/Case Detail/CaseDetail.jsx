@@ -414,6 +414,9 @@ const CaseDetail = () => {
                     <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
                       Order Link
                     </th>
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                      Summary
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -445,6 +448,9 @@ const CaseDetail = () => {
                           >
                             View Order
                           </Link>
+                        </td>
+                        <td className="border border-[#F4F2FF] px-2 py-1 text-red-700">
+                          {order.summary.join(", ") || "-"}
                         </td>
                       </tr>
                     ))
