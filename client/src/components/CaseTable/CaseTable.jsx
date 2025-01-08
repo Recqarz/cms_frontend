@@ -259,7 +259,7 @@ const CaseTable = () => {
               l: { Target: interimOrders[0].s3_url, Tooltip: "Click to open" },
             }
           : "N/A",
-        "Summary": interimOrders[0]?.summary?.join(" ") || "NA",
+        "Summary": interimOrders[0]?.summary?.join(", ") || "NA",
         "Customer Name": customers[0]?.name || "NA",
         "Customer Email": customers[0]?.email || "NA",
         "Customer Mobile": customers[0]?.mobile || "NA",
@@ -268,7 +268,7 @@ const CaseTable = () => {
       });
       for (let i = 1; i < maxRows; i++) {
         const interimOrder = interimOrders[i]?.s3_url || "";
-        const interimOrderSummary = interimOrders[i]?.summary?.join(" ") || "";
+        const interimOrderSummary = interimOrders[i]?.summary?.join(", ") || "";
         const interimOrderHyperlink = interimOrder
           ? {
               t: "s",
