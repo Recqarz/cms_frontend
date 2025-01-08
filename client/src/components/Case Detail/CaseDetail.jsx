@@ -450,7 +450,7 @@ const CaseDetail = () => {
                           </Link>
                         </td>
                         <td className="border border-[#F4F2FF] px-2 py-1 text-red-700">
-                          {order.summary.join(", ") || "-"}
+                          {order?.summary?.join(", ") || "-"}
                         </td>
                       </tr>
                     ))
