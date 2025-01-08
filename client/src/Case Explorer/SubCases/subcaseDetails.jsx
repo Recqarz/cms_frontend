@@ -79,7 +79,10 @@ const SubCaseDetail = () => {
       value: data?.caseDetails?.["Registration Number"] || "-",
     },
     { label: "CNR Number", value: data?.caseDetails?.["CNR Number"] || "-" },
-    { label: "State", value: (data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).state : "-") },
+    {
+      label: "State",
+      value: data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).state : "-",
+    },
   ];
 
   const caseDetailsColumn2 = [
@@ -413,6 +416,9 @@ const SubCaseDetail = () => {
                     <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
                       Order Link
                     </th>
+                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                      Summary
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -444,6 +450,9 @@ const SubCaseDetail = () => {
                           >
                             View Order
                           </Link>
+                        </td>
+                        <td className="border border-[#F4F2FF] px-2 py-1 text-red-700">
+                          {order?.summary?.join(", ") || "-"}
                         </td>
                       </tr>
                     ))
