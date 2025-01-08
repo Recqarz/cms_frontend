@@ -186,26 +186,26 @@ const DisposedRepository = () => {
       : selectedCases.length
       ? selectedCases.map((index) => cases[index])
       : cases;
-
+  
     const excelData = [];
     let maxInterimOrderLength = 0;
-
+  
     exportData.forEach((caseData) => {
       const caseDetails = caseData.caseDetails || {};
       const caseStatus = caseData.caseStatus || [];
       const caseHistory = caseData.caseHistory || [];
       const interimOrders = caseData.intrimOrders || [];
+      const customers = caseData.customer || [];
       const petitionerAndAdvocate = caseData.petitionerAndAdvocate || [];
       const respondentAndAdvocate = caseData.respondentAndAdvocate || [];
-
+  
       const maxRows = Math.max(
         caseHistory.length,
         interimOrders.length,
+        customers.length,
         petitionerAndAdvocate.length,
         respondentAndAdvocate.length
       );
-
-      // Add the first row combining all fields
       excelData.push({
         "CNR Number":
           caseDetails["CNR Number"] || caseDetails.cnrNumber || "N/A",
@@ -243,11 +243,16 @@ const DisposedRepository = () => {
               l: { Target: interimOrders[0].s3_url, Tooltip: "Click to open" },
             }
           : "N/A",
+        "Summary": interimOrders[0]?.summary?.join(", ") || "NA",
+        "Customer Name": customers[0]?.name || "NA",
+        "Customer Email": customers[0]?.email || "NA",
+        "Customer Mobile": customers[0]?.mobile || "NA",
+        "Customer Address": customers[0]?.address || "NA",
+        "Customer Loan Id": customers[0]?.loanId || "NA",
       });
-
-      // Add additional rows for remaining entries in "Case History" and "Interim Orders"
       for (let i = 1; i < maxRows; i++) {
         const interimOrder = interimOrders[i]?.s3_url || "";
+        const interimOrderSummary = interimOrders[i]?.summary?.join(", ") || "";
         const interimOrderHyperlink = interimOrder
           ? {
               t: "s",
@@ -255,14 +260,12 @@ const DisposedRepository = () => {
               l: { Target: interimOrder, Tooltip: "Click to open" },
             }
           : "";
-
+  
         const caseHistoryEntry = caseHistory[i]
           ? `${caseHistory[i][0] || "N/A"} - ${caseHistory[i][1] || "N/A"} - ${
               caseHistory[i][2] || "N/A"
             } - ${caseHistory[i][3] || "N/A"}`
           : "";
-
-        // Add row only if there's meaningful data
         if (
           interimOrderHyperlink ||
           caseHistoryEntry ||
@@ -284,10 +287,11 @@ const DisposedRepository = () => {
             "Respondent and Advocate": respondentAndAdvocate[i] || "",
             "Case History": caseHistoryEntry,
             "Interim Orders": interimOrderHyperlink,
+            "Summary": interimOrderSummary,
           });
         }
       }
-
+  
       // Add a blank row (gap) after each case
       excelData.push({
         "CNR Number": "",
@@ -304,22 +308,26 @@ const DisposedRepository = () => {
         "Respondent and Advocate": "",
         "Case History": "",
         "Interim Orders": "",
+        "Summary": "",
       });
     });
-
+  
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const columnWidths = Object.keys(excelData[0]).map((key) => {
-      if (key === "Interim Orders") {
-        return { wch: Math.max(30, maxInterimOrderLength) };
-      }
-      return { wch: Math.max(key.length, 30) };
+      let maxLength = key.length;
+      excelData.forEach((row) => {
+        let cellValue = row[key] ? row[key].toString() : "";
+        if (row[key] && row[key].l && row[key].l.Target) {
+          cellValue = row[key].l.Target;
+        }
+        maxLength = Math.max(maxLength, cellValue.length);
+      });
+      return { wch: maxLength + 2 };
     });
     worksheet["!cols"] = columnWidths;
-
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Cases");
     XLSX.writeFile(workbook, "exported_cases.xlsx");
-
     toast.success("Export successful!");
     setShowExportConfirm(false);
     setShowCheckboxes(false);
