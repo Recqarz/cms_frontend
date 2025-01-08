@@ -1,34 +1,29 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const PendingTask = () => {
-  const [tasks, setTasks] = useState([]);
+  const [task, setTask] = useState([]);
+  
 
-  // Fetch tasks from localStorage and combine them into one array
-  const getTasksFromLocalStorage = () => {
-    const highTasks = JSON.parse(localStorage.getItem("highTasks")) || [];
-    const lowTasks = JSON.parse(localStorage.getItem("lowTasks")) || [];
-    return [...highTasks, ...lowTasks]; s
-  };
-
-  const fetchTaskStatus = async (taskId) => {
-    console.log(taskId)
+  const fetchTaskStatus = async (id) => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
       toast.error("Please login again to fetch the task status");
       return;
     }
+
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/task/update-status/${taskId}`,
+        `${import.meta.env.VITE_API_URL}/task/update-status/${id}`,
+       
         {
           headers: { token },
         }
       );
 
       if (response.data.success) {
-        setTasks(response.data.tasks); // Assuming response contains updated tasks
+        setTask(response.data.task); // Update state with task data
         toast.success(response.data.message);
       } else {
         toast.error("Failed to fetch task status");
@@ -41,32 +36,35 @@ const PendingTask = () => {
     }
   };
 
-  useEffect(() => {
-    const tasksFromLocalStorage = getTasksFromLocalStorage();
-    setTasks(tasksFromLocalStorage); // Set tasks from local storage to state
-  }, []);
-
   return (
     <div className="border border-red-500 p-4">
-      <h1 className="text-2xl font-bold mb-4">Pending Tasks</h1>
-      {tasks.length === 0 ? (
-        <p>No pending tasks available.</p>
-      ) : (
-        <ul>
-          {tasks.map((task) => (
-            <li key={task._id} className="mb-2">
-              <div className="flex justify-between items-center">
-                <span>{task.title}</span> {/* Display task title */}
-                <button
-                  onClick={() => fetchTaskStatus(task._id)} // Pass taskId to fetchTaskStatus
-                  className="bg-blue-500 text-white p-2 rounded"
+      <h1 className="text-2xl font-bold mb-4">Pending Task</h1>
+      {task ? (
+        <div className="p-4 bg-white rounded-xl shadow-md">
+          <h3 className="text-lg font-bold">{task.title}</h3>
+          <p className="text-gray-600">{task.description}</p>
+          <p className="text-sm text-blue-600">
+            Due Date: {new Date(task.dueDate).toLocaleDateString()}
+          </p>
+          <p className="text-sm font-bold">Status: {task.status}</p>
+          {task.attachments?.length > 0 && (
+            <div className="mt-3">
+              <strong className="block text-sm text-gray-700">Attachments:</strong>
+              {task.attachments.map((file, index) => (
+                <Link
+                  key={index}
+                  href={file.url}
+                  download
+                  className="block text-blue-600 text-sm hover:underline"
                 >
-                  Update Status
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  {file.name || "View Document"}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <p className="text-red-500">No pending task found!</p>
       )}
     </div>
   );
