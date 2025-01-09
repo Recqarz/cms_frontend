@@ -1,17 +1,17 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
-
+ 
 const CaseNav = () => {
-  const location = useLocation(); 
-
+  const location = useLocation();
   const navItems = [
     { name: "Docs", path: "/case-route" },
     { name: "Details", path: "/case-route/details" },
     { name: "Hearing", path: "/case-route/hearing" },
     { name: "Tasks", path: "/case-route/tasks" },
+    { name: "Expired Task", path: "/case-route/expired" },
     { name: "Tickets", path: "/case-route/tickets" },
   ];
-
+ 
   return (
     <div className="flex justify-between items-center px-2 py-4 shadow-lg mb-2 ">
       {navItems.map((item) => (
@@ -26,10 +26,9 @@ const CaseNav = () => {
       >
         {item.name}
       </Link>
-      
       ))}
     </div>
   );
 };
-
+ 
 export default CaseNav;
