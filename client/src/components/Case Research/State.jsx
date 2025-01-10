@@ -1,50 +1,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaDownload } from "react-icons/fa";
 import { MdLockReset } from "react-icons/md";
-import { MdOutlinePreview } from "react-icons/md";
-import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
-import Pagination from "@/components/pagination/pagination";
 import Nodatafound from "../../assets/Images/Nodata_found.png";
+import axios from "axios";
+import Pagination from "../pagination/pagination";
 import toast from "react-hot-toast";
 
-const CaseResearch = () => {
+const State = () => {
   const [courtType, setCourtType] = useState("");
   const [state, setState] = useState("");
-  const [district, setDistrict] = useState("");
-  const [tableData, setTableData] = useState([]);
   const [query, setQuery] = useState("");
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedValue, setSelectedValue] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [stateData, setStateData] = useState([]);
-  const [districtData, setDistrictData] = useState([]);
+  const [dummyData, setDummyData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageLimit, setPageLimit] = useState(10);
+  const [tableData, setTableData] = useState([]);
+
   const totalPages = Math.ceil(tableData.length / pageLimit);
   const dropdownRef = useRef(null);
-  const [dummyData, setDummyData] = useState([]);
-  async function fetchKeyword() {
-    const token = localStorage.getItem("cmstoken")
-      ? JSON.parse(localStorage.getItem("cmstoken"))
-      : "";
-    if (token) {
-      axios
-        .get(`${import.meta.env.VITE_API_URL}/keyword/get-keyword`, {
-          headers: {
-            token: token,
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          setDummyData(response.data.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  }
-
-  const fetchStateAndDistrict = async () => {
+  const fetchStateData = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
       console.error("Token not found");
@@ -64,78 +40,45 @@ const CaseResearch = () => {
       );
 
       if (!response.ok) {
-        console.error("Error fetching data:", response.statusText);
+        console.error("Error fetching states:", response.statusText);
         return;
       }
 
       const responseData = await response.json();
+
       if (responseData.success && Array.isArray(responseData.data)) {
         setStateData(responseData.data);
       } else {
         console.error("Unexpected data format for states:", responseData);
       }
     } catch (error) {
-      console.error("Error fetching state and district:", error);
+      console.error("Error fetching state data:", error);
     }
   };
-
-  const createStateAndDistrict = async () => {
+  const fetchKeyword = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
-    if (!token) {
-      console.error("Token not found");
-      return;
-    }
+    if (!token) return;
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/premium/createlocation`,
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/keyword/get-keyword`,
         {
-          method: "POST",
           headers: {
-            "Content-Type": "application/json",
             token: token,
+            "Content-Type": "application/json",
           },
         }
       );
-
-      if (!response.ok) {
-        console.error("Error fetching data:", response.statusText);
-        return;
-      }
-
-      const responseData = await response.json();
-      if (responseData.success && Array.isArray(responseData.data)) {
-        setStateData(responseData.data);
-      } else {
-        console.error("Unexpected data format for states:", responseData);
-      }
-    } catch (error) {
-      console.error("Error fetching state and district:", error);
+      setDummyData(response.data.data);
+    } catch (err) {
+      console.error("Error fetching keywords:", err);
     }
   };
 
   useEffect(() => {
+    fetchStateData();
     fetchKeyword();
-    fetchStateAndDistrict();
   }, []);
-
-  const handleStateChange = (selectedState) => {
-    setState(selectedState);
-
-    const selectedStateData = stateData.find(
-      (stateItem) => stateItem.state === selectedState
-    );
-
-    if (selectedStateData && Array.isArray(selectedStateData.district)) {
-      setDistrictData(selectedStateData.district);
-    } else {
-      setDistrictData([]);
-    }
-    setDistrict("");
-  };
-  const filteredData = dummyData.filter((item) =>
-    item?.keyword.toLowerCase().includes(query.toLowerCase())
-  );
   const handleSelect = (value) => {
     setSelectedValue(value);
     setQuery(value);
@@ -145,20 +88,19 @@ const CaseResearch = () => {
     setCourtType("");
     setQuery("");
     setState("");
-    setDistrict("");
   };
 
-  const handlesave = async () => {
-    if (!state || !district || !courtType || !selectedValue) {
+  const handleSave = () => {
+    if (!state || !courtType || !selectedValue) {
       toast.error("Please fill in all fields before saving.");
       return;
     }
+
     const selectedData = {
       state,
-      district,
       courtType,
       keyword: selectedValue,
-      isDistrictPremium: true,
+      isStatePremium: true,
     };
 
     try {
@@ -181,7 +123,7 @@ const CaseResearch = () => {
         .then((res) => {
           toast.success("Added the Keyword");
           setState("");
-          setDistrict("");
+          setCourtType("");
         })
         .catch((err) => {
           toast.error("Something went wrong");
@@ -190,6 +132,8 @@ const CaseResearch = () => {
       console.error("Error saving data:", error);
       toast.error("An error occurred while saving the data. Please try again.");
     }
+
+    console.log("Selected Data:", selectedData);
   };
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -202,7 +146,9 @@ const CaseResearch = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
+  const filteredData = dummyData.filter((item) =>
+    item?.keyword.toLowerCase().includes(query.toLowerCase())
+  );
   const paginatedData = tableData.slice(
     (currentPage - 1) * pageLimit,
     currentPage * pageLimit
@@ -215,28 +161,13 @@ const CaseResearch = () => {
           <div className="w-full sm:w-[200px]">
             <select
               value={state}
-              onChange={(e) => handleStateChange(e.target.value)}
-              className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA] custom-scrollbar"
+              onChange={(e) => setState(e.target.value)}
+              className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA]"
             >
               <option value="">Select State</option>
               {stateData.map((stateItem) => (
                 <option key={stateItem._id} value={stateItem.state}>
                   {stateItem.state}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="w-full sm:w-[200px]">
-            <select
-              value={district}
-              onChange={(e) => setDistrict(e.target.value)}
-              className="w-full border bg-white text-[#8B83BA] rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#8B83BA]"
-            >
-              <option value="">Select District</option>
-              {districtData.map((districtName, index) => (
-                <option key={index} value={districtName}>
-                  {districtName}
                 </option>
               ))}
             </select>
@@ -285,8 +216,8 @@ const CaseResearch = () => {
         <div className="flex gap-6">
           <div className="w-full sm:w-[150px]">
             <button
-              onClick={handlesave}
-              disabled={!state || !district || !courtType || !selectedValue}
+              onClick={handleSave}
+              disabled={!state || !courtType || !selectedValue}
               className="w-full px-4 py-3 bg-[#8B83BA] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-[#5a518c] focus:ring-2 focus:ring-[#8B83BA] focus:outline-none transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FaDownload size={16} />
@@ -360,4 +291,4 @@ const CaseResearch = () => {
   );
 };
 
-export default CaseResearch;
+export default State;
