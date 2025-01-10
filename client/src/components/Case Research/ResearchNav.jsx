@@ -5,8 +5,9 @@ const ResearchNav = () => {
   const location = useLocation();
 
   const navItems = [
-    { name: "Pending", path: "/pending-route" },
-    { name: "Payment", path: "/pending-route/payment" },
+    { name: "Pan India", path: "/case-research/pan-india" },
+    { name: "State", path: "/case-research/state" },
+    { name: "District", path: "/case-research" },
   ];
 
   return (
