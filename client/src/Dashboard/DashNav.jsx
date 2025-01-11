@@ -1,14 +1,14 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
 
-const ResearchNav = () => {
+const DashNav = () => {
   const location = useLocation();
 
   const navItems = [
-    { name: "Pan India", path: "/case-research/pan-india" },
-    { name: "State", path: "/case-research/state" },
-    { name: "District", path: "/case-research" },
-    { name: "Saved Keyword", path: "/case-research/save-keyword" },
+    // { name: "Case Repository", path: "" },
+    // { name: "Disposed Cases", path: "/case-research/dash-dispo-cases" },
+    // { name: "Tracked Cases", path: "/case-research/dash-tracked-cases" },
+   
   ];
 
   return (
@@ -30,4 +30,4 @@ const ResearchNav = () => {
   );
 };
 
-export default ResearchNav;
+export default DashNav;
