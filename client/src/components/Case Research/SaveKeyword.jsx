@@ -37,7 +37,6 @@ const SaveKeyword = () => {
             },
           }
         );
-        console.log("API Response:", response.data);
         setData(response.data.data);
       } catch (err) {
         console.error("Error fetching keywords:", err);
@@ -80,7 +79,6 @@ const SaveKeyword = () => {
         }
       )
       .then((response) => {
-        console.log(response);
         toast.success("Task deleted successfully.");
         fetchKeyword();
         setIsDeleteDialogOpen(false);

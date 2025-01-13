@@ -23,6 +23,33 @@ const CaseResearch = () => {
   const totalPages = Math.ceil(tableData.length / pageLimit);
   const dropdownRef = useRef(null);
   const [dummyData, setDummyData] = useState([]);
+  function fetchKeyWordCnr() {
+    let token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Please login to access this feature.");
+      return;
+    }
+    axios
+      .get(
+        `${import.meta.env.VITE_API_URL}/keyword/get-new-keyword-cnr-district`,
+        {
+          headers: {
+            token: token,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        setTableData(response.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+   useEffect(() => {
+      fetchKeyWordCnr();
+    }, []);
   async function fetchKeyword() {
     const token = localStorage.getItem("cmstoken")
       ? JSON.parse(localStorage.getItem("cmstoken"))
@@ -322,13 +349,14 @@ const CaseResearch = () => {
               paginatedData.map((ele, index) => (
                 <tr
                   className="bg-white hover:bg-gray-100"
-                  key={ele._id || index}
+                  key={ele?._id || index}
                 >
-                  <td className="py-3 px-4">{ele.cnrNumber}</td>
-                  <td className="py-3 px-4">{ele.documentCount}</td>
-                  <td className="py-3 px-4">{ele.respondentPetitioner}</td>
+                  <td className="py-3 px-4">{ele?.cnrNumber}</td>
+                  <td className="py-3 px-4">{ele?.registrationDate}</td>
+                  <td className="py-3 px-4">{ele?.petitioner}</td>
+                  <td className="py-3 px-4">{ele?.respondent}</td>
                   <td className="py-3 px-4">
-                    <MdOutlinePreview className="text-[#5a518c] text-xl cursor-pointer" />
+                    <button className="bg-blue-600 px-4 py-1 text-white rounded-md">Add</button>
                   </td>
                 </tr>
               ))
