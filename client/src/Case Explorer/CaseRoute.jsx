@@ -7,7 +7,8 @@ import CaseTicket from "./CaseTicket";
 import CaseHearing from "./CaseHearing";
 import CaseDetailss from "./CaseDetailss";
 import ExpiredTask from "./Tasks/ExpiredTask";
- 
+import Subtask from "./Tasks/SubTask";
+
 const CaseRoute = () => {
   return (
     <div>
@@ -19,9 +20,10 @@ const CaseRoute = () => {
         <Route path="/hearing" element={<CaseHearing />} />
         <Route path="/details" element={<CaseDetailss />} />
         <Route path="/expired" element={<ExpiredTask />} />
+        <Route path="/sub-task" element={<Subtask />} />
       </Routes>
     </div>
   );
 };
- 
+
 export default CaseRoute;
