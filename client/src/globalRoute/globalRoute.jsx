@@ -10,6 +10,7 @@ import SettingPages from "../components/SettingPages.jsx";
 import UserDirectory from "@/components/User Directory/UserDirectory";
 import Archive from "@/components/Archive/Archive";
 import CaseRoute from "@/Case Explorer/CaseRoute";
+import DashRoute from "@/Dashboard/DashRoute";
 import DisposedCaseTable from "@/components/disposeCase/disposeCasetable";
 import Calendar from "@/components/calendar/calendar";
 import CaseRepository from "../Case Explorer/SubCases/CaseRepository"
@@ -35,6 +36,7 @@ const Allroutes = () => {
           <Route path="/user-directory" element={<UserDirectory />} />
           <Route path="/case-research/*" element={<ResearchRoute />} />
           <Route path="/case-route/*" element={<CaseRoute />} />
+          <Route path="/dash-route/*" element={<DashRoute />} />
 
 
           <Route path="/sub-case-repository" element={<CaseRepository />} />
