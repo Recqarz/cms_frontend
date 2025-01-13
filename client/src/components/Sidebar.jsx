@@ -95,7 +95,9 @@ const Sidebar = () => {
 
         <nav className="mt-6 px-2">
           <ul className="space-y-2">
-            <li className="flex items-center cursor-pointer px-[12px] py-[8px] hover:bg-[#716868] rounded-lg  transition duration-200">
+            <li className="flex items-center cursor-pointer px-[12px] py-[8px] hover:bg-[#716868] rounded-lg  transition duration-200"
+             onClick={() => navigate("/dash-route")}
+            >
               <FaHome className="mr-3" />
               <span>Dashboard</span>
             </li>

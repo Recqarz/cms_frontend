@@ -9,14 +9,15 @@ import CaseDetail from "../components/Case Detail/CaseDetail.jsx";
 import SettingPages from "../components/SettingPages.jsx";
 import UserDirectory from "@/components/User Directory/UserDirectory";
 import Archive from "@/components/Archive/Archive";
-import CaseResearch from "@/components/Case Research/CaseResearch";
 import CaseRoute from "@/Case Explorer/CaseRoute";
+import DashRoute from "@/Dashboard/DashRoute";
 import DisposedCaseTable from "@/components/disposeCase/disposeCasetable";
 import Calendar from "@/components/calendar/calendar";
 import CaseRepository from "../Case Explorer/SubCases/CaseRepository"
 import DisposedRepository from "../Case Explorer/SubCases/DisposedRepository"
 import Management from "@/Case Explorer/SubCases/Management";
 import SubCaseDetail from "@/Case Explorer/SubCases/subcaseDetails";
+import ResearchRoute from "@/components/Case Research/ResearchRoute";
 
 const Allroutes = () => {
   return (
@@ -33,8 +34,9 @@ const Allroutes = () => {
           <Route path="/add-case" element={<FilterData />} />
           <Route path="/case-detail/:cnrNumber" element={<CaseDetail />} />
           <Route path="/user-directory" element={<UserDirectory />} />
-          <Route path="/case-research" element={<CaseResearch />} />
+          <Route path="/case-research/*" element={<ResearchRoute />} />
           <Route path="/case-route/*" element={<CaseRoute />} />
+          <Route path="/dash-route/*" element={<DashRoute />} />
 
 
           <Route path="/sub-case-repository" element={<CaseRepository />} />

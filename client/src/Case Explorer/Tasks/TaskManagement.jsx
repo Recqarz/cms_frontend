@@ -78,6 +78,7 @@ const TaskManagement = () => {
         toast.error("Invalid document data.");
         return;
       }
+      console.log("sdfghjkl;", formData);
       documents.forEach((doc) => {
         if (doc.file) {
           formData.append("files", doc.file);
@@ -146,6 +147,7 @@ const TaskManagement = () => {
       toast.error("An error occurred while saving the task.");
     }
   };
+
   const fetchTasks = () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
@@ -307,6 +309,24 @@ const TaskManagement = () => {
       });
   };
 
+  const [emails, setEmails] = useState([{ id: Date.now(), email: "" }]);
+
+  const handleEmailChange = (id, value) => {
+    const updatedEmails = emails.map((item) =>
+      item.id === id ? { ...item, email: value } : item
+    );
+    setEmails(updatedEmails);
+  };
+
+  const handleAddEmailField = () => {
+    setEmails([...emails, { id: Date.now(), email: "" }]);
+  };
+
+  const handleRemoveEmailField = (id) => {
+    const updatedEmails = emails.filter((item) => item.id !== id);
+    setEmails(updatedEmails);
+  };
+
   return (
     <div className="relative">
       <div className="shadow-xl rounded-xl p-8 bg-white">
@@ -369,6 +389,7 @@ const TaskManagement = () => {
                           <strong className="text-[20px] font-bold block text-gray-600">
                             {task.title}
                           </strong>
+
                           <p
                             className="text-sm text-gray-600 mt-2"
                             onMouseEnter={() => handleHover(task._id)}
@@ -395,14 +416,22 @@ const TaskManagement = () => {
                                 Files:
                               </strong>
                               {task.attachments.map((file, index) => (
-                                <a
+                                <div
                                   key={index}
-                                  href={file.url}
-                                  download
-                                  className="block text-blue-600 text-sm hover:underline"
+                                  className="mt-1 flex gap-[10px] "
                                 >
-                                  View Doc
-                                </a>
+                                  <span className="text-sm text-gray-800">
+                                    {file.name}:-
+                                  </span>{" "}
+                                  {/* Display the name */}
+                                  <a
+                                    href={file.url}
+                                    download
+                                    className="block text-blue-600 text-sm hover:underline"
+                                  >
+                                    View Doc
+                                  </a>
+                                </div>
                               ))}
                             </div>
                           )}
@@ -594,6 +623,45 @@ const TaskManagement = () => {
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none shadow-sm"
               />
             </div>
+
+            <div>
+              {emails.map((emailField, index) => (
+                <div key={emailField.id} className="mb-4">
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Email {index + 1}
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="email"
+                      value={emailField.email}
+                      onChange={(e) =>
+                        handleEmailChange(emailField.id, e.target.value)
+                      }
+                      className="w-full p-3 border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      placeholder="Add email"
+                    />
+                    {emails.length > 1 && (
+                      <button
+                        onClick={() => handleRemoveEmailField(emailField.id)}
+                        className="text-sm  font-medium"
+                      >
+                        ❌
+                      </button>
+                    )}
+                    {/* Add button will only show for the last email field */}
+                    {index === emails.length - 1 && (
+                      <button
+                        onClick={handleAddEmailField}
+                        className="text-lg  font-medium"
+                      >
+                        ➕
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div>
               <label
                 htmlFor="task-priority"
