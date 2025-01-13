@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaDownload } from "react-icons/fa";
-import { MdLockReset } from "react-icons/md";
+import { MdLockReset, MdOutlinePreview } from "react-icons/md";
 import axios from "axios";
 import Nodatafound from "../../assets/Images/Nodata_found.png";
 import Pagination from "../pagination/pagination";
@@ -17,6 +17,34 @@ const PanIndia = () => {
   const [tableData, setTableData] = useState([]);
   const totalPages = Math.ceil(tableData.length / pageLimit);
   const dropdownRef = useRef(null);
+
+  function fetchKeyWordCnr() {
+    let token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Please login to access this feature.");
+      return;
+    }
+    axios
+      .get(
+        `${import.meta.env.VITE_API_URL}/keyword/get-new-keyword-cnr-country`,
+        {
+          headers: {
+            token: token,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        setTableData(response.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  useEffect(() => {
+    fetchKeyWordCnr();
+  }, []);
 
   async function fetchKeyword() {
     const token = localStorage.getItem("cmstoken")
@@ -198,13 +226,14 @@ const PanIndia = () => {
               paginatedData.map((ele, index) => (
                 <tr
                   className="bg-white hover:bg-gray-100"
-                  key={ele._id || index}
+                  key={ele?._id || index}
                 >
-                  <td className="py-3 px-4">{ele.cnrNumber}</td>
-                  <td className="py-3 px-4">{ele.documentCount}</td>
-                  <td className="py-3 px-4">{ele.respondentPetitioner}</td>
+                  <td className="py-3 px-4">{ele?.cnrNumber}</td>
+                  <td className="py-3 px-4">{ele?.registrationDate}</td>
+                  <td className="py-3 px-4">{ele?.petitioner}</td>
+                  <td className="py-3 px-4">{ele?.respondent}</td>
                   <td className="py-3 px-4">
-                    <MdOutlinePreview className="text-[#5a518c] text-xl cursor-pointer" />
+                    <button className="bg-blue-600 px-4 py-1 text-white rounded-md">Add</button>
                   </td>
                 </tr>
               ))
