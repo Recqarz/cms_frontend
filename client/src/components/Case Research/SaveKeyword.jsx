@@ -58,44 +58,6 @@ const SaveKeyword = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  // const handleDeleteTask = async () => {
-  //   const token = JSON.parse(localStorage.getItem("cmstoken"));
-  //   if (!token) {
-  //     toast.error("Please login again to edit tasks");
-  //     return;
-  //   }
-
-  //   if (!itemToDelete) {
-  //     toast.error("No item selected to delete");
-  //     return;
-  //   }
-
-  //   axios
-  //     .delete(
-  //       `${import.meta.env.VITE_API_URL}/premium/deletelocation/${
-  //         itemToDelete._id
-  //       }`,
-  //       {
-  //         headers: { token },
-  //       }
-  //     )
-  //     .then((response) => {
-  //       console.log(response);
-  //       toast.success("Task deleted successfully.");
-  //       fetchKeyword();
-  //     })
-  //     .catch((error) => {
-  //       const errorMessage =
-  //         error.response?.data?.message ||
-  //         "Failed to delete task. Please try again.";
-  //       console.error(
-  //         "Error delete task:",
-  //         error.response?.data || error.message
-  //       );
-  //       toast.error(errorMessage);
-  //     });
-  // };
-
   const handleDeleteTask = async () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
