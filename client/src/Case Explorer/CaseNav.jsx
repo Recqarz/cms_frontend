@@ -9,6 +9,7 @@ const CaseNav = () => {
     { name: "Hearing", path: "/case-route/hearing" },
     { name: "Tasks", path: "/case-route/tasks" },
     { name: "Expired Task", path: "/case-route/expired" },
+    {name: "Sub-task", path:"/case-route/sub-task"},
     { name: "Tickets", path: "/case-route/tickets" },
   ];
  
