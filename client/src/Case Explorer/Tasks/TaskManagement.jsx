@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog";
-
+ 
 const TaskManagement = () => {
   const [documents, setDocuments] = useState([
     { id: Date.now(), docName: "", file: null },
@@ -21,6 +21,7 @@ const TaskManagement = () => {
   const [lowTasks, setLowTasks] = useState([]);
   const [mediumTasks, setMediumTasks] = useState([]);
   const [highTasks, setHighTasks] = useState([]);
+  const [emails, setEmails] = useState([{ id: Date.now(), email: "" }]);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -33,7 +34,7 @@ const TaskManagement = () => {
   const handleMouseLeave = () => setExpandedTaskId(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
-
+ 
   const handleAddTask = async () => {
     let token;
     try {
@@ -56,7 +57,7 @@ const TaskManagement = () => {
       toast.error("Please fill all required fields.");
       return;
     }
-
+ 
     // Validate API URL
     const apiUrl = import.meta.env.VITE_API_URL;
     if (!apiUrl) {
@@ -64,8 +65,11 @@ const TaskManagement = () => {
       toast.error("Server configuration is missing.");
       return;
     }
-
+ 
     try {
+      const emailss = emails.map((ele)=>{
+        return ele.email
+      })
       const dueDate = new Date(newTask.date).toISOString();
       const formData = new FormData();
       formData.append("title", newTask.title.trim());
@@ -74,6 +78,7 @@ const TaskManagement = () => {
       formData.append("priority", newTask.priority);
       formData.append("cnrNumber", newTask.cnrNumber.trim());
       formData.append("status", newTask.status || "pending");
+      formData.append("email", emailss);
       if (!Array.isArray(documents)) {
         toast.error("Invalid document data.");
         return;
@@ -125,7 +130,7 @@ const TaskManagement = () => {
       toast.error(errorMessage);
     }
   };
-
+ 
   const handleSaveTask = async () => {
     if (
       !newTask.title ||
@@ -139,7 +144,15 @@ const TaskManagement = () => {
     }
     try {
       if (isEditing) {
-        await handleEditTask(editingTaskId, newTask);
+        // Include dueDate in the updatedTask object
+        const updatedTask = {
+          title: newTask.title,
+          description: newTask.description,
+          dueDate: new Date(newTask.date).toISOString(), 
+          priority: newTask.priority,
+          status: newTask.status,
+        };
+        await handleEditTask(editingTaskId, updatedTask);
       } else {
         await handleAddTask();
       }
@@ -147,7 +160,7 @@ const TaskManagement = () => {
       toast.error("An error occurred while saving the task.");
     }
   };
-
+ 
   const fetchTasks = () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
@@ -175,24 +188,24 @@ const TaskManagement = () => {
   useEffect(() => {
     fetchTasks();
   }, []);
-
+ 
   <button
     onClick={handleSaveTask}
     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500"
   >
     {isEditing ? "Save Changes" : "Add Task"}
   </button>;
-
+ 
   const openEditDialog = (task) => {
     setNewTask({
       ...task,
-      date: new Date(task.dueDate).toISOString().split("T")[0],
+      date: new Date(task.dueDate).toISOString().split("T")[0], // Ensure date is formatted correctly
     });
     setEditingTaskId(task._id);
     setIsEditing(true);
     setIsDialogOpen(true);
   };
-
+ 
   useEffect(() => {
     if (!isDialogOpen) {
       setNewTask({
@@ -208,15 +221,15 @@ const TaskManagement = () => {
       setDocuments([{ id: Date.now(), docName: "", file: null }]);
     }
   }, [isDialogOpen]);
-
+ 
   const handleAddFields = () => {
     setDocuments([...documents, { id: Date.now(), docName: "", file: null }]);
   };
-
+ 
   const handleRemoveFields = (id) => {
     setDocuments(documents.filter((doc) => doc.id !== id));
   };
-
+ 
   const handleChange = (id, key, value) => {
     setDocuments(
       documents.map((doc) =>
@@ -230,7 +243,7 @@ const TaskManagement = () => {
       )
     );
   };
-
+ 
   const handleEditTask = async (taskId, updatedTask) => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
@@ -272,7 +285,7 @@ const TaskManagement = () => {
         setEditingTaskId(null);
       });
   };
-
+ 
   const handleDeleteTask = async (taskId) => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
@@ -308,25 +321,25 @@ const TaskManagement = () => {
         setEditingTaskId(null);
       });
   };
-
-  const [emails, setEmails] = useState([{ id: Date.now(), email: "" }]);
-
+ 
+ 
+ 
   const handleEmailChange = (id, value) => {
     const updatedEmails = emails.map((item) =>
       item.id === id ? { ...item, email: value } : item
     );
     setEmails(updatedEmails);
   };
-
+ 
   const handleAddEmailField = () => {
     setEmails([...emails, { id: Date.now(), email: "" }]);
   };
-
+ 
   const handleRemoveEmailField = (id) => {
     const updatedEmails = emails.filter((item) => item.id !== id);
     setEmails(updatedEmails);
   };
-
+ 
   return (
     <div className="relative">
       <div className="shadow-xl rounded-xl p-8 bg-white">
@@ -339,7 +352,7 @@ const TaskManagement = () => {
             <span className="text-lg font-semibold">Add Task</span>
           </button>
         </div>
-
+ 
         <div className="grid grid-cols-3 gap-6 overflow-y-auto max-h-[450px] scrollbar-hide">
           {["low", "medium", "high"].map((priority) => (
             <div
@@ -363,7 +376,7 @@ const TaskManagement = () => {
               >
                 {priority} Priority
               </h3>
-
+ 
               <ul className="space-y-4 rounded-lg p-2">
                 {(priority === "low"
                   ? lowTasks
@@ -389,7 +402,7 @@ const TaskManagement = () => {
                           <strong className="text-[20px] font-bold block text-gray-600">
                             {task.title}
                           </strong>
-
+ 
                           <p
                             className="text-sm text-gray-600 mt-2"
                             onMouseEnter={() => handleHover(task._id)}
@@ -408,7 +421,7 @@ const TaskManagement = () => {
                           <span className="text-sm text-gray-600 font-bold">
                             {task.status || "N/A"}
                           </span>
-
+ 
                           {/* Display Attachments as "View Doc" with download trigger */}
                           {task.attachments && task.attachments.length > 0 && (
                             <div className="mt-3">
@@ -436,7 +449,7 @@ const TaskManagement = () => {
                             </div>
                           )}
                         </div>
-
+ 
                         <div className="flex space-x-2">
                           <button
                             onClick={() => openEditDialog(task)}
@@ -463,10 +476,10 @@ const TaskManagement = () => {
             </div>
           ))}
         </div>
-
+ 
         {/* <PendingTask/> */}
       </div>
-
+ 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-lg p-6 scrollbar-hide">
           <DialogHeader>
@@ -494,7 +507,7 @@ const TaskManagement = () => {
                 placeholder="Enter Your CNR Number"
               />
             </div>
-
+ 
             {!isEditing
               ? documents.map((doc) => (
                   <div
@@ -516,7 +529,7 @@ const TaskManagement = () => {
                           placeholder="Enter Document Name"
                         />
                       </div>
-
+ 
                       <div>
                         <label className="block text-sm font-medium mb-2 text-gray-700">
                           Upload File
@@ -541,7 +554,7 @@ const TaskManagement = () => {
                         </div>
                       </div>
                     </div>
-
+ 
                     {doc.error && (
                       <Alert variant="destructive">
                         <AlertDescription className="text-sm text-red-600">
@@ -549,7 +562,7 @@ const TaskManagement = () => {
                         </AlertDescription>
                       </Alert>
                     )}
-
+ 
                     {documents.length > 1 && (
                       <button
                         onClick={() => handleRemoveFields(doc.id)}
@@ -561,7 +574,7 @@ const TaskManagement = () => {
                   </div>
                 ))
               : null}
-
+ 
             {!isEditing ? (
               <button
                 onClick={handleAddFields}
@@ -570,7 +583,7 @@ const TaskManagement = () => {
                 + Add Another Document
               </button>
             ) : null}
-
+ 
             <div>
               <label
                 htmlFor="task-title"
@@ -623,7 +636,7 @@ const TaskManagement = () => {
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none shadow-sm"
               />
             </div>
-
+ 
             <div>
               {emails.map((emailField, index) => (
                 <div key={emailField.id} className="mb-4">
@@ -661,7 +674,7 @@ const TaskManagement = () => {
                 </div>
               ))}
             </div>
-
+ 
             <div>
               <label
                 htmlFor="task-priority"
@@ -683,7 +696,7 @@ const TaskManagement = () => {
                 <option value="high">High Priority</option>
               </select>
             </div>
-
+ 
             {isEditing ? (
               <div>
                 <label
@@ -718,7 +731,7 @@ const TaskManagement = () => {
             >
               Cancel
             </button>
-
+ 
             <button
               onClick={handleSaveTask}
               className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500"
@@ -731,5 +744,5 @@ const TaskManagement = () => {
     </div>
   );
 };
-
+ 
 export default TaskManagement;

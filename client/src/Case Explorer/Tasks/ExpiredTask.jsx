@@ -138,7 +138,14 @@ const ExpiredTask = () => {
     }
     try {
       if (isEditing) {
-        await handleEditTask(editingTaskId, newTask);
+        const updatedTask = {
+          title: newTask.title,
+          description: newTask.description,
+          dueDate: new Date(newTask.date).toISOString(), // Ensure dueDate is included
+          priority: newTask.priority,
+          status: newTask.status,
+        };
+        await handleEditTask(editingTaskId, updatedTask);
       } else {
         await handleAddTask();
       }
@@ -146,6 +153,7 @@ const ExpiredTask = () => {
       toast.error("An error occurred while saving the task.");
     }
   };
+
   const fetchTasks = () => {
     const token = JSON.parse(localStorage.getItem("cmstoken"));
     if (!token) {
@@ -415,12 +423,6 @@ const ExpiredTask = () => {
                           >
                             <FaRegEdit className="h-5 w-5" />
                           </button>
-                          {/* <button
-                            onClick={() => handleDeleteTask(task._id)}
-                            className="rounded-full p-2 text-red-500 hover:bg-red-600 hover:text-white transition-all duration-200"
-                          >
-                            <MdDeleteForever className="h-5 w-5" />
-                          </button> */}
                         </div>
                       </div>
                     </li>
