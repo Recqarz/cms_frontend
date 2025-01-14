@@ -7,7 +7,7 @@ import CaseTicket from "./CaseTicket";
 import CaseHearing from "./CaseHearing";
 import CaseDetailss from "./CaseDetailss";
 import ExpiredTask from "./Tasks/ExpiredTask";
-import Subtask from "./Tasks/SubTask";
+import Subtask from "./Tasks/Subtask";
 
 const CaseRoute = () => {
   return (
