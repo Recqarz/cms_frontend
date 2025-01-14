@@ -15,6 +15,13 @@ const CaseDetail = () => {
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [documents, setDocuments] = useState({});
   const [jointUsers, setJointUsers] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [subUserData, setSubUserData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    dayBeforeNotification: "",
+  });
   const { cnrNumber } = useParams();
 
   const fetchDocuments = async () => {
@@ -45,34 +52,135 @@ const CaseDetail = () => {
     fetchDocuments();
   }, [cnrNumber]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = JSON.parse(localStorage.getItem("cmstoken"));
-      if (!token) {
-        toast.error("Unauthorized, please login again");
-        return;
-      }
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/cnr/get-singlecnr/${cnrNumber}`,
-          {
-            headers: { token: token },
-          }
-        );
-        setData(response.data.data);
-        setJointUsers(response.data.jointUsers);
-      } catch (err) {
-        toast.error(
-          err.response?.data?.message || "Failed to fetch case details"
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Unauthorized, please login again");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/cnr/get-singlecnr/${cnrNumber}`,
+        {
+          headers: { token: token },
+        }
+      );
+      setData(response.data.data);
+      setJointUsers(response.data.jointUsers);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Failed to fetch case details"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, [cnrNumber]);
+
+  const handleAddSubUser = () => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+
+    if (!token) {
+      toast.error("Unauthorized, please login again");
+      return;
+    }
+
+    setIsLoading(true);
+
+    if (
+      !subUserData.name ||
+      !subUserData.email ||
+      !subUserData.mobile ||
+      !subUserData.dayBeforeNotification
+    ) {
+      toast.error("Missing required fields");
+      setIsLoading(false);
+      return;
+    }
+
+    const notificationDays = parseInt(subUserData.dayBeforeNotification, 10);
+    if (isNaN(notificationDays) || notificationDays <= 0) {
+      toast.error("Invalid notification days");
+      setIsLoading(false);
+      return;
+    }
+
+    axios
+      .post(
+        `${import.meta.env.VITE_API_URL}/cnr/add-subuser/${cnrNumber}`,
+        subUserData,
+        { headers: { token } }
+      )
+      .then((response) => {
+        toast.success(response.data.message || "Joint user added successfully");
+        setIsModalOpen(false);
+        fetchData();
+
+        // Reset the form
+        setSubUserData({
+          name: "",
+          email: "",
+          mobile: "",
+          dayBeforeNotification: "",
+        });
+      })
+      .catch((err) => {
+        console.error("Error adding joint user:", err);
+
+        if (err.response) {
+          toast.error(
+            err.response?.data?.message || "Failed to add joint user"
+          );
+        } else {
+          toast.error("Network error or server issue");
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSubUserData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDeleteSubUser = (subUserId) => {
+    const token = JSON.parse(localStorage.getItem("cmstoken"));
+    if (!token) {
+      toast.error("Unauthorized, please login again");
+      return;
+    }
+
+    setIsLoading(true);
+
+    axios
+      .delete(
+        `${
+          import.meta.env.VITE_API_URL
+        }/cnr/delete-subuser/${cnrNumber}/${subUserId}`,
+        {
+          headers: {
+            token: token,
+          },
+        }
+      )
+      .then(() => {
+        toast.success("Sub-user deleted successfully");
+        // fetchDocuments(); // Refresh the list
+        fetchData();
+      })
+      .catch((err) => {
+        toast.error(err.response?.data?.message || "Failed to delete sub-user");
+      })
+      .finally(() => {
+        setIsLoading(false); // Ensure loading state is reset
+      });
+  };
 
   const intrimOrders = data?.intrimOrders || [];
 
@@ -88,7 +196,10 @@ const CaseDetail = () => {
       value: data?.caseDetails?.["Registration Number"] || "-",
     },
     { label: "CNR Number", value: data?.caseDetails?.["CNR Number"] || "-" },
-    { label: "State", value: (data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).state : "-") },
+    {
+      label: "State",
+      value: data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).state : "-",
+    },
   ];
 
   const caseDetailsColumn2 = [
@@ -123,8 +234,16 @@ const CaseDetail = () => {
             item[0] === "Decision Date" || item[0] === "Next Hearing Date"
         )?.[1] || "-",
     },
-    { label: "District", value: (data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).district : "-") },
-    { label: "Court", value: (data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).court : "-") },
+    {
+      label: "District",
+      value: data?.cnrNumber
+        ? getDetailsFromCNR(data?.cnrNumber).district
+        : "-",
+    },
+    {
+      label: "Court",
+      value: data?.cnrNumber ? getDetailsFromCNR(data?.cnrNumber).court : "-",
+    },
   ];
 
   const processPartyData = (partyData, partyType) =>
@@ -278,9 +397,9 @@ const CaseDetail = () => {
                 {caseDetailsColumn1.map((item, index) => (
                   <div key={index} className="mb-4">
                     <h4 className="text-sm font-semibold text-gray-600">
-                      {item.label}
+                      {item?.label}
                     </h4>
-                    <p className="text-sm text-gray-800">{item.value}</p>
+                    <p className="text-sm text-gray-800">{item?.value}</p>
                   </div>
                 ))}
               </div>
@@ -290,7 +409,7 @@ const CaseDetail = () => {
                     <h4 className="text-sm font-semibold text-gray-600">
                       {item.label}
                     </h4>
-                    <p className="text-sm text-gray-800">{item.value}</p>
+                    <p className="text-sm text-gray-800">{item?.value}</p>
                   </div>
                 ))}
               </div>
@@ -437,11 +556,11 @@ const CaseDetail = () => {
                           </td>
                         )}
                         <td className="border border-[#F4F2FF] px-2 py-1">
-                          {order.order_date || "-"}
+                          {order?.order_date || "-"}
                         </td>
                         <td className="border border-[#F4F2FF] px-2 py-1">
                           <Link
-                            to={order.s3_url}
+                            to={order?.s3_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
@@ -499,14 +618,14 @@ const CaseDetail = () => {
                         className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}
                       >
                         <td className="border border-[#F4F2FF] px-2 py-1">
-                          {doc.name || "-"}
+                          {doc?.name || "-"}
                         </td>
                         <td className="border border-[#F4F2FF] px-2 py-1">
-                          {doc.uploadedBy || "-"}
+                          {doc?.uploadedBy || "-"}
                         </td>
                         <td className="border border-[#F4F2FF] px-2 py-1">
                           <Link
-                            to={doc.url} // Ensure you're referencing the correct field for the document's URL
+                            to={doc.url} 
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
@@ -535,21 +654,114 @@ const CaseDetail = () => {
         <div className="w-full p-4">
           <div className="bg-white rounded-lg p-6 shadow">
             <h2 className="text-center text-lg font-bold mb-4 py-2 bg-[#F4F2FF] text-[#8B83BA] rounded-lg">
-              Sub Users
+              Joint Users
             </h2>
+
+            <div className="flex justify-end">
+              <div
+                className="bg-[#F4F2FF] text-[#8B83BA] px-4 py-2  font-semibold rounded-lg text-center cursor-pointer mb-4"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Add Joint User
+              </div>
+            </div>
+
+            {/* Modal */}
+            {isModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+                  <h3 className="text-lg font-bold mb-4 text-center">
+                    Add Joint User
+                  </h3>
+                  <form>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={subUserData.name}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={subUserData.email}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">
+                        Mobile
+                      </label>
+                      <input
+                        type="text"
+                        name="mobile"
+                        value={subUserData.mobile}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-1">
+                        Days Before Notification
+                      </label>
+                      <input
+                        type="number"
+                        name="dayBeforeNotification"
+                        value={subUserData.dayBeforeNotification}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      />
+                    </div>
+                    <div className="flex items-center justify-end gap-4">
+                      <button
+                        type="button"
+                        className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+                        onClick={() => setIsModalOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                        onClick={handleAddSubUser}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Adding..." : "Add"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
 
             <div className="overflow-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-[#F4F2FF] text-[#8B83BA]">
-                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Name
                     </th>
-                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Email
                     </th>
-                    <th className="border border-[#F4F2FF ] px-2 py-1 text-left">
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
                       Mobile
+                    </th>
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
+                      Days Before Notification
+                    </th>
+                    <th className="border border-[#F4F2FF] px-2 py-1 text-left">
+                      Action
                     </th>
                   </tr>
                 </thead>
@@ -569,15 +781,26 @@ const CaseDetail = () => {
                         <td className="border border-[#F4F2FF] px-2 py-1">
                           {doc?.mobile || "-"}
                         </td>
+                        <td className="border border-[#F4F2FF] px-2 py-1">
+                          {doc?.dayBeforeNotification || "-"}
+                        </td>
+                        <td className="border border-[#F4F2FF] px-2 py-1 flex gap-2">
+                          <div
+                            className="bg-red-400 px-2 py-1 text-white font-semibold rounded-md cursor-pointer"
+                            onClick={() => handleDeleteSubUser(doc?.email)}
+                          >
+                            Delete
+                          </div>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
                       <td
-                        className="border border-[#F4F2FF] px-2 py-1"
-                        colSpan="3"
+                        className="border border-[#F4F2FF] px-2 py-1 text-center"
+                        colSpan="5"
                       >
-                        No Sub Users available
+                        No Joint Users available
                       </td>
                     </tr>
                   )}
